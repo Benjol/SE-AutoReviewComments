@@ -8,6 +8,7 @@
 // @include        http://*.askubuntu.com/questions*
 // @include        http://*.serverfault.com/questions*
 // @include        http://*.superuser.com/questions*
+// @include        http://stackapps.com/questions*
 // ==/UserScript==
 
 function with_jquery(f) {
@@ -63,7 +64,7 @@ with_jquery(function ($) {
      { Name: "Answers just to say Thanks!", Description: 'Please don\'t add "thanks" as answers. Invest some time in the site and you will gain sufficient <a href="http://$SITEURL$/priveleges">privileges</a> to upvote answers you like, which is the $SITENAME$ way of saying thank you.' },
      { Name: "Nothing but a URL (and isn't spam)", Description: 'Whilst this may theoretically answer the question, <a href="http://meta.stackoverflow.com/questions/8231/are-answers-that-just-contain-links-elsewhere-really-good-answers/8259#8259">it would be preferable</a> to include the essential parts of the answer here, and provide the link for reference.' },
      { Name: "Requests to OP for further information", Description: 'This is really a comment, not an answer. With a bit more rep, <a href="http://$SITEURL$/privileges/comment">you will be able to post comments</a>. For the moment I\'ve added the comment for you, and I\'m flagging this post for deletion.' },
-     { Name: "OP providing using answer for further information", Description: 'Please use the <em>Post answer</em> button only for actual answers. You should modify your original question to add additional information.' },
+     { Name: "OP using an answer for further information", Description: 'Please use the <em>Post answer</em> button only for actual answers. You should modify your original question to add additional information.' },
      { Name: "OP adding a new question as an answer", Description: 'If you have another question, please ask it by clicking the <a href="http://$SITEURL$/questions/ask">Ask Question</a> button.' },
      { Name: "Another user adding a 'Me too!'", Description: 'If you have a NEW question, please ask it by clicking the <a href="http://$SITEURL$/questions/ask">Ask Question</a> button. If you have sufficient reputation, <a href="http://$SITEURL$/privileges/vote-up">you may upvote</a> the question. Alternatively, "star" it as a favorite and you will be notified of any new answers.' },
     ];
