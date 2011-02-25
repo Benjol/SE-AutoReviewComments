@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.0.0
+// @version        1.0.1
 // @description    Add pro-forma comments dialog for reviewing (pre-flag)
 // @include        http://*stackoverflow.com/questions*
 // @include        http://*.stackexchange.com/questions*
@@ -69,38 +69,55 @@ with_jquery(function ($) {
      { Name: "Another user adding a 'Me too!'", Description: 'If you have a NEW question, please ask it by clicking the <a href="http://$SITEURL$/questions/ask">Ask Question</a> button. If you have sufficient reputation, <a href="http://$SITEURL$/privileges/vote-up">you may upvote</a> the question. Alternatively, "star" it as a favorite and you will be notified of any new answers.' },
     ];
 
-    var weekday_name = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    var weekday_name = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    var minute = 60, hour = 3600, day = 86400, sixdays = 518400, week = 604800, month = 2592000, year = 31536000;
 
     function datespan(date) {
       var now = new Date() / 1000;
       var then = new Date(date * 1000);
+      var today = new Date().setHours(0, 0, 0) / 1000;
+      var nowseconds = now - today;
+      var elapsedSeconds = now - date;
       var strout = "";
-      if(now - date < 6000) strout = "since today";
-      else if(now - date < 86400) strout = "since yesterday";
-      else if(now - date < 518400) strout = "since " + weekday_name[then.getDay()];
-      else if(now - date > 31536000) {
-        strout = "for " + Math.round((now - date) / 31536000) + " years";
-        if(((now - date) % 31536000) > 2592000) strout += ", " + Math.round(((now - date) % 31536000) / 2592000) + " months";
+      if(elapsedSeconds < nowseconds) strout = "since today";
+      else if(elapsedSeconds < day + nowseconds) strout = "since yesterday";
+      else if(elapsedSeconds < sixdays) strout = "since " + weekday_name[then.getDay()];
+      else if(elapsedSeconds > year) {
+        strout = "for " + Math.round((elapsedSeconds) / year) + " years";
+        if(((elapsedSeconds) % year) > month) strout += ", " + Math.round(((elapsedSeconds) % year) / month) + " months";
       }
-      else if(now - date > 2592000) {
-        strout = "for " + Math.round((now - date) / 2592000) + " months";
-        if(((now - date) % 2592000) > 604800) strout += ", " + Math.round(((now - date) % 2592000) / 604800) + " weeks";
+      else if(elapsedSeconds > month) {
+        strout = "for " + Math.round((elapsedSeconds) / month) + " months";
+        if(((elapsedSeconds) % month) > week) strout += ", " + Math.round(((elapsedSeconds) % month) / week) + " weeks";
       }
       else {
-        strout = "for " + Math.round((now - date) / 604800) + " weeks";
+        strout = "for " + Math.round((elapsedSeconds) / week) + " weeks";
       }
       return strout;
     }
 
     function lastseen(date) {
       var now = new Date() / 1000;
-      if(now - date < 60) return (Math.round(now - date) + " seconds ago");
-      if(now - date < 3600) return (Math.round((now - date) / 60) + " minutes ago");
-      if(now - date < 6000) return (Math.round((now - date) / 3600) + " hours ago");
-      if(now - date < 86400) return ("yesterday");
+      var today = new Date().setHours(0, 0, 0) / 1000;
+      var nowseconds = now - today;
+      var elapsedSeconds = now - date;
+      if(elapsedSeconds < minute) return (Math.round(elapsedSeconds) + " seconds ago");
+      if(elapsedSeconds < hour) return (Math.round((elapsedSeconds) / minute) + " minutes ago");
+      if(elapsedSeconds < nowseconds) return (Math.round((elapsedSeconds) / hour) + " hours ago");
+      if(elapsedSeconds < day + nowseconds) return ("yesterday");
       var then = new Date(date * 1000);
-      if(now - date < 518400) return ("on " + weekday_name[then.getDay()]);
+      if(elapsedSeconds < sixdays) return ("on " + weekday_name[then.getDay()]);
       return then.toDateString();
+    }
+
+    function repNumber(r) {
+      if(r < 1E4) return r;
+      else if(r < 1E5) {
+        var d = Math.floor(Math.round(r / 100) / 10);
+        r = Math.round((a - d * 1E3) / 100);
+        return d + (r > 0 ? "." + r : "") + "k"
+      }
+      else return Math.round(r / 1E3) + "k"
     }
 
     function getUserId(el) {
@@ -110,12 +127,12 @@ with_jquery(function ($) {
     }
 
     function isNewUser(date) {
-      return (new Date() / 1000) - date < 518400
+      return (new Date() / 1000) - date < week
     }
 
     function htmlToMarkDown(html) {
-      html = html.replace(/<a href="(.+)">(.+)<\/a>/g, '[$2]($1)');
-      return html.replace(/<em>(.+)<\/em>/g, '*$1*');
+      html = html.replace(/<a href="(.+?)">(.+?)<\/a>/g, '[$2]($1)');
+      return html.replace(/<em>(.+?)<\/em>/g, '*$1*');
     }
 
     $(".comments-link").each(function () {
@@ -127,13 +144,10 @@ with_jquery(function ($) {
           popup.find('.popup-close').click(function () { popup.fadeOutAndRemove(); });
           popup.find('.popup-actions-cancel').click(function () { popup.fadeOutAndRemove(); });
           //set opacity on mousedown/mouseup of 'see-through' link
-          popup.find('.popup-actions-see').mousedown(function () {
-            popup.css('opacity', '0.4') 
-            popup.find('.popup-active-pane').css('opacity', '0.0') 
-          });
-          popup.find('.popup-actions-see').mouseup(function () {
-            popup.css('opacity', '1.0') 
-            popup.find('.popup-active-pane').css('opacity', '1.0')
+          popup.find('.popup-actions-see').hover(function () {
+            popup.fadeTo('fast', '0.4').find('.popup-active-pane').fadeTo('fast', '0.0')
+          }, function () {
+            popup.fadeTo('fast', '1.0').find('.popup-active-pane').fadeTo('fast', '1.0')
           });
           //on submit, convert html to markdown and copy to comment textarea
           popup.find('.popup-submit').click(function () {
@@ -179,7 +193,7 @@ with_jquery(function ($) {
                 var html = 'User <strong><a href="/users/' + userid + '" target="_blank">' + user['display_name'] + '</a></strong>, \
                             member <strong>' + datespan(user['creation_date']) + '</strong>,                                        \
                             last seen <strong>' + lastseen(user['last_access_date']) + '</strong>,                                  \
-                            reputation <strong>' + user['reputation'] + '</strong>';
+                            reputation <strong>' + repNumber(user['reputation']) + '</strong>';
                 userinfo.html(html);
               }
               else userinfo.fadeOutAndRemove();
