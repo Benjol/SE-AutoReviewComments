@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.0.2
+// @version        1.0.3
 // @description    Add pro-forma comments dialog for reviewing (pre-flag)
 // @include        http://*stackoverflow.com/questions*
 // @include        http://*.stackexchange.com/questions*
@@ -42,7 +42,7 @@ with_jquery(function ($) {
           <div style="float: left; margin-top: 18px;">      \
             <a title="close this popup (or hit Esc)" class="popup-actions-cancel">cancel</a>      \
             <span class="lsep"> | </span>                   \
-            <a title="see info about this popup" class="popup-actions-help" href="http://stackapps.com/questions/2116/pro-forma-comments-for-review-educating-users-before-flagging" target="_blank">info</a>  \
+            <a title="see info about this popup" class="popup-actions-help" href="http://stackapps.com/q/2116" target="_blank">info</a>  \
             <span class="lsep"> | </span>                   \
             <a class="popup-actions-see">see-through</a>    \
             <span class="lsep"> | </span>                   \
@@ -67,7 +67,7 @@ with_jquery(function ($) {
     //default comments
     var comments = [
      { Name: "Answers just to say Thanks!", Description: 'Please don\'t add "thanks" as answers. Invest some time in the site and you will gain sufficient <a href="$SITEURL$/priveleges">privileges</a> to upvote answers you like, which is the $SITENAME$ way of saying thank you.' },
-     { Name: "Nothing but a URL (and isn't spam)", Description: 'Whilst this may theoretically answer the question, <a href="http://meta.stackoverflow.com/questions/8231/are-answers-that-just-contain-links-elsewhere-really-good-answers/8259#8259">it would be preferable</a> to include the essential parts of the answer here, and provide the link for reference.' },
+     { Name: "Nothing but a URL (and isn't spam)", Description: 'Whilst this may theoretically answer the question, <a href="http://meta.stackoverflow.com/q/8259">it would be preferable</a> to include the essential parts of the answer here, and provide the link for reference.' },
      { Name: "Requests to OP for further information", Description: 'This is really a comment, not an answer. With a bit more rep, <a href="$SITEURL$/privileges/comment">you will be able to post comments</a>. For the moment I\'ve added the comment for you, and I\'m flagging this post for deletion.' },
      { Name: "OP using an answer for further information", Description: 'Please use the <em>Post answer</em> button only for actual answers. You should modify your original question to add additional information.' },
      { Name: "OP adding a new question as an answer", Description: 'If you have another question, please ask it by clicking the <a href="$SITEURL$/questions/ask">Ask Question</a> button.' },
@@ -119,7 +119,7 @@ with_jquery(function ($) {
       if(r < 1E4) return r;
       else if(r < 1E5) {
         var d = Math.floor(Math.round(r / 100) / 10);
-        r = Math.round((a - d * 1E3) / 100);
+        r = Math.round((r - d * 1E3) / 100);
         return d + (r > 0 ? "." + r : "") + "k"
       }
       else return Math.round(r / 1E3) + "k"
@@ -150,6 +150,7 @@ with_jquery(function ($) {
                             member <strong>' + datespan(user['creation_date']) + '</strong>,                                        \
                             last seen <strong>' + lastseen(user['last_access_date']) + '</strong>,                                  \
                             reputation <strong>' + repNumber(user['reputation']) + '</strong>';
+
             userinfo.html(html.replace(/ +/g, ' '));
           }
           else userinfo.fadeOutAndRemove();
@@ -211,6 +212,39 @@ with_jquery(function ($) {
         popup.find('#desc-' + index).html(value["Description"].replace(/\$SITENAME\$/g, sitename).replace(/\$SITEURL\$/g, siteurl));
       });
     }
+    //Gist doesn't yet provide a jsonp api, so we hack by looking for my comments on the stackapps question
+    function GetLatestVersionDate(site, question, user, callback) {
+      $.ajax({
+        type: "GET",
+        url: "http://api." + site + "/1.0/posts/" + question + "/comments?jsonp=?",
+        dataType: "jsonp",
+        success: function (data) {
+          for(var i = 0; i < data["comments"].length; i++) {
+            var comment = data["comments"][i];
+            if(comment["owner"]["display_name"] == user
+                   && comment["body"].match(/^V\d\.\d\.\d/i)) {  //i.e. comment starts with V1.0.0 or similar
+              callback(new Date(comment["creation_date"] * 1000));
+              break;
+            }
+          }
+        }
+      });
+    }
+
+    //Check to see if a new version has become available since last check
+    // only checks once a day, and won't notify user twice
+    function CheckForNewVersion(site, question, user) {
+      var today = (new Date().setHours(0, 0, 0, 0));
+      var lastCheck = localStorage["LastUpdateCheckDay"];
+      if(lastCheck != null && lastCheck != today) {
+        GetLatestVersionDate(site, question, user, function (date) {
+          if(date > lastCheck)
+            notify.show('A new version of the <a href="http://stackapps.com/q/2116">AutoReviewComments</a> is now available (this notification will only appear once per new version).', -123456);
+        });
+      }
+      localStorage["LastUpdateCheckDay"] = today;
+    }
+
     $(".comments-link").each(function () {
       var divid = $(this).attr('id').replace('-link', '');
       $(this).click(function () {
@@ -261,6 +295,9 @@ with_jquery(function ($) {
           var userid = getUserId($(this));
           getUserInfo(userid, popup);
 
+          //We only actually perform the updates check when someone clicks, this should make it less costly, and more timely
+          //also wrap it so that it only gets called the *FIRST* time.
+          if(!window.VersionChecked) { CheckForNewVersion("stackapps.com", 2116, "Benjol"); window.VersionChecked = true; }
         }));
         $('#' + divid).find('.comment-help-link').parent().append(newspan);
       });
