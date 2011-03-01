@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.0.3
+// @version        1.0.4
 // @description    Add pro-forma comments dialog for reviewing (pre-flag)
 // @include        http://*stackoverflow.com/questions*
 // @include        http://*.stackexchange.com/questions*
@@ -127,8 +127,8 @@ with_jquery(function ($) {
 
     function getUserId(el) {
       var div = el.parents('div');
-      var selector = div.hasClass('answer') ? '.post-signature' : '.post-signature.owner';
-      return div.find(selector).find('.user-details > a').attr('href').replace(/[^\d]/g, '');
+      var selector = div.hasClass('answer') ? '.post-signature:last' : '.post-signature.owner';
+      return div.find(selector).find('.user-details > a').attr('href').split('/')[2];
     }
 
     function getUserInfo(userid, container) {
