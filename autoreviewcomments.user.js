@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.0.4
+// @version        1.0.5
 // @description    Add pro-forma comments dialog for reviewing (pre-flag)
 // @include        http://*stackoverflow.com/questions*
 // @include        http://*.stackexchange.com/questions*
@@ -10,6 +10,7 @@
 // @include        http://*.superuser.com/questions*
 // @include        http://stackapps.com/questions*
 // ==/UserScript==
+
 
 function with_jquery(f) {
   var script = document.createElement("script");
@@ -20,6 +21,7 @@ function with_jquery(f) {
 
 with_jquery(function ($) {
   $(function () {
+    var scriptVersion = '1.0.5';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
     var siteurl = 'http://' + window.location.hostname; //include http in here so we don't get confusion between so and meta.so
     var arr = document.title.split(' - ');
     var sitename = arr[arr.length - 1];
@@ -126,9 +128,10 @@ with_jquery(function ($) {
     }
 
     function getUserId(el) {
-      var div = el.parents('div');
-      var selector = div.hasClass('answer') ? '.post-signature:last' : '.post-signature.owner';
-      return div.find(selector).find('.user-details > a').attr('href').split('/')[2];
+      return el.parents('div')
+              .find('.post-signature:last')
+              .find('.user-details > a')
+              .attr('href').split('/')[2];
     }
 
     function getUserInfo(userid, container) {
@@ -213,7 +216,7 @@ with_jquery(function ($) {
       });
     }
     //Gist doesn't yet provide a jsonp api, so we hack by looking for my comments on the stackapps question
-    function GetLatestVersionDate(site, question, user, callback) {
+    function GetLatestVersion(site, question, user, callback) {
       $.ajax({
         type: "GET",
         url: "http://api." + site + "/1.0/posts/" + question + "/comments?jsonp=?",
@@ -222,8 +225,8 @@ with_jquery(function ($) {
           for(var i = 0; i < data["comments"].length; i++) {
             var comment = data["comments"][i];
             if(comment["owner"]["display_name"] == user
-                   && comment["body"].match(/^V\d\.\d\.\d/i)) {  //i.e. comment starts with V1.0.0 or similar
-              callback(new Date(comment["creation_date"] * 1000));
+                   && comment["body"].match(/^V\d+\.\d+\.\d+/i)) {  //i.e. comment starts with V1.0.0 or similar
+              callback(comment["body"].replace(/^V(\d+\.\d+\.\d+).*/i, '$1'));
               break;
             }
           }
@@ -237,9 +240,9 @@ with_jquery(function ($) {
       var today = (new Date().setHours(0, 0, 0, 0));
       var lastCheck = localStorage["LastUpdateCheckDay"];
       if(lastCheck != null && lastCheck != today) {
-        GetLatestVersionDate(site, question, user, function (date) {
-          if(date > lastCheck)
-            notify.show('A new version of the <a href="http://stackapps.com/q/2116">AutoReviewComments</a> is now available (this notification will only appear once per new version).', -123456);
+        GetLatestVersion(site, question, user, function (latestVersion) {
+          if(latestVersion != scriptVersion)
+            notify.show('A new version (' + latestVersion + ') of the <a href="http://stackapps.com/q/2116">AutoReviewComments</a> is now available (this notification will only appear once per new version).', -123456);
         });
       }
       localStorage["LastUpdateCheckDay"] = today;
