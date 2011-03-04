@@ -1,16 +1,18 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.0.5
+// @version        1.0.6
 // @description    Add pro-forma comments dialog for reviewing (pre-flag)
 // @include        http://*stackoverflow.com/questions*
-// @include        http://*.stackexchange.com/questions*
-// @include        http://*.askubuntu.com/questions*
-// @include        http://*.serverfault.com/questions*
-// @include        http://*.superuser.com/questions*
+// @include        http://*serverfault.com/questions*
+// @include        http://*superuser.com/questions*
+// @include        http://*stackexchange.com/questions*
+// @include        http://*askubuntu.com/questions*
+// @include        http://*answers.onstartups.com/questions*
+// @include        http://mathoverflow.net/questions*
+// @include        http://discuss.area51.stackexchange.com/questions/*
 // @include        http://stackapps.com/questions*
 // ==/UserScript==
-
 
 function with_jquery(f) {
   var script = document.createElement("script");
@@ -21,7 +23,7 @@ function with_jquery(f) {
 
 with_jquery(function ($) {
   $(function () {
-    var scriptVersion = '1.0.5';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
+    var scriptVersion = '1.0.6';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
     var siteurl = 'http://' + window.location.hostname; //include http in here so we don't get confusion between so and meta.so
     var arr = document.title.split(' - ');
     var sitename = arr[arr.length - 1];
