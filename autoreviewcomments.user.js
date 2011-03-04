@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.0.6
+// @version        1.0.7
 // @description    Add pro-forma comments dialog for reviewing (pre-flag)
 // @include        http://*stackoverflow.com/questions*
 // @include        http://*serverfault.com/questions*
@@ -23,7 +23,7 @@ function with_jquery(f) {
 
 with_jquery(function ($) {
   $(function () {
-    var scriptVersion = '1.0.6';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
+    var scriptVersion = '1.0.7';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
     var siteurl = 'http://' + window.location.hostname; //include http in here so we don't get confusion between so and meta.so
     var arr = document.title.split(' - ');
     var sitename = arr[arr.length - 1];
@@ -33,9 +33,9 @@ with_jquery(function ($) {
     var markup = '                                          \
     <div id="popup" class="popup" style="width:690px; position: absolute; display: block"> \
        <div class="popup-close"><a title="close this popup (or hit Esc)">&#215;</a></div> \
-       <div style="overflow:hidden">                        \
+       <h2>Which review comment to insert?</h2>             \
+       <div style="overflow:hidden" id="main">              \
          <div class="popup-active-pane">                    \
-          <h2>Which review comment to insert?</h2>          \
            <div id="userinfo" class="owner" style="padding:5px">    \
               <img src="http://sstatic.net/img/progress-dots.gif"/> \
            </div>                                           \
@@ -50,7 +50,9 @@ with_jquery(function ($) {
             <span class="lsep"> | </span>                   \
             <a class="popup-actions-see">see-through</a>    \
             <span class="lsep"> | </span>                   \
-            <a title="reset any custom messages" class="popup-actions-reset">reset</a>    \
+            <a title="reset any custom comments" class="popup-actions-reset">reset</a>    \
+            <span class="lsep"> | </span>                   \
+            <a title="use this to import/export all comments" class="popup-actions-impexp">import/export</a>    \
           </div>                                            \
           <div style="float:right">                         \
             <input class="popup-submit" type="button" disabled="disabled" style="float:none; margin-left: 5px" value="Insert">  \
@@ -70,7 +72,7 @@ with_jquery(function ($) {
 
     //default comments
     var comments = [
-     { Name: "Answers just to say Thanks!", Description: 'Please don\'t add "thanks" as answers. Invest some time in the site and you will gain sufficient <a href="$SITEURL$/priveleges">privileges</a> to upvote answers you like, which is the $SITENAME$ way of saying thank you.' },
+     { Name: "Answers just to say Thanks!", Description: 'Please don\'t add "thanks" as answers. Invest some time in the site and you will gain sufficient <a href="$SITEURL$/privileges">privileges</a> to upvote answers you like, which is the $SITENAME$ way of saying thank you.' },
      { Name: "Nothing but a URL (and isn't spam)", Description: 'Whilst this may theoretically answer the question, <a href="http://meta.stackoverflow.com/q/8259">it would be preferable</a> to include the essential parts of the answer here, and provide the link for reference.' },
      { Name: "Requests to OP for further information", Description: 'This is really a comment, not an answer. With a bit more rep, <a href="$SITEURL$/privileges/comment">you will be able to post comments</a>. For the moment I\'ve added the comment for you, and I\'m flagging this post for deletion.' },
      { Name: "OP using an answer for further information", Description: 'Please use the <em>Post answer</em> button only for actual answers. You should modify your original question to add additional information.' },
@@ -81,6 +83,7 @@ with_jquery(function ($) {
     var weekday_name = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     var minute = 60, hour = 3600, day = 86400, sixdays = 518400, week = 604800, month = 2592000, year = 31536000;
 
+    //Calculate and format datespan for "Member since/for"
     function datespan(date) {
       var now = new Date() / 1000;
       var then = new Date(date * 1000);
@@ -105,6 +108,7 @@ with_jquery(function ($) {
       return strout;
     }
 
+    //Calculate and format datespan for "Last seen"
     function lastseen(date) {
       var now = new Date() / 1000;
       var today = new Date().setHours(0, 0, 0) / 1000;
@@ -119,6 +123,7 @@ with_jquery(function ($) {
       return then.toDateString();
     }
 
+    //Format reputation string
     function repNumber(r) {
       if(r < 1E4) return r;
       else if(r < 1E5) {
@@ -129,16 +134,18 @@ with_jquery(function ($) {
       else return Math.round(r / 1E3) + "k"
     }
 
+    //Get userId for post
     function getUserId(el) {
-      return el.parents('div')
-              .find('.post-signature:last')
-              .find('.user-details > a')
-              .attr('href').split('/')[2];
+      return el.parents('div').find('.post-signature:last').find('.user-details > a').attr('href').split('/')[2];
+    }
+    function isNewUser(date) {
+      return (new Date() / 1000) - date < week
     }
 
+    //Ajax to Stack Exchange api to get basic user info, and paste into userinfo element
+    //http://soapi.info/code/js/stable/soapi-explore-beta.htm
     function getUserInfo(userid, container) {
       var userinfo = container.find('#userinfo');
-      //http://soapi.info/code/js/stable/soapi-explore-beta.htm
       $.ajax({
         type: "GET",
         url: siteurl.replace('http://', 'http://api.') + '/1.0/users/' + userid + '?jsonp=?',
@@ -147,11 +154,9 @@ with_jquery(function ($) {
         success: function (data) {
           if(data['users'].length > 0) {
             var user = data['users'][0];
-            if(isNewUser(user['creation_date'])) {
-              container.find('.action-desc').prepend(greeting);
-            }
+            if(isNewUser(user['creation_date'])) container.find('.action-desc').prepend(greeting);
 
-            var html = 'User <strong><a href="/users/' + userid + '" target="_blank">' + user['display_name'] + '</a></strong>, \
+            var html = 'User <strong><a href="/users/' + userid + '" target="_blank">' + user['display_name'] + '</a></strong>,     \
                             member <strong>' + datespan(user['creation_date']) + '</strong>,                                        \
                             last seen <strong>' + lastseen(user['last_access_date']) + '</strong>,                                  \
                             reputation <strong>' + repNumber(user['reputation']) + '</strong>';
@@ -163,8 +168,45 @@ with_jquery(function ($) {
         error: function () { userinfo.fadeOutAndRemove(); }
       });
     }
-    function isNewUser(date) {
-      return (new Date() / 1000) - date < week
+
+    //Show textarea in front of popup to import/export all comments (for other sites or for posting somewhere)
+    function ImportExport(popup) {
+      var tohide = popup.find('#main');
+      var div = $('<div><textarea/><a class="save">save</a><span class="lsep"> | </span><a class="cancel">cancel</a></div>');
+      //Painful, but shortest way I've found to position div over the tohide element
+      div.css('position', 'absolute').css('left', tohide.position().left).css('top', tohide.position().top)
+          .css('width', tohide.css('width')).css('height', tohide.css('height')).css('background', 'white');
+
+      var txt = '';
+      $.each(comments, function (index, value) {
+        var name = localStorage['name-' + index] || value["Name"];
+        var desc = localStorage['desc-' + index] || value["Description"];
+        txt += '###' + name + '\n' + desc + '\n\n'; //the leading ### makes prettier if pasting to markdown, and differentiates names from descriptions
+      });
+
+      div.find('textarea').width('100%').height('95%').attr('value', txt);
+      div.find('.cancel').click(function () { div.fadeOutAndRemove(); });
+      div.find('.save').click(function () { DoImport(div.find('textarea').attr('value')); RewriteComments(popup); div.fadeOutAndRemove(); });
+
+      popup.append(div);
+    }
+
+    //Import complete text into comments
+    function DoImport(text) {
+      var arr = text.split('\n');
+      var nameIndex = 0, descIndex = 0;
+      for(var i = 0; i < arr.length; i++) {
+        if(arr[i].indexOf('#') == 0) {
+          var name = arr[i].replace(/^#+/g, '');
+          Save('name-' + nameIndex, name);
+          nameIndex++;
+        }
+        else if(arr[i].length > 0) {
+          var desc = arr[i];
+          Save('desc-' + descIndex, desc);
+          descIndex++;
+        }
+      }
     }
 
     function htmlToMarkDown(html) {
@@ -176,23 +218,25 @@ with_jquery(function ($) {
       html = markdown.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>');
       return html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*(.+?)\*/g, '<em>$1</em>');
     }
+    //Replace contents of element with a textarea (containing markdown of contents), and save/cancel buttons
     function ToEditable(el) {
       var html = el.html();
       if(html.indexOf('<textarea') > -1) return; //don't want to create a new textarea inside this one!
       var txt = $('<textarea />').css('height', 2 * el.height())
                 .css('width', el.css('width'))
-                .attr('value', htmlToMarkDown(html).replace(greeting, ''));
-      //This is to stop the input pinching focus when I click inside textarea
-      //Could have done something clever with contentEditable, but this is evil, and it annoys Yi :P
-      BorkFor(el);
+                .attr('value', htmlToMarkDown(html).replace(greeting, '')); //remove greeting before editing..
+      
+      BorkFor(el); //this is a hack
       //save/cancel links to add to textarea
-      var commands = $('<a>save</a>').click(function () { SaveEditable($(this).parent(), html); UnborkFor(el); })
+      var commands = $('<a>save</a>').click(function () { SaveEditable($(this).parent()); UnborkFor(el); })
                       .add('<span class="lsep"> | </span>')
                       .add($('<a>cancel</a>').click(function () { CancelEditable($(this).parent(), html); UnborkFor(el); }));
       //set contents of element to textarea with links
       el.html(txt.add(commands));
     }
 
+    //This is to stop the input pinching focus when I click inside textarea
+    //Could have done something clever with contentEditable, but this is evil, and it annoys Yi :P
     function BorkFor(el) {
       var label = el.parent('label');
       label.attr('for', 'borken');
@@ -201,20 +245,49 @@ with_jquery(function ($) {
       var label = el.parent('label');
       label.attr('for', label.prev().attr('id'));
     }
-    function SaveEditable(el, backup) {
+    //Save textarea contents, replace element html with new edited content
+    function SaveEditable(el) {
       var html = markDownToHtml(el.find('textarea').attr('value'));
-      if(html != backup) localStorage.setItem(el.attr('id'), html);
+      var regname = new RegExp(sitename, "g"), regurl = new RegExp(siteurl, "g");
+      //put tags back in (in preparation for import/export)
+      var taggedhtml = html.replace(regname, '$SITENAME$').replace(regurl, '$SITEURL$'); 
+      Save(el.attr('id'), taggedhtml);
       el.html(html);
     }
     function CancelEditable(el, backup) {
       el.html(backup);
     }
+    //only insert into storage if not same as default
+    function Save(id, value) {
+      var def = GetDefaultOf(id);
+      if(def != value)
+        localStorage.setItem(id, value);
+      else
+        localStorage.removeItem(id);
+    }
+    //Get default name/desc of given id
+    function GetDefaultOf(id) {
+      var index = id.replace(/[^\d]*/g, '');
+      if(id.indexOf('name') > -1)
+        return comments[index]["Name"];
+      else
+        return comments[index]["Description"];
+    }
+    //Empty all custom comments from storage and rewrite to ui
     function ResetComments(popup) {
+      for(var i = 0; i < comments.length; i++) {
+        localStorage.removeItem('name-' + i);
+        localStorage.removeItem('desc-' + i);
+      }
+      RewriteComments(popup);
+    }
+    //rewrite all comments to ui (typically after import or reset)
+    function RewriteComments(popup) {
       $.each(comments, function (index, value) {
-        localStorage.setItem('name-' + index, '');
-        localStorage.setItem('desc-' + index, '');
-        popup.find('#name-' + index).html(value["Name"]);
-        popup.find('#desc-' + index).html(value["Description"].replace(/\$SITENAME\$/g, sitename).replace(/\$SITEURL\$/g, siteurl));
+        var name = localStorage['name-' + index] || value["Name"];
+        var desc = localStorage['desc-' + index] || value["Description"];
+        popup.find('#name-' + index).html(name);
+        popup.find('#desc-' + index).html(desc.replace(/\$SITENAME\$/g, sitename).replace(/\$SITEURL\$/g, siteurl));
       });
     }
     //Gist doesn't yet provide a jsonp api, so we hack by looking for my comments on the stackapps question
@@ -247,9 +320,9 @@ with_jquery(function ($) {
             notify.show('A new version (' + latestVersion + ') of the <a href="http://stackapps.com/q/2116">AutoReviewComments</a> is now available (this notification will only appear once per new version).', -123456);
         });
       }
-      localStorage["LastUpdateCheckDay"] = today;
+      localStorage.setItem("LastUpdateCheckDay", today);
     }
-
+    //This is where the real work starts - add the 'auto' link next to each comment 'help' link
     $(".comments-link").each(function () {
       var divid = $(this).attr('id').replace('-link', '');
       $(this).click(function () {
@@ -262,10 +335,10 @@ with_jquery(function ($) {
           //create/add options
           $.each(comments, function (index, value) {
             var name = localStorage['name-' + index] || value["Name"];
-            var desc = localStorage['desc-' + index] || value["Description"].replace(/\$SITENAME\$/g, sitename).replace(/\$SITEURL\$/g, siteurl);
+            var desc = localStorage['desc-' + index] || value["Description"];
             var opt = option.replace(/\$ID\$/g, index)
                             .replace("$NAME$", name)
-                            .replace("$DESCRIPTION$", desc);
+                            .replace("$DESCRIPTION$", desc.replace(/\$SITENAME\$/g, sitename).replace(/\$SITEURL\$/g, siteurl));
             popup.find('.action-list').append(opt);
           });
           popup.find('label > span').dblclick(function () { ToEditable($(this)); });
@@ -285,6 +358,7 @@ with_jquery(function ($) {
           }, function () {
             popup.fadeTo('fast', '1.0').find('.popup-active-pane').fadeTo('fast', '1.0')
           });
+          popup.find('.popup-actions-impexp').click(function () { ImportExport(popup); });
           //on submit, convert html to markdown and copy to comment textarea
           popup.find('.popup-submit').click(function () {
             var selected = popup.find('input:radio:checked');
