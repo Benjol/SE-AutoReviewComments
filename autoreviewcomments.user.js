@@ -231,7 +231,7 @@ with_jquery(function ($) {
       for(var i = 0; i < GetStorage("commentcount"); i++) {
         var name = GetStorage('name-' + i);
         var desc = GetStorage('desc-' + i);
-        txt += '###' + name + '\n' + desc + '\n\n'; //the leading ### makes prettier if pasting to markdown, and differentiates names from descriptions
+        txt += '###' + name + '\n' + htmlToMarkDown(desc) + '\n\n'; //the leading ### makes prettier if pasting to markdown, and differentiates names from descriptions
       }
 
       div.find('textarea').width('100%').height('95%').attr('value', txt);
@@ -254,8 +254,8 @@ with_jquery(function ($) {
           nameIndex++;
         }
         else if(arr[i].length > 0) {
-          var desc = arr[i];
-          SetStorage('desc-' + descIndex, desc);
+          var desc = markDownToHtml(arr[i]);
+          SetStorage('desc-' + descIndex, TagHtml(desc));
           descIndex++;
         }
       }
@@ -272,6 +272,13 @@ with_jquery(function ($) {
       html = markdown.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>');
       return html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*(.+?)\*/g, '<em>$1</em>');
     }
+
+    function TagHtml(html) {
+      //put tags back in
+      var regname = new RegExp(sitename, "g"), regurl = new RegExp('http://' + siteurl, "g");
+      return html.replace(regname, '$SITENAME$').replace(regurl, 'http://$SITEURL$');
+    }
+
     //Replace contents of element with a textarea (containing markdown of contents), and save/cancel buttons
     function ToEditable(el) {
       var html = el.html();
@@ -302,12 +309,10 @@ with_jquery(function ($) {
     //Save textarea contents, replace element html with new edited content
     function SaveEditable(el) {
       var html = markDownToHtml(el.find('textarea').attr('value'));
-      var regname = new RegExp(sitename, "g"), regurl = new RegExp('http://' + siteurl, "g");
-      //put tags back in (in preparation for import/export)
-      var taggedhtml = html.replace(regname, '$SITENAME$').replace(regurl, 'http://$SITEURL$');
-      SetStorage(el.attr('id'), taggedhtml);
+      SetStorage(el.attr('id'), TagHtml(html));
       el.html((showGreeting ? greeting : "") + html);
     }
+
     function CancelEditable(el, backup) {
       el.html(backup);
     }
@@ -347,6 +352,19 @@ with_jquery(function ($) {
         ul.append(opt);
       }
       ShowHideDescriptions(popup);
+      AddOptionEventHandlers(popup);
+    }
+
+    function AddOptionEventHandlers(popup) {
+      popup.find('label > span').dblclick(function () { ToEditable($(this)); });
+      //add click handler to radio buttons
+      popup.find('input:radio').click(function () {
+        popup.find('.popup-submit').attr("disabled", ""); //enable submit button
+        //unset/set selected class
+        $(this).parents('ul').find(".action-selected").removeClass("action-selected");
+        $(this).parent().addClass('action-selected');
+        //}
+      });
     }
 
     //Adjust the descriptions so they show or hide based on the user's preference.
@@ -387,16 +405,6 @@ with_jquery(function ($) {
 
           //create/add options
           WriteComments(popup);
-
-          popup.find('label > span').dblclick(function () { ToEditable($(this)); });
-          //add click handler to radio buttons
-          popup.find('input:radio').click(function () {
-            popup.find('.popup-submit').attr("disabled", ""); //enable submit button
-            //unset/set selected class
-            $(this).parents('ul').find(".action-selected").removeClass("action-selected");
-            $(this).parent().addClass('action-selected');
-            //}
-          });
 
           //Add handlers for command links
           popup.find('.popup-actions-cancel').click(function () { popup.fadeOutAndRemove(); });
