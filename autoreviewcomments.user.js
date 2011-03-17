@@ -332,10 +332,12 @@ with_jquery(function ($) {
       ResetComments();
       //this checks for 'old' custom comments and overwrites them onto prefixed-key storage
       for(var i = 0; i < defaultcomments.length; i++) {
+        //this shouldn't break anything, but it is a bit fragile....
+        if(localStorage["desc-" + i] != null) {
+          localStorage["desc-" + i] = localStorage["desc-" + i].replace(/\$SITEURL\$/g, "http://$SITEURL$");
+        }
         UpgradeStorage("name-" + i);
         UpgradeStorage("desc-" + i);
-        //this shouldn't break anything, but it is a bit fragile....
-        SetStorage("desc-" + i, GetStorage("desc-" + i).replace(/\$SITEURL\$/g, "http://$SITEURL$"));
       }
     }
 
