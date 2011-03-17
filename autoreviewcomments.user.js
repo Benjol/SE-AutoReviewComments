@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.0.7
+// @version        1.0.8
 // @description    Add pro-forma comments dialog for reviewing (pre-flag)
 // @include        http://*stackoverflow.com/questions*
 // @include        http://*serverfault.com/questions*
@@ -23,42 +23,62 @@ function with_jquery(f) {
 
 with_jquery(function ($) {
   $(function () {
-    var scriptVersion = '1.0.7';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
-    var siteurl = 'http://' + window.location.hostname; //include http in here so we don't get confusion between so and meta.so
+    //**selfupdatingscript starts here (see https://gist.github.com/raw/874058/selfupdatingscript.user.js)
+    var VERSION = '1.0.8';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
+    var URL = "https://gist.github.com/raw/842025/autoreviewcomments.user.js";
+
+    if(window["selfUpdaterCallback:" + URL]) {
+      window["selfUpdaterCallback:" + URL](VERSION);
+      return;
+    }
+
+    function updateCheck(notifier) {
+      window["selfUpdaterCallback:" + URL] = function (newver) {
+        if(newver > VERSION) notifier(newver, VERSION, URL);
+      }
+      $("<script />").attr("src", URL).appendTo("head");
+    }
+    //**selfupdatingscript ends here (except for call to updateCheck further down in code)
+
+    //autoreviewcomments script starts here
+    var siteurl = window.location.hostname;
     var arr = document.title.split(' - ');
     var sitename = arr[arr.length - 1];
     if(sitename == "Stack Exchange") sitename = arr[arr.length - 2]; //workaround for SE sites..
     var greeting = 'Welcome to ' + sitename + '! ';
+    var showGreeting = false;
 
-    var markup = '                                          \
-    <div id="popup" class="popup" style="width:690px; position: absolute; display: block"> \
-       <div class="popup-close"><a title="close this popup (or hit Esc)">&#215;</a></div> \
-       <h2>Which review comment to insert?</h2>             \
-       <div style="overflow:hidden" id="main">              \
-         <div class="popup-active-pane">                    \
-           <div id="userinfo" class="owner" style="padding:5px">    \
-              <img src="http://sstatic.net/img/progress-dots.gif"/> \
-           </div>                                           \
-          <ul class="action-list" >                         \
-          </ul>                                             \
-         </div>                                             \
-         <div class="popup-actions">                        \
-          <div style="float: left; margin-top: 18px;">      \
-            <a title="close this popup (or hit Esc)" class="popup-actions-cancel">cancel</a>      \
-            <span class="lsep"> | </span>                   \
+    var markup = '                                                                                    \
+    <div id="popup" class="popup" style="width:690px; position: absolute; display: block">            \
+       <div id="close" class="popup-close"><a title="close this popup (or hit Esc)">&#215;</a></div>  \
+       <h2>Which review comment to insert?</h2>                                                       \
+       <div style="overflow:hidden" id="main">                                                        \
+         <div class="popup-active-pane">                                                              \
+           <div id="userinfo" class="owner" style="padding:5px">                                      \
+              <img src="http://sstatic.net/img/progress-dots.gif"/>                                   \
+           </div>                                                                                     \
+          <ul class="action-list" style="height:440;overflow-y:auto" >                                \
+          </ul>                                                                                       \
+         </div>                                                                                       \
+         <div class="popup-actions">                                                                  \
+          <div style="float: left; margin-top: 18px;">                                                \
+            <a title="close this popup (or hit Esc)" class="popup-actions-cancel">cancel</a>          \
+            <span class="lsep"> | </span>                                                             \
             <a title="see info about this popup" class="popup-actions-help" href="http://stackapps.com/q/2116" target="_blank">info</a>  \
-            <span class="lsep"> | </span>                   \
-            <a class="popup-actions-see">see-through</a>    \
-            <span class="lsep"> | </span>                   \
-            <a title="reset any custom comments" class="popup-actions-reset">reset</a>    \
-            <span class="lsep"> | </span>                   \
+            <span class="lsep"> | </span>                                                             \
+            <a class="popup-actions-see">see-through</a>                                              \
+            <span class="lsep"> | </span>                                                             \
+            <a title="reset any custom comments" class="popup-actions-reset">reset</a>                \
+            <span class="lsep"> | </span>                                                             \
             <a title="use this to import/export all comments" class="popup-actions-impexp">import/export</a>    \
-          </div>                                            \
-          <div style="float:right">                         \
+            <span class="lsep"> | </span>                                                             \
+            <a title="use this to hide/show all comments" class="popup-actions-toggledesc">show/hide desc</a>    \
+          </div>                                                                                      \
+          <div style="float:right">                                                                   \
             <input class="popup-submit" type="button" disabled="disabled" style="float:none; margin-left: 5px" value="Insert">  \
-          </div>                                            \
-         </div>                                             \
-       </div>                                               \
+          </div>                                                                                      \
+         </div>                                                                                       \
+       </div>                                                                                         \
     </div>';
 
     var option = '                                                          \
@@ -71,17 +91,36 @@ with_jquery(function ($) {
     </li>';
 
     //default comments
-    var comments = [
-     { Name: "Answers just to say Thanks!", Description: 'Please don\'t add "thanks" as answers. Invest some time in the site and you will gain sufficient <a href="$SITEURL$/privileges">privileges</a> to upvote answers you like, which is the $SITENAME$ way of saying thank you.' },
+    var defaultcomments = [
+     { Name: "Answers just to say Thanks!", Description: 'Please don\'t add "thanks" as answers. Invest some time in the site and you will gain sufficient <a href="http://$SITEURL$/privileges">privileges</a> to upvote answers you like, which is the $SITENAME$ way of saying thank you.' },
      { Name: "Nothing but a URL (and isn't spam)", Description: 'Whilst this may theoretically answer the question, <a href="http://meta.stackoverflow.com/q/8259">it would be preferable</a> to include the essential parts of the answer here, and provide the link for reference.' },
-     { Name: "Requests to OP for further information", Description: 'This is really a comment, not an answer. With a bit more rep, <a href="$SITEURL$/privileges/comment">you will be able to post comments</a>. For the moment I\'ve added the comment for you, and I\'m flagging this post for deletion.' },
+     { Name: "Requests to OP for further information", Description: 'This is really a comment, not an answer. With a bit more rep, <a href="http://$SITEURL$/privileges/comment">you will be able to post comments</a>. For the moment I\'ve added the comment for you, and I\'m flagging this post for deletion.' },
      { Name: "OP using an answer for further information", Description: 'Please use the <em>Post answer</em> button only for actual answers. You should modify your original question to add additional information.' },
-     { Name: "OP adding a new question as an answer", Description: 'If you have another question, please ask it by clicking the <a href="$SITEURL$/questions/ask">Ask Question</a> button.' },
-     { Name: "Another user adding a 'Me too!'", Description: 'If you have a NEW question, please ask it by clicking the <a href="$SITEURL$/questions/ask">Ask Question</a> button. If you have sufficient reputation, <a href="$SITEURL$/privileges/vote-up">you may upvote</a> the question. Alternatively, "star" it as a favorite and you will be notified of any new answers.' },
+     { Name: "OP adding a new question as an answer", Description: 'If you have another question, please ask it by clicking the <a href="http://$SITEURL$/questions/ask">Ask Question</a> button.' },
+     { Name: "Another user adding a 'Me too!'", Description: 'If you have a NEW question, please ask it by clicking the <a href="http://$SITEURL$/questions/ask">Ask Question</a> button. If you have sufficient reputation, <a href="http://$SITEURL$/privileges/vote-up">you may upvote</a> the question. Alternatively, "star" it as a favorite and you will be notified of any new answers.' },
     ];
 
     var weekday_name = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     var minute = 60, hour = 3600, day = 86400, sixdays = 518400, week = 604800, month = 2592000, year = 31536000;
+
+    //Wrap local storage access so that we avoid collisions with other scripts
+    var prefix = "AutoReviewComments-"
+    function GetStorage(key) { return localStorage[prefix + key]; }
+    function SetStorage(key, val) { localStorage[prefix + key] = val; }
+    function RemoveStorage(key) { localStorage.removeItem(prefix + key); }
+    function ClearStorage(startsWith) {
+      for(var i = localStorage.length - 1; i >= 0; i--) {
+        var key = localStorage.key(i);
+        if(key.indexOf(prefix + startsWith) == 0) localStorage.removeItem(key);
+      }
+    }
+    function UpgradeStorage(key) { //<---- remove this in V1.0.9
+      var val = localStorage[key];
+      if(val != null) {
+        localStorage.removeItem(key);
+        SetStorage(key, val);
+      }
+    }
 
     //Calculate and format datespan for "Member since/for"
     function datespan(date) {
@@ -136,7 +175,11 @@ with_jquery(function ($) {
 
     //Get userId for post
     function getUserId(el) {
-      return el.parents('div').find('.post-signature:last').find('.user-details > a').attr('href').split('/')[2];
+      // a bit complicated, but we have to avoid edits (:last), not trip on CW questions (:not([id])), and not bubble
+      //  out of post scope for deleted users (first()).
+      var userlink = el.parents('div').find('.post-signature:last').first().find('.user-details > a:not([id])');
+      if(userlink.length) return userlink.attr('href').split('/')[2];
+      return "[NULL]";
     }
     function isNewUser(date) {
       return (new Date() / 1000) - date < week
@@ -146,15 +189,22 @@ with_jquery(function ($) {
     //http://soapi.info/code/js/stable/soapi-explore-beta.htm
     function getUserInfo(userid, container) {
       var userinfo = container.find('#userinfo');
+      if(isNaN(userid)) {
+        userinfo.fadeOutAndRemove();
+        return;
+      }
       $.ajax({
         type: "GET",
-        url: siteurl.replace('http://', 'http://api.') + '/1.0/users/' + userid + '?jsonp=?',
+        url: 'http://api.' + siteurl + '/1.0/users/' + userid + '?jsonp=?',
         dataType: "jsonp",
         timeout: 2000,
         success: function (data) {
           if(data['users'].length > 0) {
             var user = data['users'][0];
-            if(isNewUser(user['creation_date'])) container.find('.action-desc').prepend(greeting);
+            if(isNewUser(user['creation_date'])) {
+              showGreeting = true;
+              container.find('.action-desc').prepend(greeting);
+            }
 
             var html = 'User <strong><a href="/users/' + userid + '" target="_blank">' + user['display_name'] + '</a></strong>,     \
                             member <strong>' + datespan(user['creation_date']) + '</strong>,                                        \
@@ -178,35 +228,39 @@ with_jquery(function ($) {
           .css('width', tohide.css('width')).css('height', tohide.css('height')).css('background', 'white');
 
       var txt = '';
-      $.each(comments, function (index, value) {
-        var name = localStorage['name-' + index] || value["Name"];
-        var desc = localStorage['desc-' + index] || value["Description"];
+      for(var i = 0; i < GetStorage("commentcount"); i++) {
+        var name = GetStorage('name-' + i);
+        var desc = GetStorage('desc-' + i);
         txt += '###' + name + '\n' + desc + '\n\n'; //the leading ### makes prettier if pasting to markdown, and differentiates names from descriptions
-      });
+      }
 
       div.find('textarea').width('100%').height('95%').attr('value', txt);
       div.find('.cancel').click(function () { div.fadeOutAndRemove(); });
-      div.find('.save').click(function () { DoImport(div.find('textarea').attr('value')); RewriteComments(popup); div.fadeOutAndRemove(); });
+      div.find('.save').click(function () { DoImport(div.find('textarea').attr('value')); WriteComments(popup); div.fadeOutAndRemove(); });
 
       popup.append(div);
     }
 
     //Import complete text into comments
     function DoImport(text) {
+      //first time through on V1.0.8, clear out any existing stuff
+      ClearStorage("name-"); ClearStorage("desc-");
       var arr = text.split('\n');
       var nameIndex = 0, descIndex = 0;
       for(var i = 0; i < arr.length; i++) {
         if(arr[i].indexOf('#') == 0) {
           var name = arr[i].replace(/^#+/g, '');
-          Save('name-' + nameIndex, name);
+          SetStorage('name-' + nameIndex, name);
           nameIndex++;
         }
         else if(arr[i].length > 0) {
           var desc = arr[i];
-          Save('desc-' + descIndex, desc);
+          SetStorage('desc-' + descIndex, desc);
           descIndex++;
         }
       }
+      //This is de-normalised, but I don't care.
+      SetStorage("commentcount", Math.min(nameIndex, descIndex));
     }
 
     function htmlToMarkDown(html) {
@@ -225,7 +279,7 @@ with_jquery(function ($) {
       var txt = $('<textarea />').css('height', 2 * el.height())
                 .css('width', el.css('width'))
                 .attr('value', htmlToMarkDown(html).replace(greeting, '')); //remove greeting before editing..
-      
+
       BorkFor(el); //this is a hack
       //save/cancel links to add to textarea
       var commands = $('<a>save</a>').click(function () { SaveEditable($(this).parent()); UnborkFor(el); })
@@ -248,80 +302,79 @@ with_jquery(function ($) {
     //Save textarea contents, replace element html with new edited content
     function SaveEditable(el) {
       var html = markDownToHtml(el.find('textarea').attr('value'));
-      var regname = new RegExp(sitename, "g"), regurl = new RegExp(siteurl, "g");
+      var regname = new RegExp(sitename, "g"), regurl = new RegExp('http://' + siteurl, "g");
       //put tags back in (in preparation for import/export)
-      var taggedhtml = html.replace(regname, '$SITENAME$').replace(regurl, '$SITEURL$'); 
-      Save(el.attr('id'), taggedhtml);
-      el.html(html);
+      var taggedhtml = html.replace(regname, '$SITENAME$').replace(regurl, 'http://$SITEURL$');
+      SetStorage(el.attr('id'), taggedhtml);
+      el.html((showGreeting ? greeting : "") + html);
     }
     function CancelEditable(el, backup) {
       el.html(backup);
     }
-    //only insert into storage if not same as default
-    function Save(id, value) {
-      var def = GetDefaultOf(id);
-      if(def != value)
-        localStorage.setItem(id, value);
-      else
-        localStorage.removeItem(id);
-    }
-    //Get default name/desc of given id
-    function GetDefaultOf(id) {
-      var index = id.replace(/[^\d]*/g, '');
-      if(id.indexOf('name') > -1)
-        return comments[index]["Name"];
-      else
-        return comments[index]["Description"];
-    }
     //Empty all custom comments from storage and rewrite to ui
-    function ResetComments(popup) {
-      for(var i = 0; i < comments.length; i++) {
-        localStorage.removeItem('name-' + i);
-        localStorage.removeItem('desc-' + i);
+    function ResetComments() {
+      ClearStorage("name-"); ClearStorage("desc-");
+      $.each(defaultcomments, function (index, value) {
+        SetStorage('name-' + index, value["Name"]);
+        SetStorage('desc-' + index, value["Description"]);
+      });
+      SetStorage("commentcount", defaultcomments.length);
+    }
+
+    //<-----Delete this in V1.0.9---->
+    function UpgradeComments() {
+      //this adds default comments, but with prefix in front of key (so it's not squashing old ones)
+      ResetComments();
+      //this checks for 'old' custom comments and overwrites them onto prefixed-key storage
+      for(var i = 0; i < defaultcomments.length; i++) {
+        UpgradeStorage("name-" + i);
+        UpgradeStorage("desc-" + i);
+        //this shouldn't break anything, but it is a bit fragile....
+        SetStorage("desc-" + i, GetStorage("desc-" + i).replace(/\$SITEURL\$/g, "http://$SITEURL$"));
       }
-      RewriteComments(popup);
     }
+
     //rewrite all comments to ui (typically after import or reset)
-    function RewriteComments(popup) {
-      $.each(comments, function (index, value) {
-        var name = localStorage['name-' + index] || value["Name"];
-        var desc = localStorage['desc-' + index] || value["Description"];
-        popup.find('#name-' + index).html(name);
-        popup.find('#desc-' + index).html(desc.replace(/\$SITENAME\$/g, sitename).replace(/\$SITEURL\$/g, siteurl));
-      });
+    function WriteComments(popup) {
+      if(!GetStorage("commentcount")) UpgradeComments(); // << change this to ResetComments in V1.0.9
+      var ul = popup.find('.action-list');
+      ul.empty();
+      for(var i = 0; i < GetStorage("commentcount"); i++) {
+        var desc = GetStorage('desc-' + i).replace(/\$SITENAME\$/g, sitename).replace(/\$SITEURL\$/g, siteurl);
+        var opt = option.replace(/\$ID\$/g, i)
+                        .replace("$NAME$", GetStorage('name-' + i))
+                        .replace("$DESCRIPTION$", (showGreeting ? greeting : "") + desc);
+        ul.append(opt);
+      }
+      ShowHideDescriptions(popup);
     }
-    //Gist doesn't yet provide a jsonp api, so we hack by looking for my comments on the stackapps question
-    function GetLatestVersion(site, question, user, callback) {
-      $.ajax({
-        type: "GET",
-        url: "http://api." + site + "/1.0/posts/" + question + "/comments?jsonp=?",
-        dataType: "jsonp",
-        success: function (data) {
-          for(var i = 0; i < data["comments"].length; i++) {
-            var comment = data["comments"][i];
-            if(comment["owner"]["display_name"] == user
-                   && comment["body"].match(/^V\d+\.\d+\.\d+/i)) {  //i.e. comment starts with V1.0.0 or similar
-              callback(comment["body"].replace(/^V(\d+\.\d+\.\d+).*/i, '$1'));
-              break;
-            }
-          }
-        }
-      });
+
+    //Adjust the descriptions so they show or hide based on the user's preference.
+    function ShowHideDescriptions(popup) {
+      var descriptions = popup.find("ul.action-list span[id*='desc-']");
+
+      if(GetStorage('hide-desc') == "hide") {
+        descriptions.hide();
+      }
+      else {
+        descriptions.show();
+      }
     }
 
     //Check to see if a new version has become available since last check
     // only checks once a day, and won't notify user twice
-    function CheckForNewVersion(site, question, user) {
+    function CheckForNewVersion() {
+      UpgradeStorage("LastUpdateCheckDay");  ///<<<<--- Remove this for 1.0.9
       var today = (new Date().setHours(0, 0, 0, 0));
-      var lastCheck = localStorage["LastUpdateCheckDay"];
+      var lastCheck = GetStorage("LastUpdateCheckDay");
       if(lastCheck != null && lastCheck != today) {
-        GetLatestVersion(site, question, user, function (latestVersion) {
-          if(latestVersion != scriptVersion)
-            notify.show('A new version (' + latestVersion + ') of the <a href="http://stackapps.com/q/2116">AutoReviewComments</a> is now available (this notification will only appear once per new version).', -123456);
+        updateCheck(function (newver, oldver, url) {
+          notify.show('A new version (' + newver + ') of the <a href="http://stackapps.com/q/2116">AutoReviewComments</a> userscript is now available (this notification will only appear once per new version).', -123456);
         });
       }
-      localStorage.setItem("LastUpdateCheckDay", today);
+      SetStorage("LastUpdateCheckDay", today);
     }
+
     //This is where the real work starts - add the 'auto' link next to each comment 'help' link
     $(".comments-link").each(function () {
       var divid = $(this).attr('id').replace('-link', '');
@@ -333,14 +386,8 @@ with_jquery(function ($) {
           popup.find('.popup-close').click(function () { popup.fadeOutAndRemove(); });
 
           //create/add options
-          $.each(comments, function (index, value) {
-            var name = localStorage['name-' + index] || value["Name"];
-            var desc = localStorage['desc-' + index] || value["Description"];
-            var opt = option.replace(/\$ID\$/g, index)
-                            .replace("$NAME$", name)
-                            .replace("$DESCRIPTION$", desc.replace(/\$SITENAME\$/g, sitename).replace(/\$SITEURL\$/g, siteurl));
-            popup.find('.action-list').append(opt);
-          });
+          WriteComments(popup);
+
           popup.find('label > span').dblclick(function () { ToEditable($(this)); });
           //add click handler to radio buttons
           popup.find('input:radio').click(function () {
@@ -348,17 +395,24 @@ with_jquery(function ($) {
             //unset/set selected class
             $(this).parents('ul').find(".action-selected").removeClass("action-selected");
             $(this).parent().addClass('action-selected');
+            //}
           });
 
           //Add handlers for command links
           popup.find('.popup-actions-cancel').click(function () { popup.fadeOutAndRemove(); });
-          popup.find('.popup-actions-reset').click(function () { ResetComments(popup); });
+          popup.find('.popup-actions-reset').click(function () { ResetComments(); WriteComments(popup); });
           popup.find('.popup-actions-see').hover(function () {
-            popup.fadeTo('fast', '0.4').find('.popup-active-pane').fadeTo('fast', '0.0')
+            popup.fadeTo('fast', '0.4').children().not('#close').fadeTo('fast', '0.0')
           }, function () {
-            popup.fadeTo('fast', '1.0').find('.popup-active-pane').fadeTo('fast', '1.0')
+            popup.fadeTo('fast', '1.0').children().not('#close').fadeTo('fast', '1.0')
           });
           popup.find('.popup-actions-impexp').click(function () { ImportExport(popup); });
+          popup.find('.popup-actions-toggledesc').click(function () {
+            var hideDesc = GetStorage('hide-desc') || "show";
+            SetStorage('hide-desc', hideDesc == "show" ? "hide" : "show");
+            ShowHideDescriptions(popup);
+          });
+
           //on submit, convert html to markdown and copy to comment textarea
           popup.find('.popup-submit').click(function () {
             var selected = popup.find('input:radio:checked');
@@ -375,8 +429,8 @@ with_jquery(function ($) {
           getUserInfo(userid, popup);
 
           //We only actually perform the updates check when someone clicks, this should make it less costly, and more timely
-          //also wrap it so that it only gets called the *FIRST* time.
-          if(!window.VersionChecked) { CheckForNewVersion("stackapps.com", 2116, "Benjol"); window.VersionChecked = true; }
+          //also wrap it so that it only gets called the *FIRST* time we open this dialog on any given page (not much of an optimisation).
+          if(!window.VersionChecked) { CheckForNewVersion(); window.VersionChecked = true; }
         }));
         $('#' + divid).find('.comment-help-link').parent().append(newspan);
       });
