@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.0.8
+// @version        1.0.9
 // @description    Add pro-forma comments dialog for reviewing (pre-flag)
 // @include        http://*stackoverflow.com/questions*
 // @include        http://*serverfault.com/questions*
@@ -23,8 +23,9 @@ function with_jquery(f) {
 
 with_jquery(function ($) {
   $(function () {
+    var ANNOUNCEMENT = 'NA';
     //**selfupdatingscript starts here (see https://gist.github.com/raw/874058/selfupdatingscript.user.js)
-    var VERSION = '1.0.8';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
+    var VERSION = '1.0.9';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
     var URL = "https://gist.github.com/raw/842025/autoreviewcomments.user.js";
 
     if(window["selfUpdaterCallback:" + URL]) {
@@ -48,13 +49,13 @@ with_jquery(function ($) {
     var greeting = 'Welcome to ' + sitename + '! ';
     var showGreeting = false;
 
-    var markup = '                                                                                    \
+    var markupTemplate = '                                                                                    \
     <div id="popup" class="popup" style="width:690px; position: absolute; display: block">            \
        <div id="close" class="popup-close"><a title="close this popup (or hit Esc)">&#215;</a></div>  \
        <h2>Which review comment to insert?</h2>                                                       \
        <div style="overflow:hidden" id="main">                                                        \
          <div class="popup-active-pane">                                                              \
-           <div id="userinfo" class="owner" style="padding:5px">                                      \
+           <div id="userinfo" style="padding:5px;background:#EAEFEF">                                        \
               <img src="http://sstatic.net/img/progress-dots.gif"/>                                   \
            </div>                                                                                     \
           <ul class="action-list" style="height:440;overflow-y:auto" >                                \
@@ -81,7 +82,15 @@ with_jquery(function ($) {
        </div>                                                                                         \
     </div>';
 
-    var option = '                                                          \
+    var messageTemplate = '                                                                                                              \
+    <div id="announcement" style="background:orange;padding:7px;margin-bottom:10px;font-size:15px">                               \
+      <span class="notify-close" style="border:2px solid black;cursor:pointer;display:block;float:right;margin:0 4px;padding:0 4px;line-height:17px">  \
+         <a title="dismiss this notification" style="color:black;text-decoration:none;font-weight:bold;font-size:16px">x</a>      \
+      </span>                                                                                                                     \
+      <strong>$TITLE$</strong> $BODY$                                                                                           \
+    </div>';
+
+    var optionTemplate = '                                                          \
     <li>                                                                    \
       <input id="comment-$ID$" type="radio" name="commentreview"/>          \
       <label for="comment-$ID$">                                            \
@@ -112,13 +121,6 @@ with_jquery(function ($) {
       for(var i = localStorage.length - 1; i >= 0; i--) {
         var key = localStorage.key(i);
         if(key.indexOf(prefix + startsWith) == 0) localStorage.removeItem(key);
-      }
-    }
-    function UpgradeStorage(key) { //<---- remove this in V1.0.9
-      var val = localStorage[key];
-      if(val != null) {
-        localStorage.removeItem(key);
-        SetStorage(key, val);
       }
     }
 
@@ -224,8 +226,9 @@ with_jquery(function ($) {
       var tohide = popup.find('#main');
       var div = $('<div><textarea/><a class="save">save</a><span class="lsep"> | </span><a class="cancel">cancel</a></div>');
       //Painful, but shortest way I've found to position div over the tohide element
-      div.css('position', 'absolute').css('left', tohide.position().left).css('top', tohide.position().top)
-          .css('width', tohide.css('width')).css('height', tohide.css('height')).css('background', 'white');
+      div.css({ position: 'absolute', left: tohide.position().left, top: tohide.position().top,
+        width: tohide.css('width'), height: tohide.css('height'), background: 'white'
+      });
 
       var txt = '';
       for(var i = 0; i < GetStorage("commentcount"); i++) {
@@ -243,7 +246,7 @@ with_jquery(function ($) {
 
     //Import complete text into comments
     function DoImport(text) {
-      //first time through on V1.0.8, clear out any existing stuff
+      //clear out any existing stuff
       ClearStorage("name-"); ClearStorage("desc-");
       var arr = text.split('\n');
       var nameIndex = 0, descIndex = 0;
@@ -255,7 +258,7 @@ with_jquery(function ($) {
         }
         else if(arr[i].length > 0) {
           var desc = markDownToHtml(arr[i]);
-          SetStorage('desc-' + descIndex, TagHtml(desc));
+          SetStorage('desc-' + descIndex, Tag(desc));
           descIndex++;
         }
       }
@@ -273,7 +276,11 @@ with_jquery(function ($) {
       return html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*(.+?)\*/g, '<em>$1</em>');
     }
 
-    function TagHtml(html) {
+    function UnTag(text) {
+      return text.replace(/\$SITENAME\$/g, sitename).replace(/\$SITEURL\$/g, siteurl)
+    }
+
+    function Tag(html) {
       //put tags back in
       var regname = new RegExp(sitename, "g"), regurl = new RegExp('http://' + siteurl, "g");
       return html.replace(regname, '$SITENAME$').replace(regurl, 'http://$SITEURL$');
@@ -281,7 +288,7 @@ with_jquery(function ($) {
 
     //Replace contents of element with a textarea (containing markdown of contents), and save/cancel buttons
     function ToEditable(el) {
-      var html = el.html();
+      var html = Tag(el.html());
       if(html.indexOf('<textarea') > -1) return; //don't want to create a new textarea inside this one!
       var txt = $('<textarea />').css('height', 2 * el.height())
                 .css('width', el.css('width'))
@@ -309,13 +316,14 @@ with_jquery(function ($) {
     //Save textarea contents, replace element html with new edited content
     function SaveEditable(el) {
       var html = markDownToHtml(el.find('textarea').attr('value'));
-      SetStorage(el.attr('id'), TagHtml(html));
-      el.html((showGreeting ? greeting : "") + html);
+      SetStorage(el.attr('id'), Tag(html));
+      el.html((showGreeting ? greeting : "") + UnTag(html));
     }
 
     function CancelEditable(el, backup) {
       el.html(backup);
     }
+
     //Empty all custom comments from storage and rewrite to ui
     function ResetComments() {
       ClearStorage("name-"); ClearStorage("desc-");
@@ -326,29 +334,14 @@ with_jquery(function ($) {
       SetStorage("commentcount", defaultcomments.length);
     }
 
-    //<-----Delete this in V1.0.9---->
-    function UpgradeComments() {
-      //this adds default comments, but with prefix in front of key (so it's not squashing old ones)
-      ResetComments();
-      //this checks for 'old' custom comments and overwrites them onto prefixed-key storage
-      for(var i = 0; i < defaultcomments.length; i++) {
-        //this shouldn't break anything, but it is a bit fragile....
-        if(localStorage["desc-" + i] != null) {
-          localStorage["desc-" + i] = localStorage["desc-" + i].replace(/\$SITEURL\$/g, "http://$SITEURL$");
-        }
-        UpgradeStorage("name-" + i);
-        UpgradeStorage("desc-" + i);
-      }
-    }
-
     //rewrite all comments to ui (typically after import or reset)
     function WriteComments(popup) {
-      if(!GetStorage("commentcount")) UpgradeComments(); // << change this to ResetComments in V1.0.9
+      if(!GetStorage("commentcount")) ResetComments();
       var ul = popup.find('.action-list');
       ul.empty();
       for(var i = 0; i < GetStorage("commentcount"); i++) {
         var desc = GetStorage('desc-' + i).replace(/\$SITENAME\$/g, sitename).replace(/\$SITEURL\$/g, siteurl);
-        var opt = option.replace(/\$ID\$/g, i)
+        var opt = optionTemplate.replace(/\$ID\$/g, i)
                         .replace("$NAME$", GetStorage('name-' + i))
                         .replace("$DESCRIPTION$", (showGreeting ? greeting : "") + desc);
         ul.append(opt);
@@ -381,15 +374,38 @@ with_jquery(function ($) {
       }
     }
 
+    //Show a message (like notify.show) inside popup
+    function ShowMessage(popup, title, body, callback) {
+      var html = body.replace(/\n/g, '<BR/>');
+      var message = $(messageTemplate.replace("$TITLE$", title)
+                          .replace('$BODY$', html));
+      message.find('.notify-close').click(function () {
+        $(this).parent().fadeOutAndRemove();
+        callback();
+      });
+      popup.find('h2').before(message);
+    }
+
+    //We only show announcement once for each version
+    function CheckForAnnouncement(popup) {
+      var previous = GetStorage("LastMessage");
+      if(previous != ANNOUNCEMENT) {
+        ShowMessage(popup, "Service announcement", ANNOUNCEMENT, function () { SetStorage("LastMessage", ANNOUNCEMENT); });
+      }
+    }
+
     //Check to see if a new version has become available since last check
-    // only checks once a day, and won't notify user twice
-    function CheckForNewVersion() {
-      UpgradeStorage("LastUpdateCheckDay");  ///<<<<--- Remove this for 1.0.9
+    // only checks once a day
+    function CheckForNewVersion(popup) {
       var today = (new Date().setHours(0, 0, 0, 0));
       var lastCheck = GetStorage("LastUpdateCheckDay");
       if(lastCheck != null && lastCheck != today) {
+        var lastVersion = GetStorage("LastVersionAcknowledged");
         updateCheck(function (newver, oldver, url) {
-          notify.show('A new version (' + newver + ') of the <a href="http://stackapps.com/q/2116">AutoReviewComments</a> userscript is now available (this notification will only appear once per new version).', -123456);
+          if(newver != lastVersion) {
+            ShowMessage(popup, "New Version!", 'A new version (' + newver + ') of the <a href="http://stackapps.com/q/2116">AutoReviewComments</a> userscript is now available (this notification will only appear once per new version, and per site).',
+              function () { SetStorage("LastVersionAcknowledged", newver); });
+          }
         });
       }
       SetStorage("LastUpdateCheckDay", today);
@@ -402,8 +418,11 @@ with_jquery(function ($) {
         if($('#' + divid).find('.comment-auto-link').length > 0) return; //don't create auto link if already there
         var newspan = $('<span class="lsep"> | </span>').add($('<a class="comment-auto-link">auto</a>').click(function () {
           //Create popup and wire-up the functionality
-          var popup = $(markup);
+          var popup = $(markupTemplate);
           popup.find('.popup-close').click(function () { popup.fadeOutAndRemove(); });
+
+          //Reset this, otherwise we get the greeting twice...
+          showGreeting = false;
 
           //create/add options
           WriteComments(popup);
@@ -430,6 +449,10 @@ with_jquery(function ($) {
             $('#' + divid).find('textarea').attr('value', markdown).focus();  //focus provokes character count test
             popup.fadeOutAndRemove();
           });
+
+          //check if we need to show annoucement, if so, some wiring to be performed
+          //CheckForAnnouncement(popup); //Not ready yet
+
           //add popup and center on screen
           $('#' + divid).append(popup);
           popup.center();
@@ -440,7 +463,7 @@ with_jquery(function ($) {
 
           //We only actually perform the updates check when someone clicks, this should make it less costly, and more timely
           //also wrap it so that it only gets called the *FIRST* time we open this dialog on any given page (not much of an optimisation).
-          if(!window.VersionChecked) { CheckForNewVersion(); window.VersionChecked = true; }
+          if(!window.VersionChecked) { CheckForNewVersion(popup); window.VersionChecked = true; }
         }));
         $('#' + divid).find('.comment-help-link').parent().append(newspan);
       });
