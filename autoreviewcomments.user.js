@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.1.0
+// @version        1.1.1
 // @description    Add pro-forma comments dialog for reviewing (pre-flag)
 // @include        http://*stackoverflow.com/questions*
 // @include        http://*serverfault.com/questions*
@@ -25,7 +25,7 @@ with_jquery(function ($) {
   StackExchange.ready(function () {
     var ANNOUNCEMENT = 'NA';
     //**selfupdatingscript starts here (see https://gist.github.com/raw/874058/selfupdatingscript.user.js)
-    var VERSION = '1.1.0';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
+    var VERSION = '1.1.1';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
     var URL = "https://gist.github.com/raw/842025/autoreviewcomments.user.js";
 
     if(window["selfUpdaterCallback:" + URL]) {
@@ -355,16 +355,20 @@ with_jquery(function ($) {
       //add click handler to radio buttons
       popup.find('input:radio').click(function () {
         popup.find('.popup-submit').attr("disabled", ""); //enable submit button
-        //unset/set selected class
-        $(this).parents('ul').find(".action-selected").removeClass("action-selected");
-        $(this).parent().addClass('action-selected');
-        //}
+        //unset/set selected class, hide others if necessary
+        $(this).parents('ul').find('.action-selected').removeClass('action-selected');
+        if(GetStorage('hide-desc') == "hide") {
+          $(this).parents('ul').find('.action-desc').hide();
+        }
+        $(this).parent().addClass('action-selected')
+                        .find('.action-desc').show();
       });
     }
 
     //Adjust the descriptions so they show or hide based on the user's preference.
     function ShowHideDescriptions(popup) {
-      var descriptions = popup.find("ul.action-list span[id*='desc-']");
+      //get list of all descriptions except the currently selected one
+      var descriptions = popup.find("ul.action-list li:not(.action-selected) span[id*='desc-']");
 
       if(GetStorage('hide-desc') == "hide") {
         descriptions.hide();
