@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.1.1
+// @version        1.1.2
 // @description    Add pro-forma comments dialog for reviewing (pre-flag)
 // @include        http://*stackoverflow.com/questions*
 // @include        http://*serverfault.com/questions*
@@ -25,7 +25,7 @@ with_jquery(function ($) {
   StackExchange.ready(function () {
     var ANNOUNCEMENT = 'NA';
     //**selfupdatingscript starts here (see https://gist.github.com/raw/874058/selfupdatingscript.user.js)
-    var VERSION = '1.1.1';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
+    var VERSION = '1.1.2';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
     var URL = "https://gist.github.com/raw/842025/autoreviewcomments.user.js";
 
     if(window["selfUpdaterCallback:" + URL]) {
@@ -272,7 +272,7 @@ with_jquery(function ($) {
     }
 
     function markDownToHtml(markdown) {
-      html = markdown.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>');
+      html = markdown.replace(/\[([^\]]+)\]\((.+?)\)/g, '<a href="$2">$1</a>');
       return html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*(.+?)\*/g, '<em>$1</em>');
     }
 
