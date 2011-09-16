@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.1.2
+// @version        1.1.3
 // @description    Add pro-forma comments dialog for reviewing (pre-flag)
 // @include        http://*stackoverflow.com/questions*
 // @include        http://*serverfault.com/questions*
@@ -25,7 +25,7 @@ with_jquery(function ($) {
   StackExchange.ready(function () {
     var ANNOUNCEMENT = 'NA';
     //**selfupdatingscript starts here (see https://gist.github.com/raw/874058/selfupdatingscript.user.js)
-    var VERSION = '1.1.2';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
+    var VERSION = '1.1.3';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
     var URL = "https://gist.github.com/raw/842025/autoreviewcomments.user.js";
 
     if(window["selfUpdaterCallback:" + URL]) {
@@ -207,8 +207,8 @@ with_jquery(function ($) {
               showGreeting = true;
               container.find('.action-desc').prepend(greeting);
             }
-
-            var html = 'User <strong><a href="/users/' + userid + '" target="_blank">' + user['display_name'] + '</a></strong>,     \
+            var usertype = user['user_type'].charAt(0).toUpperCase() + user['user_type'].slice(1); 
+            var html = usertype + ' user <strong><a href="/users/' + userid + '" target="_blank">' + user['display_name'] + '</a></strong>,     \
                             member <strong>' + datespan(user['creation_date']) + '</strong>,                                        \
                             last seen <strong>' + lastseen(user['last_access_date']) + '</strong>,                                  \
                             reputation <strong>' + repNumber(user['reputation']) + '</strong>';
