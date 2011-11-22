@@ -1,17 +1,26 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.1.4
+// @version        1.1.5
 // @description    Add pro-forma comments dialog for reviewing (pre-flag)
 // @include        http://*stackoverflow.com/questions*
+// @include        http://*stackoverflow.com/review*
 // @include        http://*serverfault.com/questions*
+// @include        http://*serverfault.com/review*
 // @include        http://*superuser.com/questions*
+// @include        http://*superuser.com/review*
 // @include        http://*stackexchange.com/questions*
+// @include        http://*stackexchange.com/review*
 // @include        http://*askubuntu.com/questions*
+// @include        http://*askubuntu.com/review*
 // @include        http://*answers.onstartups.com/questions*
+// @include        http://*answers.onstartups.com/review*
 // @include        http://mathoverflow.net/questions*
+// @include        http://mathoverflow.net/review*
 // @include        http://discuss.area51.stackexchange.com/questions/*
+// @include        http://discuss.area51.stackexchange.com/review/*
 // @include        http://stackapps.com/questions*
+// @include        http://stackapps.com/review*
 // ==/UserScript==
 
 function with_jquery(f) {
@@ -25,7 +34,7 @@ with_jquery(function ($) {
   StackExchange.ready(function () {
     var ANNOUNCEMENT = 'NA';
     //**selfupdatingscript starts here (see https://gist.github.com/raw/874058/selfupdatingscript.user.js)
-    var VERSION = '1.1.4';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
+    var VERSION = '1.1.5';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
     var URL = "https://gist.github.com/raw/842025/autoreviewcomments.user.js";
 
     if(window["selfUpdaterCallback:" + URL]) {
@@ -414,65 +423,64 @@ with_jquery(function ($) {
       }
       SetStorage("LastUpdateCheckDay", today);
     }
-
+        
     //This is where the real work starts - add the 'auto' link next to each comment 'help' link
-    $(".comments-link").each(function () {
+    //use most local root-nodes possible (have to exist on page load) - #questions is for review pages
+    $(".question, .answer, #questions").delegate(".comments-link", "click", function() {
       var divid = $(this).attr('id').replace('-link', '');
-      $(this).click(function () {
-        if($('#' + divid).find('.comment-auto-link').length > 0) return; //don't create auto link if already there
-        var newspan = $('<span class="lsep"> | </span>').add($('<a class="comment-auto-link">auto</a>').click(function () {
-          //Create popup and wire-up the functionality
-          var popup = $(markupTemplate);
-          popup.find('.popup-close').click(function () { popup.fadeOutAndRemove(); });
+      if($('#' + divid).find('.comment-auto-link').length > 0) return; //don't create auto link if already there
+      var newspan = $('<span class="lsep"> | </span>').add($('<a class="comment-auto-link">auto</a>').click(function () {
+        //Create popup and wire-up the functionality
+        var popup = $(markupTemplate);
+        popup.find('.popup-close').click(function () { popup.fadeOutAndRemove(); });
 
-          //Reset this, otherwise we get the greeting twice...
-          showGreeting = false;
+        //Reset this, otherwise we get the greeting twice...
+        showGreeting = false;
 
-          //create/add options
-          WriteComments(popup);
+        //create/add options
+        WriteComments(popup);
 
-          //Add handlers for command links
-          popup.find('.popup-actions-cancel').click(function () { popup.fadeOutAndRemove(); });
-          popup.find('.popup-actions-reset').click(function () { ResetComments(); WriteComments(popup); });
-          popup.find('.popup-actions-see').hover(function () {
-            popup.fadeTo('fast', '0.4').children().not('#close').fadeTo('fast', '0.0')
-          }, function () {
-            popup.fadeTo('fast', '1.0').children().not('#close').fadeTo('fast', '1.0')
-          });
-          popup.find('.popup-actions-impexp').click(function () { ImportExport(popup); });
-          popup.find('.popup-actions-toggledesc').click(function () {
-            var hideDesc = GetStorage('hide-desc') || "show";
-            SetStorage('hide-desc', hideDesc == "show" ? "hide" : "show");
-            ShowHideDescriptions(popup);
-          });
+        //Add handlers for command links
+        popup.find('.popup-actions-cancel').click(function () { popup.fadeOutAndRemove(); });
+        popup.find('.popup-actions-reset').click(function () { ResetComments(); WriteComments(popup); });
+        popup.find('.popup-actions-see').hover(function () {
+          popup.fadeTo('fast', '0.4').children().not('#close').fadeTo('fast', '0.0')
+        }, function () {
+          popup.fadeTo('fast', '1.0').children().not('#close').fadeTo('fast', '1.0')
+        });
+        popup.find('.popup-actions-impexp').click(function () { ImportExport(popup); });
+        popup.find('.popup-actions-toggledesc').click(function () {
+          var hideDesc = GetStorage('hide-desc') || "show";
+          SetStorage('hide-desc', hideDesc == "show" ? "hide" : "show");
+          ShowHideDescriptions(popup);
+        });
 
-          //on submit, convert html to markdown and copy to comment textarea
-          popup.find('.popup-submit').click(function () {
-            var selected = popup.find('input:radio:checked');
-            var markdown = htmlToMarkDown(selected.parent().find('.action-desc').html());
-            $('#' + divid).find('textarea').attr('value', markdown).focus();  //focus provokes character count test
-            var caret = markdown.indexOf('[type here]')
-            if(caret >= 0) $('#' + divid).find('textarea')[0].setSelectionRange(caret, caret + '[type here]'.length);
-            popup.fadeOutAndRemove();
-          });
+        //on submit, convert html to markdown and copy to comment textarea
+        popup.find('.popup-submit').click(function () {
+          var selected = popup.find('input:radio:checked');
+          var markdown = htmlToMarkDown(selected.parent().find('.action-desc').html());
+          $('#' + divid).find('textarea').attr('value', markdown).focus();  //focus provokes character count test
+          var caret = markdown.indexOf('[type here]')
+          if(caret >= 0) $('#' + divid).find('textarea')[0].setSelectionRange(caret, caret + '[type here]'.length);
+          popup.fadeOutAndRemove();
+        });
 
-          //check if we need to show annoucement, if so, some wiring to be performed
-          //CheckForAnnouncement(popup); //Not ready yet
+        //check if we need to show annoucement, if so, some wiring to be performed
+        //CheckForAnnouncement(popup); //Not ready yet
 
-          //add popup and center on screen
-          $('#' + divid).append(popup);
-          popup.center();
+        //add popup and center on screen
+        $('#' + divid).append(popup);
+        popup.center();
 
-          //Get user info and inject
-          var userid = getUserId($(this));
-          getUserInfo(userid, popup);
+        //Get user info and inject
+        var userid = getUserId($(this));
+        getUserInfo(userid, popup);
 
-          //We only actually perform the updates check when someone clicks, this should make it less costly, and more timely
-          //also wrap it so that it only gets called the *FIRST* time we open this dialog on any given page (not much of an optimisation).
-          if(!window.VersionChecked) { CheckForNewVersion(popup); window.VersionChecked = true; }
-        }));
-        $('#' + divid).find('.comment-help-link').parent().append(newspan);
-      });
+        //We only actually perform the updates check when someone clicks, this should make it less costly, and more timely
+        //also wrap it so that it only gets called the *FIRST* time we open this dialog on any given page (not much of an optimisation).
+        if(!window.VersionChecked) { CheckForNewVersion(popup); window.VersionChecked = true; }
+      }));
+      $('#' + divid).find('.comment-help-link').parent().append(newspan);
     });
   });
 });
