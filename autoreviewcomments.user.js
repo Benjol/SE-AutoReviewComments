@@ -1,26 +1,35 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.1.5
+// @version        1.1.6
 // @description    Add pro-forma comments dialog for reviewing (pre-flag)
 // @include        http://*stackoverflow.com/questions*
 // @include        http://*stackoverflow.com/review*
+// @include        http://*stackoverflow.com/admin/dashboard*
 // @include        http://*serverfault.com/questions*
 // @include        http://*serverfault.com/review*
+// @include        http://*serverfault.com/admin/dashboard*
 // @include        http://*superuser.com/questions*
 // @include        http://*superuser.com/review*
+// @include        http://*superuser.com/admin/dashboard*
 // @include        http://*stackexchange.com/questions*
 // @include        http://*stackexchange.com/review*
+// @include        http://*stackexchange.com/admin/dashboard*
 // @include        http://*askubuntu.com/questions*
 // @include        http://*askubuntu.com/review*
+// @include        http://*askubuntu.com/admin/dashboard*
 // @include        http://*answers.onstartups.com/questions*
 // @include        http://*answers.onstartups.com/review*
-// @include        http://mathoverflow.net/questions*
-// @include        http://mathoverflow.net/review*
+// @include        http://*answers.onstartups.com/admin/dashboard*
+// @include        http://*mathoverflow.net/questions*
+// @include        http://*mathoverflow.net/review*
+// @include        http://*mathoverflow.net/admin/dashboard*
 // @include        http://discuss.area51.stackexchange.com/questions/*
 // @include        http://discuss.area51.stackexchange.com/review/*
+// @include        http://discuss.area51.com/admin/dashboard*
 // @include        http://stackapps.com/questions*
 // @include        http://stackapps.com/review*
+// @include        http://stackapps.com/admin/dashboard*
 // ==/UserScript==
 
 function with_jquery(f) {
@@ -426,7 +435,7 @@ with_jquery(function ($) {
         
     //This is where the real work starts - add the 'auto' link next to each comment 'help' link
     //use most local root-nodes possible (have to exist on page load) - #questions is for review pages
-    $(".question, .answer, #questions").delegate(".comments-link", "click", function() {
+    $(".question, .answer, #questions, .flag-container").delegate(".comments-link", "click", function() {
       var divid = $(this).attr('id').replace('-link', '');
       if($('#' + divid).find('.comment-auto-link').length > 0) return; //don't create auto link if already there
       var newspan = $('<span class="lsep"> | </span>').add($('<a class="comment-auto-link">auto</a>').click(function () {
