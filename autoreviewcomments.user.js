@@ -431,6 +431,12 @@ with_jquery(function ($) {
     function CheckForNewVersion(popup) {
       var today = (new Date().setHours(0, 0, 0, 0));
       var lastCheck = GetStorage("LastUpdateCheckDay");
+	  if(lastCheck == null) { //first time visitor
+	    ShowMessage(popup, "Please read this!", 'Thanks for installing this script. \
+							Please note that you can EDIT the texts inline by double-clicking them. \
+							For other options, please read the full text <a href="http://stackapps.com/q/2116">here</a>.', 
+							function () { });
+	  }
       if(lastCheck != null && lastCheck != today) {
         var lastVersion = GetStorage("LastVersionAcknowledged");
         updateCheck(function (newver, oldver, url) {
