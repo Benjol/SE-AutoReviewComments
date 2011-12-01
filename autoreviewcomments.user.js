@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.1.6
+// @version        1.1.7
 // @description    Add pro-forma comments dialog for reviewing (pre-flag)
 // @include        http://*stackoverflow.com/questions*
 // @include        http://*stackoverflow.com/review*
@@ -43,7 +43,7 @@ with_jquery(function ($) {
   StackExchange.ready(function () {
     var ANNOUNCEMENT = 'NA';
     //**selfupdatingscript starts here (see https://gist.github.com/raw/874058/selfupdatingscript.user.js)
-    var VERSION = '1.1.6';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
+    var VERSION = '1.1.7';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
     var URL = "https://gist.github.com/raw/842025/autoreviewcomments.user.js";
 
     if(window["selfUpdaterCallback:" + URL]) {
@@ -351,21 +351,32 @@ with_jquery(function ($) {
       });
       SetStorage("commentcount", defaultcomments.length);
     }
-
+    
     //rewrite all comments to ui (typically after import or reset)
     function WriteComments(popup) {
+      console.log(popup.posttype);
       if(!GetStorage("commentcount")) ResetComments();
       var ul = popup.find('.action-list');
       ul.empty();
       for(var i = 0; i < GetStorage("commentcount"); i++) {
-        var desc = GetStorage('desc-' + i).replace(/\$SITENAME\$/g, sitename).replace(/\$SITEURL\$/g, siteurl);
-        var opt = optionTemplate.replace(/\$ID\$/g, i)
-                        .replace("$NAME$", GetStorage('name-' + i))
-                        .replace("$DESCRIPTION$", (showGreeting ? greeting : "") + desc);
-        ul.append(opt);
+        var commenttype = GetCommentType(GetStorage('name-' + i));
+        if(commenttype == "any" || (commenttype == popup.posttype))
+        {
+          var desc = GetStorage('desc-' + i).replace(/\$SITENAME\$/g, sitename).replace(/\$SITEURL\$/g, siteurl);
+          var opt = optionTemplate.replace(/\$ID\$/g, i)
+                          .replace("$NAME$", GetStorage('name-' + i))
+                          .replace("$DESCRIPTION$", (showGreeting ? greeting : "") + desc);
+          ul.append(opt);
+        }
       }
       ShowHideDescriptions(popup);
       AddOptionEventHandlers(popup);
+    }
+  
+    function GetCommentType(comment) {
+      if(comment.indexOf('[Q]') > -1) return "question";
+      if(comment.indexOf('[A]') > -1) return "answer";
+      return "any";
     }
 
     function AddOptionEventHandlers(popup) {
@@ -437,6 +448,8 @@ with_jquery(function ($) {
     //use most local root-nodes possible (have to exist on page load) - #questions is for review pages
     $(".question, .answer, #questions, .flag-container").delegate(".comments-link", "click", function() {
       var divid = $(this).attr('id').replace('-link', '');
+      var posttype = $(this).parents(".question, .answer").attr("class");
+      
       if($('#' + divid).find('.comment-auto-link').length > 0) return; //don't create auto link if already there
       var newspan = $('<span class="lsep"> | </span>').add($('<a class="comment-auto-link">auto</a>').click(function () {
         //Create popup and wire-up the functionality
