@@ -455,6 +455,7 @@ with_jquery(function ($) {
         //Create popup and wire-up the functionality
         var popup = $(markupTemplate);
         popup.find('.popup-close').click(function () { popup.fadeOutAndRemove(); });
+        popup.posttype = posttype;
 
         //Reset this, otherwise we get the greeting twice...
         showGreeting = false;
