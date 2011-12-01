@@ -354,7 +354,6 @@ with_jquery(function ($) {
     
     //rewrite all comments to ui (typically after import or reset)
     function WriteComments(popup) {
-      console.log(popup.posttype);
       if(!GetStorage("commentcount")) ResetComments();
       var ul = popup.find('.action-list');
       ul.empty();
