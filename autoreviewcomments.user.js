@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.1.9
+// @version        1.2.0
 // @description    Add pro-forma comments dialog for reviewing (pre-flag)
 // @include        http://*stackoverflow.com/questions*
 // @include        http://*stackoverflow.com/review*
@@ -43,7 +43,7 @@ with_jquery(function ($) {
   StackExchange.ready(function () {
     var ANNOUNCEMENT = 'NA';
     //**selfupdatingscript starts here (see https://gist.github.com/raw/874058/selfupdatingscript.user.js)
-    var VERSION = '1.1.9';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
+    var VERSION = '1.2.0';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
     var URL = "https://gist.github.com/raw/842025/autoreviewcomments.user.js";
 
     if(window["selfUpdaterCallback:" + URL]) {
@@ -225,7 +225,7 @@ with_jquery(function ($) {
               showGreeting = true;
               container.find('.action-desc').prepend(greeting);
             }
-            var usertype = user['user_type'].charAt(0).toUpperCase() + user['user_type'].slice(1); 
+            var usertype = user['user_type'].charAt(0).toUpperCase() + user['user_type'].slice(1);
             var html = usertype + ' user <strong><a href="/users/' + userid + '" target="_blank">' + user['display_name'] + '</a></strong>,     \
                             member <strong>' + datespan(user['creation_date']) + '</strong>,                                        \
                             last seen <strong>' + lastseen(user['last_access_date']) + '</strong>,                                  \
@@ -306,17 +306,18 @@ with_jquery(function ($) {
 
     //Replace contents of element with a textarea (containing markdown of contents), and save/cancel buttons
     function ToEditable(el) {
-      var html = Tag(el.html());
+      var backup = el.html();
+      var html = Tag(el.html().replace(greeting, ''));  //remove greeting before editing..
       if(html.indexOf('<textarea') > -1) return; //don't want to create a new textarea inside this one!
       var txt = $('<textarea />').css('height', 2 * el.height())
                 .css('width', el.css('width'))
-                .attr('value', htmlToMarkDown(html).replace(greeting, '')); //remove greeting before editing..
+                .attr('value', htmlToMarkDown(html));
 
       BorkFor(el); //this is a hack
       //save/cancel links to add to textarea
       var commands = $('<a>save</a>').click(function () { SaveEditable($(this).parent()); UnborkFor(el); })
                       .add('<span class="lsep"> | </span>')
-                      .add($('<a>cancel</a>').click(function () { CancelEditable($(this).parent(), html); UnborkFor(el); }));
+                      .add($('<a>cancel</a>').click(function () { CancelEditable($(this).parent(), backup); UnborkFor(el); }));
       //set contents of element to textarea with links
       el.html(txt.add(commands));
     }
@@ -351,7 +352,7 @@ with_jquery(function ($) {
       });
       SetStorage("commentcount", defaultcomments.length);
     }
-    
+
     //rewrite all comments to ui (typically after import or reset)
     function WriteComments(popup) {
       if(!GetStorage("commentcount")) ResetComments();
@@ -359,8 +360,7 @@ with_jquery(function ($) {
       ul.empty();
       for(var i = 0; i < GetStorage("commentcount"); i++) {
         var commenttype = GetCommentType(GetStorage('name-' + i));
-        if(commenttype == "any" || (commenttype == popup.posttype))
-        {
+        if(commenttype == "any" || (commenttype == popup.posttype)) {
           var desc = GetStorage('desc-' + i).replace(/\$SITENAME\$/g, sitename).replace(/\$SITEURL\$/g, siteurl).replace(/\$/g, "$$$");
           var opt = optionTemplate.replace(/\$ID\$/g, i)
                           .replace("$NAME$", GetStorage('name-' + i).replace(/\$/g, "$$$"))
@@ -371,7 +371,7 @@ with_jquery(function ($) {
       ShowHideDescriptions(popup);
       AddOptionEventHandlers(popup);
     }
-  
+
     function GetCommentType(comment) {
       if(comment.indexOf('[Q]') > -1) return "question";
       if(comment.indexOf('[A]') > -1) return "answer";
@@ -390,6 +390,12 @@ with_jquery(function ($) {
         }
         $(this).parent().addClass('action-selected')
                         .find('.action-desc').show();
+      });
+      popup.find('input:radio').keyup(function (event) {
+        if(event.which == 13) {
+          event.preventDefault();
+          popup.find('.popup-submit').trigger('click');
+        }
       });
     }
 
@@ -431,12 +437,12 @@ with_jquery(function ($) {
     function CheckForNewVersion(popup) {
       var today = (new Date().setHours(0, 0, 0, 0));
       var lastCheck = GetStorage("LastUpdateCheckDay");
-	  if(lastCheck == null) { //first time visitor
-	    ShowMessage(popup, "Please read this!", 'Thanks for installing this script. \
-							Please note that you can EDIT the texts inline by double-clicking them. \
-							For other options, please read the full text <a href="http://stackapps.com/q/2116">here</a>.', 
-							function () { });
-	  }
+      if(lastCheck == null) { //first time visitor
+        ShowMessage(popup, "Please read this!", 'Thanks for installing this script. \
+                            Please note that you can EDIT the texts inline by double-clicking them. \
+                            For other options, please read the full text <a href="http://stackapps.com/q/2116">here</a>.',
+                            function () { });
+      }
       if(lastCheck != null && lastCheck != today) {
         var lastVersion = GetStorage("LastVersionAcknowledged");
         updateCheck(function (newver, oldver, url) {
@@ -448,13 +454,13 @@ with_jquery(function ($) {
       }
       SetStorage("LastUpdateCheckDay", today);
     }
-        
+
     //This is where the real work starts - add the 'auto' link next to each comment 'help' link
     //use most local root-nodes possible (have to exist on page load) - #questions is for review pages
-    $(".question, .answer, #questions, .flag-container").delegate(".comments-link", "click", function() {
+    $(".question, .answer, #questions, .flag-container").delegate(".comments-link", "click", function () {
       var divid = $(this).attr('id').replace('-link', '');
       var posttype = $(this).parents(".question, .answer").attr("class");
-      
+
       if($('#' + divid).find('.comment-auto-link').length > 0) return; //don't create auto link if already there
       var newspan = $('<span class="lsep"> | </span>').add($('<a class="comment-auto-link">auto</a>').click(function () {
         //Create popup and wire-up the functionality
