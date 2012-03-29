@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.2.1
+// @version        1.2.2
 // @description    Add pro-forma comments dialog for reviewing (pre-flag)
 // @include        http://*stackoverflow.com/questions*
 // @include        http://*stackoverflow.com/review*
@@ -50,9 +50,8 @@ function with_jquery(f) {
 
 with_jquery(function ($) {
   StackExchange.ready(function () {
-    var ANNOUNCEMENT = 'NA';
     //**selfupdatingscript starts here (see https://gist.github.com/raw/874058/selfupdatingscript.user.js)
-    var VERSION = '1.2.1';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
+    var VERSION = '1.2.2';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
     var URL = "https://gist.github.com/raw/842025/autoreviewcomments.user.js";
 
     if(window["selfUpdaterCallback:" + URL]) {
@@ -76,18 +75,31 @@ with_jquery(function ($) {
     var greeting = 'Welcome to ' + sitename + '! ';
     var showGreeting = false;
 
-    var markupTemplate = '                                                                                    \
+    var markupTemplate = '                                                                            \
     <div id="popup" class="popup" style="width:690px; position: absolute; display: block">            \
        <div id="close" class="popup-close"><a title="close this popup (or hit Esc)">&#215;</a></div>  \
        <h2>Which review comment to insert?</h2>                                                       \
        <div style="overflow:hidden" id="main">                                                        \
          <div class="popup-active-pane">                                                              \
-           <div id="userinfo" style="padding:5px;background:#EAEFEF">                                        \
+           <div id="userinfo" style="padding:5px;background:#EAEFEF">                                 \
               <img src="http://sstatic.net/img/progress-dots.gif"/>                                   \
            </div>                                                                                     \
           <ul class="action-list" style="height:440;overflow-y:auto" >                                \
           </ul>                                                                                       \
          </div>                                                                                       \
+         <div style="display:none" class="share-tip">                                                 \
+            enter url for remote source of comments (use import/export to create jsonp)               \
+            <input id="remoteurl" type="text" style="display: block; width: 400px;">                  \
+            <img id="throbber" style="display:none" src="http://sstatic.net/img/progress-dots.gif"/>  \
+            <span id="remoteerror" style="color:red"/>                                                \
+            <div style="float:right">                                                                 \
+              <a class="remote-get">get</a>                                                           \
+              <span class="lsep"> | </span>                                                           \
+              <a class="remote-clear">clear</a>                                                       \
+              <span class="lsep"> | </span>                                                           \
+              <a class="remote-cancel">cancel</a>                                                     \
+            </div>                                                                                    \
+        </div>                                                                                        \
          <div class="popup-actions">                                                                  \
           <div style="float: left; margin-top: 18px;">                                                \
             <a title="close this popup (or hit Esc)" class="popup-actions-cancel">cancel</a>          \
@@ -101,6 +113,8 @@ with_jquery(function ($) {
             <a title="use this to import/export all comments" class="popup-actions-impexp">import/export</a>    \
             <span class="lsep"> | </span>                                                             \
             <a title="use this to hide/show all comments" class="popup-actions-toggledesc">show/hide desc</a>    \
+            <span class="lsep"> | </span>                                                             \
+            <a title="setup remote source" class="popup-actions-remote">remote</a>                    \
           </div>                                                                                      \
           <div style="float:right">                                                                   \
             <input class="popup-submit" type="button" disabled="disabled" style="float:none; margin-left: 5px" value="Insert">  \
@@ -251,7 +265,7 @@ with_jquery(function ($) {
     //Show textarea in front of popup to import/export all comments (for other sites or for posting somewhere)
     function ImportExport(popup) {
       var tohide = popup.find('#main');
-      var div = $('<div><textarea/><a class="save">save</a><span class="lsep"> | </span><a class="cancel">cancel</a></div>');
+      var div = $('<div><textarea/><a class="jsonp">jsonp</a><span class="lsep"> | </span><a class="save">save</a><span class="lsep"> | </span><a class="cancel">cancel</a></div>');
       //Painful, but shortest way I've found to position div over the tohide element
       div.css({ position: 'absolute', left: tohide.position().left, top: tohide.position().top,
         width: tohide.css('width'), height: tohide.css('height'), background: 'white'
@@ -264,9 +278,17 @@ with_jquery(function ($) {
         txt += '###' + name + '\n' + htmlToMarkDown(desc) + '\n\n'; //the leading ### makes prettier if pasting to markdown, and differentiates names from descriptions
       }
 
-      div.find('textarea').width('100%').height('95%').attr('value', txt);
+      div.find('textarea').width('100%').height('95%').val(txt);
+      div.find('.jsonp').click(function () {
+        var txt = 'callback(\n[\n';
+        for(var i = 0; i < GetStorage("commentcount"); i++) {
+          txt += '{ "name": "' + GetStorage('name-' + i) + '", "description": "' + GetStorage('desc-' + i).replace(/"/g, '\\"') + '"},\n\n';
+        }
+        div.find('textarea').val(txt + ']\n)');
+        div.find('a:lt(2)').remove(); div.find('.lsep:lt(2)').remove();
+      });
       div.find('.cancel').click(function () { div.fadeOutAndRemove(); });
-      div.find('.save').click(function () { DoImport(div.find('textarea').attr('value')); WriteComments(popup); div.fadeOutAndRemove(); });
+      div.find('.save').click(function () { DoImport(div.find('textarea').val()); WriteComments(popup); div.fadeOutAndRemove(); });
 
       popup.append(div);
     }
@@ -320,7 +342,7 @@ with_jquery(function ($) {
       if(html.indexOf('<textarea') > -1) return; //don't want to create a new textarea inside this one!
       var txt = $('<textarea />').css('height', 2 * el.height())
                 .css('width', el.css('width'))
-                .attr('value', htmlToMarkDown(html));
+                .val(htmlToMarkDown(html));
 
       BorkFor(el); //this is a hack
       //save/cancel links to add to textarea
@@ -343,7 +365,7 @@ with_jquery(function ($) {
     }
     //Save textarea contents, replace element html with new edited content
     function SaveEditable(el) {
-      var html = markDownToHtml(el.find('textarea').attr('value'));
+      var html = markDownToHtml(el.find('textarea').val());
       SetStorage(el.attr('id'), Tag(html));
       el.html((showGreeting ? greeting : "") + UnTag(html));
     }
@@ -436,9 +458,16 @@ with_jquery(function ($) {
     //We only show announcement once for each version
     function CheckForAnnouncement(popup) {
       var previous = GetStorage("LastMessage");
-      if(previous != ANNOUNCEMENT) {
-        ShowMessage(popup, "Service announcement", ANNOUNCEMENT, function () { SetStorage("LastMessage", ANNOUNCEMENT); });
-      }
+      GetRemote('http://dl.dropbox.com/u/2835366/SO/announcement.json', function (announcement) {
+        if(previous != announcement.id) {
+          ShowMessage(popup, "Service announcement", announcement.message, function () { SetStorage("LastMessage", announcement.id); });
+        }
+      });
+    }
+
+    //Get remote content via ajax, target url must contain valid json wrapped in callback() function
+    function GetRemote(url, callback, onerror) {
+      $.ajax({ type: "GET", url: url + '?jsonp=?', dataType: "jsonp", jsonpCallback: "callback", timeout: 2000, success: callback, error: onerror });
     }
 
     //Check to see if a new version has become available since last check
@@ -462,6 +491,20 @@ with_jquery(function ($) {
         });
       }
       SetStorage("LastUpdateCheckDay", today);
+    }
+
+    //customise welcome
+    //reverse compatible!
+    function LoadFromRemote(url, done, error) {
+      GetRemote(url, function (data) {
+        ClearStorage("name-"); ClearStorage("desc-");
+        $.each(data, function (index, value) {
+          SetStorage('name-' + index, value.name);
+          SetStorage('desc-' + index, markDownToHtml(value.description));
+        });
+        SetStorage("commentcount", data.length);
+        done();
+      }, error);
     }
 
     //This is where the real work starts - add the 'auto' link next to each comment 'help' link
@@ -497,19 +540,39 @@ with_jquery(function ($) {
           SetStorage('hide-desc', hideDesc == "show" ? "hide" : "show");
           ShowHideDescriptions(popup);
         });
+        //Handle remote url stuff
+        var remote = popup.find('.share-tip');
+        var remoteerror = remote.find('#remoteerror');
+        var urlfield = remote.find('#remoteurl');
+        var throbber = remote.find("#throbber");
+        popup.find('.popup-actions-remote').click(function () { urlfield.val(GetStorage("RemoteUrl")); remote.show(); });
+        popup.find('.remote-cancel').click(function () { throbber.hide(); remoteerror.text(""); remote.hide(); });
+        popup.find('.remote-clear').click(function () { urlfield.val(""); SetStorage("RemoteUrl", ""); remote.hide(); });
+        popup.find('.remote-get').click(function () {
+          throbber.show();
+          var url = urlfield.val();
+          SetStorage("RemoteUrl", url);
+          LoadFromRemote(url, function () {
+            WriteComments(popup);
+            throbber.hide();
+            remote.hide();
+          }, function (d, msg) {
+            remoteerror.text(msg);
+          });
+        });
 
         //on submit, convert html to markdown and copy to comment textarea
         popup.find('.popup-submit').click(function () {
           var selected = popup.find('input:radio:checked');
           var markdown = htmlToMarkDown(selected.parent().find('.action-desc').html());
-          $('#' + divid).find('textarea').attr('value', markdown).focus();  //focus provokes character count test
+          $('#' + divid).find('textarea').val(markdown).focus();  //focus provokes character count test
           var caret = markdown.indexOf('[type here]')
           if(caret >= 0) $('#' + divid).find('textarea')[0].setSelectionRange(caret, caret + '[type here]'.length);
           popup.fadeOutAndRemove();
         });
 
-        //check if we need to show annoucement, if so, some wiring to be performed
-        //CheckForAnnouncement(popup); //Not ready yet
+        //check if we need to show annoucement
+        CheckForAnnouncement(popup);
 
         //add popup and center on screen
         $('#' + divid).append(popup);
