@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.2.2
+// @version        1.2.3
 // @description    Add pro-forma comments dialog for reviewing (pre-flag)
 // @include        http://*stackoverflow.com/questions*
 // @include        http://*stackoverflow.com/review*
@@ -51,7 +51,7 @@ function with_jquery(f) {
 with_jquery(function ($) {
   StackExchange.ready(function () {
     //**selfupdatingscript starts here (see https://gist.github.com/raw/874058/selfupdatingscript.user.js)
-    var VERSION = '1.2.2';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
+    var VERSION = '1.2.3';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
     var URL = "https://gist.github.com/raw/842025/autoreviewcomments.user.js";
 
     if(window["selfUpdaterCallback:" + URL]) {
@@ -71,6 +71,7 @@ with_jquery(function ($) {
     var siteurl = window.location.hostname;
     var arr = document.title.split(' - ');
     var sitename = arr[arr.length - 1];
+    var username = 'user';
     if(sitename == "Stack Exchange") sitename = arr[arr.length - 2]; //workaround for SE sites..
     var greeting = 'Welcome to ' + sitename + '! ';
     var showGreeting = false;
@@ -89,13 +90,17 @@ with_jquery(function ($) {
          </div>                                                                                       \
          <div style="display:none" class="share-tip">                                                 \
             enter url for remote source of comments (use import/export to create jsonp)               \
-            <input id="remoteurl" type="text" style="display: block; width: 400px;">                  \
-            <img id="throbber" style="display:none" src="http://sstatic.net/img/progress-dots.gif"/>  \
-            <span id="remoteerror" style="color:red"/>                                                \
+            <input id="remoteurl" type="text" style="display: block; width: 400px;"\>                 \
+            <img id="throbber1" style="display:none" src="http://sstatic.net/img/progress-dots.gif"/> \
+            <span id="remoteerror1" style="color:red"/>                                               \
+            <div style="float:left">                                                                  \
+              <input type="checkbox" id="remoteauto"\>                                                \
+              <label title="get from remote on every page refresh" for="remoteauto">auto-get</label>  \
+            </div>                                                                                    \
             <div style="float:right">                                                                 \
-              <a class="remote-get">get</a>                                                           \
+              <a class="remote-get">get now</a>                                                       \
               <span class="lsep"> | </span>                                                           \
-              <a class="remote-clear">clear</a>                                                       \
+              <a class="remote-save">save</a>                                                         \
               <span class="lsep"> | </span>                                                           \
               <a class="remote-cancel">cancel</a>                                                     \
             </div>                                                                                    \
@@ -115,6 +120,8 @@ with_jquery(function ($) {
             <a title="use this to hide/show all comments" class="popup-actions-toggledesc">show/hide desc</a>    \
             <span class="lsep"> | </span>                                                             \
             <a title="setup remote source" class="popup-actions-remote">remote</a>                    \
+            <img id="throbber2" style="display:none" src="http://sstatic.net/img/progress-dots.gif"/> \
+            <span id="remoteerror2" style="color:red"/>                                               \
           </div>                                                                                      \
           <div style="float:right">                                                                   \
             <input class="popup-submit" type="button" disabled="disabled" style="float:none; margin-left: 5px" value="Insert">  \
@@ -248,8 +255,9 @@ with_jquery(function ($) {
               showGreeting = true;
               container.find('.action-desc').prepend(greeting);
             }
+            username = user['display_name'];
             var usertype = user['user_type'].charAt(0).toUpperCase() + user['user_type'].slice(1);
-            var html = usertype + ' user <strong><a href="/users/' + userid + '" target="_blank">' + user['display_name'] + '</a></strong>,     \
+            var html = usertype + ' user <strong><a href="/users/' + userid + '" target="_blank">' + username + '</a></strong>,     \
                             member <strong>' + datespan(user['creation_date']) + '</strong>,                                        \
                             last seen <strong>' + lastseen(user['last_access_date']) + '</strong>,                                  \
                             reputation <strong>' + repNumber(user['reputation']) + '</strong>';
@@ -316,7 +324,7 @@ with_jquery(function ($) {
     }
 
     function htmlToMarkDown(html) {
-      markdown = html.replace(/<a href="(.+?)">(.+?)<\/a>/g, '[$2]($1)');
+      markdown = html.replace(/<a href="(.+?)">(.+?)<\/a>/g, '[$2]($1)').replace(/&amp;/g, '&');
       return markdown.replace(/<em>(.+?)<\/em>/g, '*$1*').replace(/<strong>(.+?)<\/strong>/g, '**$1**');
     }
 
@@ -467,7 +475,7 @@ with_jquery(function ($) {
 
     //Get remote content via ajax, target url must contain valid json wrapped in callback() function
     function GetRemote(url, callback, onerror) {
-      $.ajax({ type: "GET", url: url + '?jsonp=?', dataType: "jsonp", jsonpCallback: "callback", timeout: 2000, success: callback, error: onerror });
+      $.ajax({ type: "GET", url: url + '?jsonp=?', dataType: "jsonp", jsonpCallback: "callback", timeout: 2000, success: callback, error: onerror, async: false });
     }
 
     //Check to see if a new version has become available since last check
@@ -497,14 +505,51 @@ with_jquery(function ($) {
     //reverse compatible!
     function LoadFromRemote(url, done, error) {
       GetRemote(url, function (data) {
+        SetStorage("commentcount", data.length);
         ClearStorage("name-"); ClearStorage("desc-");
         $.each(data, function (index, value) {
           SetStorage('name-' + index, value.name);
           SetStorage('desc-' + index, markDownToHtml(value.description));
         });
-        SetStorage("commentcount", data.length);
         done();
       }, error);
+    }
+
+    //Factored out from main popu creation, just because it's too long
+    function SetupRemoteBox(popup) {
+      var remote = popup.find('.share-tip');
+      var remoteerror = remote.find('#remoteerror1');
+      var urlfield = remote.find('#remoteurl');
+      var autofield = remote.find('#remoteauto');
+      var throbber = remote.find("#throbber1");
+
+      popup.find('.popup-actions-remote').click(function () {
+        urlfield.val(GetStorage("RemoteUrl"));
+        autofield.prop('checked', GetStorage("AutoRemote") == 'true');
+        remote.show();
+      });
+
+      popup.find('.remote-cancel').click(function () {
+        throbber.hide();
+        remoteerror.text("");
+        remote.hide();
+      });
+
+      popup.find('.remote-save').click(function () {
+        SetStorage("RemoteUrl", urlfield.val());
+        SetStorage("AutoRemote", autofield.prop('checked'));
+        remote.hide();
+      });
+
+      popup.find('.remote-get').click(function () {
+        throbber.show();
+        LoadFromRemote(urlfield.val(), function () {
+          WriteComments(popup);
+          throbber.hide();
+        }, function (d, msg) {
+          remoteerror.text(msg);
+        });
+      });
     }
 
     //This is where the real work starts - add the 'auto' link next to each comment 'help' link
@@ -541,38 +586,31 @@ with_jquery(function ($) {
           ShowHideDescriptions(popup);
         });
         //Handle remote url stuff
-        var remote = popup.find('.share-tip');
-        var remoteerror = remote.find('#remoteerror');
-        var urlfield = remote.find('#remoteurl');
-        var throbber = remote.find("#throbber");
-        popup.find('.popup-actions-remote').click(function () { urlfield.val(GetStorage("RemoteUrl")); remote.show(); });
-        popup.find('.remote-cancel').click(function () { throbber.hide(); remoteerror.text(""); remote.hide(); });
-        popup.find('.remote-clear').click(function () { urlfield.val(""); SetStorage("RemoteUrl", ""); remote.hide(); });
-        popup.find('.remote-get').click(function () {
-          throbber.show();
-          var url = urlfield.val();
-          SetStorage("RemoteUrl", url);
-          LoadFromRemote(url, function () {
-            WriteComments(popup);
-            throbber.hide();
-            remote.hide();
-          }, function (d, msg) {
-            remoteerror.text(msg);
-          });
-        });
+        SetupRemoteBox(popup);
 
         //on submit, convert html to markdown and copy to comment textarea
         popup.find('.popup-submit').click(function () {
           var selected = popup.find('input:radio:checked');
-          var markdown = htmlToMarkDown(selected.parent().find('.action-desc').html());
+          var markdown = htmlToMarkDown(selected.parent().find('.action-desc').html()).replace(/\[username\]/g, username);
           $('#' + divid).find('textarea').val(markdown).focus();  //focus provokes character count test
           var caret = markdown.indexOf('[type here]')
           if(caret >= 0) $('#' + divid).find('textarea')[0].setSelectionRange(caret, caret + '[type here]'.length);
           popup.fadeOutAndRemove();
         });
 
-        //check if we need to show annoucement
-        CheckForAnnouncement(popup);
+        //Auto-load from remote if required
+        if(!window.VersionChecked && GetStorage("AutoRemote") == 'true') {
+          var throbber = popup.find("#throbber2");
+          var remoteerror = popup.find('#remoteerror2');
+          throbber.show();
+          LoadFromRemote(GetStorage("RemoteUrl"),
+            function () { WriteComments(popup); throbber.hide(); },
+            function (d, msg) { remoteerror.text(msg); });
+        }
+
+        //check if we need to show announcement
+        //Timing issues here: if we put this before remote code, data from announcement and remote get mixed up
+        //if(!window.VersionChecked) CheckForAnnouncement(popup); //commented out, this has to be dismissed on every site - not a good idea!
 
         //add popup and center on screen
         $('#' + divid).append(popup);
