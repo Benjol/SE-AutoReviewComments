@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.2.3
+// @version        1.2.4
 // @description    Add pro-forma comments dialog for reviewing (pre-flag)
 // @include        http://*stackoverflow.com/questions*
 // @include        http://*stackoverflow.com/review*
@@ -51,7 +51,7 @@ function with_jquery(f) {
 with_jquery(function ($) {
   StackExchange.ready(function () {
     //**selfupdatingscript starts here (see https://gist.github.com/raw/874058/selfupdatingscript.user.js)
-    var VERSION = '1.2.3';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
+    var VERSION = '1.2.4';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
     var URL = "https://gist.github.com/raw/842025/autoreviewcomments.user.js";
 
     if(window["selfUpdaterCallback:" + URL]) {
@@ -551,10 +551,10 @@ with_jquery(function ($) {
         });
       });
     }
-
+    
     //This is where the real work starts - add the 'auto' link next to each comment 'help' link
     //use most local root-nodes possible (have to exist on page load) - #questions is for review pages
-    $(".question, .answer, #questions, .flag-container, .mod-post-header").delegate(".comments-link", "click", function () {
+    $("#content").delegate(".comments-link", "click", function () {
       var divid = $(this).attr('id').replace('-link', '');
       var posttype = $(this).parents(".question, .answer").attr("class");
 
