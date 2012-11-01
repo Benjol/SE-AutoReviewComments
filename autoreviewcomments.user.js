@@ -1,8 +1,9 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.2.4
+// @version        1.2.5
 // @description    Add pro-forma comments dialog for reviewing (pre-flag)
+// @grant          none
 // @include        http://*stackoverflow.com/questions*
 // @include        http://*stackoverflow.com/review*
 // @include        http://*stackoverflow.com/admin/dashboard*
@@ -51,7 +52,7 @@ function with_jquery(f) {
 with_jquery(function ($) {
   StackExchange.ready(function () {
     //**selfupdatingscript starts here (see https://gist.github.com/raw/874058/selfupdatingscript.user.js)
-    var VERSION = '1.2.4';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
+    var VERSION = '1.2.5';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
     var URL = "https://gist.github.com/raw/842025/autoreviewcomments.user.js";
 
     if(window["selfUpdaterCallback:" + URL]) {
@@ -72,6 +73,8 @@ with_jquery(function ($) {
     var arr = document.title.split(' - ');
     var sitename = arr[arr.length - 1];
     var username = 'user';
+    var OP = 'OP';
+
     if(sitename == "Stack Exchange") sitename = arr[arr.length - 2]; //workaround for SE sites..
     var greeting = 'Welcome to ' + sitename + '! ';
     var showGreeting = false;
@@ -234,6 +237,13 @@ with_jquery(function ($) {
     function isNewUser(date) {
       return (new Date() / 1000) - date < week
     }
+    function getOP() {
+      var userlink = $('#question').find('.owner').find('.user-details > a:not([id])');
+      if(userlink.length) return userlink.text();
+      var user = $('#question').find('.owner').find('.user-details'); //for deleted users
+      if(user.length) return user.text();
+      return "[NULL]";
+    }
 
     //Ajax to Stack Exchange api to get basic user info, and paste into userinfo element
     //http://soapi.info/code/js/stable/soapi-explore-beta.htm
@@ -330,7 +340,7 @@ with_jquery(function ($) {
 
     function markDownToHtml(markdown) {
       html = markdown.replace(/\[([^\]]+)\]\((.+?)\)/g, '<a href="$2">$1</a>');
-      return html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*(.+?)\*/g, '<em>$1</em>');
+      return html.replace(/\*\*([^`]+?)\*\*/g, '<strong>$1</strong>').replace(/\*([^`]+?)\*/g, '<em>$1</em>');
     }
 
     function UnTag(text) {
@@ -551,7 +561,7 @@ with_jquery(function ($) {
         });
       });
     }
-    
+
     //This is where the real work starts - add the 'auto' link next to each comment 'help' link
     //use most local root-nodes possible (have to exist on page load) - #questions is for review pages
     $("#content").delegate(".comments-link", "click", function () {
@@ -591,7 +601,7 @@ with_jquery(function ($) {
         //on submit, convert html to markdown and copy to comment textarea
         popup.find('.popup-submit').click(function () {
           var selected = popup.find('input:radio:checked');
-          var markdown = htmlToMarkDown(selected.parent().find('.action-desc').html()).replace(/\[username\]/g, username);
+          var markdown = htmlToMarkDown(selected.parent().find('.action-desc').html()).replace(/\[username\]/g, username).replace(/\[OP\]/g, OP);
           $('#' + divid).find('textarea').val(markdown).focus();  //focus provokes character count test
           var caret = markdown.indexOf('[type here]')
           if(caret >= 0) $('#' + divid).find('textarea')[0].setSelectionRange(caret, caret + '[type here]'.length);
@@ -619,6 +629,7 @@ with_jquery(function ($) {
         //Get user info and inject
         var userid = getUserId($(this));
         getUserInfo(userid, popup);
+        OP = getOP();
 
         //We only actually perform the updates check when someone clicks, this should make it less costly, and more timely
         //also wrap it so that it only gets called the *FIRST* time we open this dialog on any given page (not much of an optimisation).
