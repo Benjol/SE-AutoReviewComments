@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.2.5
+// @version        1.2.6
 // @description    Add pro-forma comments dialog for reviewing (pre-flag)
 // @grant          none
 // @include        http://*stackoverflow.com/questions*
@@ -52,7 +52,7 @@ function with_jquery(f) {
 with_jquery(function ($) {
   StackExchange.ready(function () {
     //**selfupdatingscript starts here (see https://gist.github.com/raw/874058/selfupdatingscript.user.js)
-    var VERSION = '1.2.5';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
+    var VERSION = '1.2.6';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
     var URL = "https://gist.github.com/raw/842025/autoreviewcomments.user.js";
 
     if(window["selfUpdaterCallback:" + URL]) {
@@ -76,7 +76,8 @@ with_jquery(function ($) {
     var OP = 'OP';
 
     if(sitename == "Stack Exchange") sitename = arr[arr.length - 2]; //workaround for SE sites..
-    var greeting = 'Welcome to ' + sitename + '! ';
+    if(!GetStorage("WelcomeMessage")) SetStorage("WelcomeMessage", 'Welcome to ' + sitename + '! ');
+    var greeting = GetStorage("WelcomeMessage") == "NONE" ? "" : GetStorage("WelcomeMessage");
     var showGreeting = false;
 
     var markupTemplate = '                                                                            \
@@ -91,7 +92,7 @@ with_jquery(function ($) {
           <ul class="action-list" style="height:440;overflow-y:auto" >                                \
           </ul>                                                                                       \
          </div>                                                                                       \
-         <div style="display:none" class="share-tip">                                                 \
+         <div style="display:none" class="share-tip" id="remote-popup">                               \
             enter url for remote source of comments (use import/export to create jsonp)               \
             <input id="remoteurl" type="text" style="display: block; width: 400px;"\>                 \
             <img id="throbber1" style="display:none" src="http://sstatic.net/img/progress-dots.gif"/> \
@@ -106,6 +107,17 @@ with_jquery(function ($) {
               <a class="remote-save">save</a>                                                         \
               <span class="lsep"> | </span>                                                           \
               <a class="remote-cancel">cancel</a>                                                     \
+            </div>                                                                                    \
+        </div>                                                                                        \                                                                                       \
+         <div style="display:none" class="share-tip" id="welcome-popup">                              \
+            configure "welcome" message (empty=none):                                                 \
+            <div>                                                                                     \
+              <input id="customwelcome" type="text" style="width: 300px;"\>                           \
+            </div>                                                                                    \
+            <div style="float:right">                                                                 \
+              <a class="welcome-save">save</a>                                                        \
+              <span class="lsep"> | </span>                                                           \
+              <a class="welcome-cancel">cancel</a>                                                    \
             </div>                                                                                    \
         </div>                                                                                        \
          <div class="popup-actions">                                                                  \
@@ -125,6 +137,8 @@ with_jquery(function ($) {
             <a title="setup remote source" class="popup-actions-remote">remote</a>                    \
             <img id="throbber2" style="display:none" src="http://sstatic.net/img/progress-dots.gif"/> \
             <span id="remoteerror2" style="color:red"/>                                               \
+            <span class="lsep"> | </span>                                                             \
+            <a title="configure welcome" class="popup-actions-welcome">welcome</a>                    \
           </div>                                                                                      \
           <div style="float:right">                                                                   \
             <input class="popup-submit" type="button" disabled="disabled" style="float:none; margin-left: 5px" value="Insert">  \
@@ -340,7 +354,7 @@ with_jquery(function ($) {
 
     function markDownToHtml(markdown) {
       html = markdown.replace(/\[([^\]]+)\]\((.+?)\)/g, '<a href="$2">$1</a>');
-      return html.replace(/\*\*([^`]+?)\*\*/g, '<strong>$1</strong>').replace(/\*([^`]+?)\*/g, '<em>$1</em>');
+      return html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*([^`]+?)\*/g, '<em>$1</em>');
     }
 
     function UnTag(text) {
@@ -527,7 +541,7 @@ with_jquery(function ($) {
 
     //Factored out from main popu creation, just because it's too long
     function SetupRemoteBox(popup) {
-      var remote = popup.find('.share-tip');
+      var remote = popup.find('#remote-popup');
       var remoteerror = remote.find('#remoteerror1');
       var urlfield = remote.find('#remoteurl');
       var autofield = remote.find('#remoteauto');
@@ -562,11 +576,32 @@ with_jquery(function ($) {
       });
     }
 
+    function SetupWelcomeBox(popup) {
+      var welcome = popup.find('#welcome-popup');
+      var custom = welcome.find('#customwelcome');
+
+      popup.find('.popup-actions-welcome').click(function () {
+        custom.val(greeting);
+        welcome.show();
+      });
+
+      popup.find('.welcome-cancel').click(function () {
+        welcome.hide();
+      });
+
+      popup.find('.welcome-save').click(function () {
+        var msg = custom.val() == "" ? "NONE" : custom.val();
+        SetStorage("WelcomeMessage", msg);
+        greeting = custom.val();
+        welcome.hide();
+      });
+    }
+
     //This is where the real work starts - add the 'auto' link next to each comment 'help' link
     //use most local root-nodes possible (have to exist on page load) - #questions is for review pages
     $("#content").delegate(".comments-link", "click", function () {
       var divid = $(this).attr('id').replace('-link', '');
-      var posttype = $(this).parents(".question, .answer").attr("class");
+      var posttype = $(this).parents(".question, .answer").attr("class").split(' ')[0]; //slightly fragile
 
       if($('#' + divid).find('.comment-auto-link').length > 0) return; //don't create auto link if already there
       var newspan = $('<span class="lsep"> | </span>').add($('<a class="comment-auto-link">auto</a>').click(function () {
@@ -595,8 +630,9 @@ with_jquery(function ($) {
           SetStorage('hide-desc', hideDesc == "show" ? "hide" : "show");
           ShowHideDescriptions(popup);
         });
-        //Handle remote url stuff
+        //Handle remote url & welcome
         SetupRemoteBox(popup);
+        SetupWelcomeBox(popup);
 
         //on submit, convert html to markdown and copy to comment textarea
         popup.find('.popup-submit').click(function () {
