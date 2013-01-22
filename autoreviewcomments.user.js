@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.2.6
+// @version        1.2.7
 // @description    Add pro-forma comments dialog for reviewing (pre-flag)
 // @grant          none
 // @include        http://*stackoverflow.com/questions*
@@ -52,7 +52,7 @@ function with_jquery(f) {
 with_jquery(function ($) {
   StackExchange.ready(function () {
     //**selfupdatingscript starts here (see https://gist.github.com/raw/874058/selfupdatingscript.user.js)
-    var VERSION = '1.2.6';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
+    var VERSION = '1.2.7';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
     var URL = "https://gist.github.com/raw/842025/autoreviewcomments.user.js";
 
     if(window["selfUpdaterCallback:" + URL]) {
@@ -74,6 +74,7 @@ with_jquery(function ($) {
     var sitename = arr[arr.length - 1];
     var username = 'user';
     var OP = 'OP';
+    var prefix = "AutoReviewComments-"; //prefix to avoid clashes in localstorage
 
     if(sitename == "Stack Exchange") sitename = arr[arr.length - 2]; //workaround for SE sites..
     if(!GetStorage("WelcomeMessage")) SetStorage("WelcomeMessage", 'Welcome to ' + sitename + '! ');
@@ -115,6 +116,8 @@ with_jquery(function ($) {
               <input id="customwelcome" type="text" style="width: 300px;"\>                           \
             </div>                                                                                    \
             <div style="float:right">                                                                 \
+              <a class="welcome-force">force</a>                                                      \
+              <span class="lsep"> | </span>                                                           \
               <a class="welcome-save">save</a>                                                        \
               <span class="lsep"> | </span>                                                           \
               <a class="welcome-cancel">cancel</a>                                                    \
@@ -178,7 +181,6 @@ with_jquery(function ($) {
     var minute = 60, hour = 3600, day = 86400, sixdays = 518400, week = 604800, month = 2592000, year = 31536000;
 
     //Wrap local storage access so that we avoid collisions with other scripts
-    var prefix = "AutoReviewComments-"
     function GetStorage(key) { return localStorage[prefix + key]; }
     function SetStorage(key, val) { localStorage[prefix + key] = val; }
     function RemoveStorage(key) { localStorage.removeItem(prefix + key); }
@@ -586,6 +588,12 @@ with_jquery(function ($) {
       });
 
       popup.find('.welcome-cancel').click(function () {
+        welcome.hide();
+      });
+
+      popup.find('.welcome-force').click(function () {
+        showGreeting = true;
+        WriteComments(popup);
         welcome.hide();
       });
 
