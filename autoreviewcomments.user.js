@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.2.7
+// @version        1.2.8
 // @description    Add pro-forma comments dialog for reviewing (pre-flag)
 // @grant          none
 // @include        http://*stackoverflow.com/questions*
@@ -52,7 +52,7 @@ function with_jquery(f) {
 with_jquery(function ($) {
   StackExchange.ready(function () {
     //**selfupdatingscript starts here (see https://gist.github.com/raw/874058/selfupdatingscript.user.js)
-    var VERSION = '1.2.7';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
+    var VERSION = '1.2.8';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
     var URL = "https://gist.github.com/raw/842025/autoreviewcomments.user.js";
 
     if(window["selfUpdaterCallback:" + URL]) {
@@ -84,7 +84,7 @@ with_jquery(function ($) {
     var markupTemplate = '                                                                            \
     <div id="popup" class="popup" style="width:690px; position: absolute; display: block">            \
        <div id="close" class="popup-close"><a title="close this popup (or hit Esc)">&#215;</a></div>  \
-       <h2>Which review comment to insert?</h2>                                                       \
+       <h2 class="handle">Which review comment to insert?</h2>                                        \
        <div style="overflow:hidden" id="main">                                                        \
          <div class="popup-active-pane">                                                              \
            <div id="userinfo" style="padding:5px;background:#EAEFEF">                                 \
@@ -669,6 +669,7 @@ with_jquery(function ($) {
         //add popup and center on screen
         $('#' + divid).append(popup);
         popup.center();
+        StackExchange.helpers.bindMovablePopups();
 
         //Get user info and inject
         var userid = getUserId($(this));
