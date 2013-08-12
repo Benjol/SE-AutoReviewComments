@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.2.8
+// @version        1.2.9
 // @description    Add pro-forma comments dialog for reviewing (pre-flag)
 // @grant          none
 // @include        http://*stackoverflow.com/questions*
@@ -52,7 +52,7 @@ function with_jquery(f) {
 with_jquery(function ($) {
   StackExchange.ready(function () {
     //**selfupdatingscript starts here (see https://gist.github.com/raw/874058/selfupdatingscript.user.js)
-    var VERSION = '1.2.8';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
+    var VERSION = '1.2.9';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
     var URL = "https://gist.github.com/raw/842025/autoreviewcomments.user.js";
 
     if(window["selfUpdaterCallback:" + URL]) {
@@ -680,7 +680,10 @@ with_jquery(function ($) {
         //also wrap it so that it only gets called the *FIRST* time we open this dialog on any given page (not much of an optimisation).
         if(!window.VersionChecked) { CheckForNewVersion(popup); window.VersionChecked = true; }
       }));
-      $('#' + divid).find('.comment-help-link').parent().append(newspan);
+
+      setTimeout(function() {
+        $('#' + divid).find('.comment-help-link').parent().append(newspan);
+      }, 15);
     });
   });
 });
