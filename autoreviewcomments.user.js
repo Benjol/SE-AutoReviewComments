@@ -82,6 +82,7 @@ with_jquery(function ($) {
     var showGreeting = false;
 
     var markupTemplate = '                                                                                                                \
+    <style>#popup li:hover { background-color: #eee; border-radius:3px; }</style>                                                         \
     <div id="popup" class="popup" style="width:690px; position: absolute; display: block">                                                \
        <div id="close" class="popup-close"><a title="close this popup (or hit Esc)">&#215;</a></div>                                      \
        <h2 class="handle">Which review comment to insert?</h2>                                                                            \
