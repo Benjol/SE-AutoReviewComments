@@ -109,9 +109,7 @@ with_jquery(function ($) {
               <span class="lsep"> | </span>                                                           \
               <a class="remote-cancel">cancel</a>                                                     \
             </div>                                                                                    \
-        </div>                                                                                        \                                                 
-
-                                      \
+        </div>                                                                                        \                                                                                       \
          <div style="display:none" class="share-tip" id="welcome-popup">                              \
             configure "welcome" message (empty=none):                                                 \
             <div>                                                                                     \
@@ -154,9 +152,7 @@ with_jquery(function ($) {
 
     var messageTemplate = '                                                                                                              \
     <div id="announcement" style="background:orange;padding:7px;margin-bottom:10px;font-size:15px">                               \
-      <span class="notify-close" style="border:2px solid black;cursor:pointer;display:block;float:right;margin:0 4px;padding:0 4px;line-height:17px">  
-
-\
+      <span class="notify-close" style="border:2px solid black;cursor:pointer;display:block;float:right;margin:0 4px;padding:0 4px;line-height:17px">  \
          <a title="dismiss this notification" style="color:black;text-decoration:none;font-weight:bold;font-size:16px">x</a>      \
       </span>                                                                                                                     \
       <strong>$TITLE$</strong> $BODY$                                                                                           \
@@ -173,30 +169,12 @@ with_jquery(function ($) {
 
     //default comments
     var defaultcomments = [
-     { Name: "Answers just to say Thanks!", Description: 'Please don\'t add "thanks" as answers. Invest some time in the site and you will gain 
-
-sufficient <a href="http://$SITEURL$/privileges">privileges</a> to upvote answers you like, which is the $SITENAME$ way of saying thank you.' },
-     { Name: "Nothing but a URL (and isn't spam)", Description: 'Whilst this may theoretically answer the question, <a 
-
-href="http://meta.stackoverflow.com/q/8259">it would be preferable</a> to include the essential parts of the answer here, and provide the link for 
-
-reference.' },
-     { Name: "Requests to OP for further information", Description: 'This is really a comment, not an answer. With a bit more rep, <a href="http://
-
-$SITEURL$/privileges/comment">you will be able to post comments</a>. For the moment I\'ve added the comment for you, and I\'m flagging this post for 
-
-deletion.' },
-     { Name: "OP using an answer for further information", Description: 'Please use the <em>Post answer</em> button only for actual answers. You should 
-
-modify your original question to add additional information.' },
-     { Name: "OP adding a new question as an answer", Description: 'If you have another question, please ask it by clicking the <a href="http://
-
-$SITEURL$/questions/ask">Ask Question</a> button.' },
-     { Name: "Another user adding a 'Me too!'", Description: 'If you have a NEW question, please ask it by clicking the <a href="http://$SITEURL
-
-$/questions/ask">Ask Question</a> button. If you have sufficient reputation, <a href="http://$SITEURL$/privileges/vote-up">you may upvote</a> the 
-
-question. Alternatively, "star" it as a favorite and you will be notified of any new answers.' },
+     { Name: "Answers just to say Thanks!", Description: 'Please don\'t add "thanks" as answers. Invest some time in the site and you will gain sufficient <a href="http://$SITEURL$/privileges">privileges</a> to upvote answers you like, which is the $SITENAME$ way of saying thank you.' },
+     { Name: "Nothing but a URL (and isn't spam)", Description: 'Whilst this may theoretically answer the question, <a href="http://meta.stackoverflow.com/q/8259">it would be preferable</a> to include the essential parts of the answer here, and provide the link for reference.' },
+     { Name: "Requests to OP for further information", Description: 'This is really a comment, not an answer. With a bit more rep, <a href="http://$SITEURL$/privileges/comment">you will be able to post comments</a>. For the moment I\'ve added the comment for you, and I\'m flagging this post for deletion.' },
+     { Name: "OP using an answer for further information", Description: 'Please use the <em>Post answer</em> button only for actual answers. You should modify your original question to add additional information.' },
+     { Name: "OP adding a new question as an answer", Description: 'If you have another question, please ask it by clicking the <a href="http://$SITEURL$/questions/ask">Ask Question</a> button.' },
+     { Name: "Another user adding a 'Me too!'", Description: 'If you have a NEW question, please ask it by clicking the <a href="http://$SITEURL$/questions/ask">Ask Question</a> button. If you have sufficient reputation, <a href="http://$SITEURL$/privileges/vote-up">you may upvote</a> the question. Alternatively, "star" it as a favorite and you will be notified of any new answers.' },
     ];
 
     var weekday_name = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -321,9 +299,7 @@ question. Alternatively, "star" it as a favorite and you will be notified of any
     //Show textarea in front of popup to import/export all comments (for other sites or for posting somewhere)
     function ImportExport(popup) {
       var tohide = popup.find('#main');
-      var div = $('<div><textarea/><a class="jsonp">jsonp</a><span class="lsep"> | </span><a class="save">save</a><span class="lsep"> | </span><a 
-
-class="cancel">cancel</a></div>');
+      var div = $('<div><textarea/><a class="jsonp">jsonp</a><span class="lsep"> | </span><a class="save">save</a><span class="lsep"> | </span><a class="cancel">cancel</a></div>');
       //Painful, but shortest way I've found to position div over the tohide element
       div.css({ position: 'absolute', left: tohide.position().left, top: tohide.position().top,
         width: tohide.css('width'), height: tohide.css('height'), background: 'white'
@@ -333,9 +309,7 @@ class="cancel">cancel</a></div>');
       for(var i = 0; i < GetStorage("commentcount"); i++) {
         var name = GetStorage('name-' + i);
         var desc = GetStorage('desc-' + i);
-        txt += '###' + name + '\n' + htmlToMarkDown(desc) + '\n\n'; //the leading ### makes prettier if pasting to markdown, and differentiates names 
-
-from descriptions
+        txt += '###' + name + '\n' + htmlToMarkDown(desc) + '\n\n'; //the leading ### makes prettier if pasting to markdown, and differentiates names from descriptions
       }
 
       div.find('textarea').width('100%').height('95%').val(txt);
@@ -528,9 +502,7 @@ from descriptions
 
     //Get remote content via ajax, target url must contain valid json wrapped in callback() function
     function GetRemote(url, callback, onerror) {
-      $.ajax({ type: "GET", url: url + '?jsonp=?', dataType: "jsonp", jsonpCallback: "callback", timeout: 2000, success: callback, error: onerror, 
-
-async: false });
+      $.ajax({ type: "GET", url: url + '?jsonp=?', dataType: "jsonp", jsonpCallback: "callback", timeout: 2000, success: callback, error: onerror, async: false });
     }
 
     //Check to see if a new version has become available since last check
@@ -548,9 +520,7 @@ async: false });
         var lastVersion = GetStorage("LastVersionAcknowledged");
         updateCheck(function (newver, oldver, url) {
           if(newver != lastVersion) {
-            ShowMessage(popup, "New Version!", 'A new version (' + newver + ') of the <a href="http://stackapps.com/q/2116">AutoReviewComments</a> 
-
-userscript is now available (this notification will only appear once per new version, and per site).',
+            ShowMessage(popup, "New Version!", 'A new version (' + newver + ') of the <a href="http://stackapps.com/q/2116">AutoReviewComments</a> userscript is now available (this notification will only appear once per new version, and per site).',
               function () { SetStorage("LastVersionAcknowledged", newver); });
           }
         });
