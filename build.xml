@@ -95,7 +95,7 @@
   <target name="sites-chrome">
     <loadfile property="sites-chrome-list-in" srcFile="${build.sites}">
       <filterchain>
-        <replacestring from="http*" to="http"/>
+        <replacestring from="http*" to="*"/>
         <replacestring from="//*" to="//*."/>
         <prefixlines prefix="&quot;"/>
         <suffixlines suffix="&quot;,"/>
