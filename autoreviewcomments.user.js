@@ -95,11 +95,11 @@ with_jquery(function ($) {
          </div>                                                                                                                           \
          <div style="display:none" class="share-tip" id="remote-popup">                                                                   \
             enter url for remote source of comments (use import/export to create jsonp)                                                   \
-            <input id="remoteurl" type="text" style="display: block; width: 400px;"\>                                                     \
+            <input id="remoteurl" type="text" style="display: block; width: 400px;"/>                                                     \
             <img id="throbber1" style="display:none" src="http://sstatic.net/img/progress-dots.gif"/>                                     \
             <span id="remoteerror1" style="color:red"/>                                                                                   \
             <div style="float:left">                                                                                                      \
-              <input type="checkbox" id="remoteauto"\>                                                                                    \
+              <input type="checkbox" id="remoteauto"/>                                                                                    \
               <label title="get from remote on every page refresh" for="remoteauto">auto-get</label>                                      \
             </div>                                                                                                                        \
             <div style="float:right">                                                                                                     \
@@ -114,7 +114,7 @@ with_jquery(function ($) {
          <div style="display:none" class="share-tip" id="welcome-popup">                                                                  \
             configure "welcome" message (empty=none):                                                                                     \
             <div>                                                                                                                         \
-              <input id="customwelcome" type="text" style="width: 300px;"\>                                                               \
+              <input id="customwelcome" type="text" style="width: 300px;"/>                                                               \
             </div>                                                                                                                        \
             <div style="float:right">                                                                                                     \
               <a class="welcome-force">force</a>                                                                                          \
