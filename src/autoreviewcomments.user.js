@@ -1,46 +1,14 @@
+/** @preserve
 // ==UserScript==
-// @name           AutoReviewComments
+// @name           @ant-name@
 // @namespace      benjol
-// @version        1.3.1
-// @description    Add pro-forma comments dialog for reviewing (pre-flag)
+// @version        @ant-version@
+// @description    @ant-description@
+// @homepage       @ant-homepage@
 // @grant          none
-// @include        http*://*stackoverflow.com/questions*
-// @include        http*://*stackoverflow.com/review*
-// @include        http*://*stackoverflow.com/admin/dashboard*
-// @include        http*://*stackoverflow.com/tools*
-// @include        http*://*serverfault.com/questions*
-// @include        http*://*serverfault.com/review*
-// @include        http*://*serverfault.com/admin/dashboard*
-// @include        http*://*serverfault.com/tools*
-// @include        http*://*superuser.com/questions*
-// @include        http*://*superuser.com/review*
-// @include        http*://*superuser.com/admin/dashboard*
-// @include        http*://*superuser.com/tools*
-// @include        http*://*stackexchange.com/questions*
-// @include        http*://*stackexchange.com/review*
-// @include        http*://*stackexchange.com/admin/dashboard*
-// @include        http*://*stackexchange.com/tools*
-// @include        http*://*askubuntu.com/questions*
-// @include        http*://*askubuntu.com/review*
-// @include        http*://*askubuntu.com/admin/dashboard*
-// @include        http*://*askubuntu.com/tools*
-// @include        http*://*answers.onstartups.com/questions*
-// @include        http*://*answers.onstartups.com/review*
-// @include        http*://*answers.onstartups.com/admin/dashboard*
-// @include        http*://*answers.onstartups.com/tools*
-// @include        http*://*mathoverflow.net/questions*
-// @include        http*://*mathoverflow.net/review*
-// @include        http*://*mathoverflow.net/admin/dashboard*
-// @include        http*://*mathoverflow.net/tools*
-// @include        http*://discuss.area51.stackexchange.com/questions/*
-// @include        http*://discuss.area51.stackexchange.com/review*
-// @include        http*://discuss.area51.stackexchange.com/admin/dashboard*
-// @include        http*://discuss.area51.stackexchange.com/tools*
-// @include        http*://stackapps.com/questions*
-// @include        http*://stackapps.com/review*
-// @include        http*://stackapps.com/admin/dashboard*
-// @include        http*://stackapps.com/tools*
+// @ant-sites-userscript@
 // ==/UserScript==
+*/
 
 function with_jquery(f) {
   var script = document.createElement("script");
@@ -52,7 +20,7 @@ function with_jquery(f) {
 with_jquery(function ($) {
   StackExchange.ready(function () {
     //**selfupdatingscript starts here (see https://gist.github.com/raw/874058/selfupdatingscript.user.js)
-    var VERSION = '1.3.1';  //<<<<<<<<<<<<*********************** DON'T FORGET TO UPDATE THIS!!!! *************************
+    var VERSION = '@ant-version@';
     var URL = "https://github.com/Benjol/SE-AutoReviewComments/raw/master/autoreviewcomments.user.js";
 
     if(window["selfUpdaterCallback:" + URL]) {
