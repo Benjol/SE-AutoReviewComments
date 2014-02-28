@@ -1,0 +1,3 @@
+content autoreviewcomments-1f369631-31dd-43a8-8597-e159af817152 content/
+content autoreviewcomments-1f369631-31dd-43a8-8597-e159af817152 content/ contentaccessible=yes
+overlay chrome://browser/content/browser.xul chrome://autoreviewcomments-1f369631-31dd-43a8-8597-e159af817152/content/browser.xul

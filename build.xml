@@ -1,0 +1,264 @@
+<project name="autoreviewcomments" default="all" basedir=".">
+  <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+
+  <description>
+    Compiling script to different browsers.
+  </description>
+
+  <!-- Primitive substitutions are defined in this file. -->
+  <property name="build.prop" value="${basedir}/build.properties"/>
+  <!-- The sites our script should run on are defined in this file -->
+  <property name="build.sites" value="${basedir}/build.sites"/>
+  <property name="encoding" value="UTF-8"/>
+
+  <property name="name" value="autoreviewcomments"/>
+
+  <!-- The location used during the build process. -->
+  <property name="build" value="${basedir}/build"/>
+  <!-- The location that contains our source code. -->
+  <property name="src" value="${basedir}/src"/>
+  <!-- The location where we'll place the resulting packages. -->
+  <property name="dist" value="${basedir}/dist"/>
+  <!-- The location where we store our signing certificates and keys. -->
+  <property name="cert" value="${basedir}/.cert"/>
+
+  <!-- Sub folder in the build directory for our extension. -->
+  <property name="buildDir" value="${build}/${name}"/>
+
+  <!-- The location where our key for the Chrome extension is located. -->
+  <property name="cert.chromePath" value="${cert}/chrome"/>
+  <!-- The key file used to sign the Chrome extension.. -->
+  <property name="cert.chrome" value="${cert.chromePath}/${name}.pem"/>
+
+  <!-- The directory where we store the various icon files. -->
+  <property name="src.icons" value="${src}/icons"/>
+  <!-- Location for Chrome-specific source files. -->
+  <property name="src.chrome" value="${src}/.chrome"/>
+  <!-- Location for Firefox-specific source files. -->
+  <property name="src.firefox" value="${src}/.firefox"/>
+
+  <!-- Location of buildcrx. Used to pack the Chrome extension into a CRX.
+       See: https://code.google.com/p/buildcrx/ -->
+  <property name="sdk.buildcrx" value="${basedir}/SDK/buildcrx.exe"/>
+  <!-- Location of Google Closure Compiler. Used to pack userscript.
+       See: https://developers.google.com/closure/compiler/ -->
+  <property name="sdk.closurecompiler" value="${basedir}/SDK/compiler.jar"/>
+
+  <!-- Alias target to build all targets. -->
+  <target name="all" depends="preinit, userscript, chrome, firefox, clean"/>
+
+  <!-- Make sure all required directories exist. -->
+  <target name="preinit">
+    <mkdir dir="${cert}"/>
+    <mkdir dir="${dist}"/>
+    <mkdir dir="${build}"/>
+    <mkdir dir="${buildDir}"/>
+    <mkdir dir="${src}"/>
+    <mkdir dir="${src.icons}"/>
+    <mkdir dir="${src.chrome}"/>
+    <mkdir dir="${src.firefox}"/>
+    <mkdir dir="${cert.chromePath}"/>
+  </target>
+
+  <!-- Copy all generic sources to the build directory. -->
+  <target name="copy">
+    <copy todir="${buildDir}">
+      <fileset dir="${src}">
+        <include name="*.*"/>
+        <exclude name=".*"/>
+      </fileset>
+    </copy>
+  </target>
+
+  <target name="tokenreplace" depends="sites, sites-userscript, sites-string-list, sites-chrome">
+    <replace dir="${buildDir}" replacefilterfile="${build.prop}" encoding="${encoding}"/>
+
+    <replace dir="${buildDir}" token="@ant-sites@" value="${sites}" encoding="${encoding}"/>
+    <replace dir="${buildDir}" token="// @ant-sites-userscript@" value="${sites-userscript}" encoding="${encoding}"/>
+    <replace dir="${buildDir}" token="&quot;@ant-sites-string-list@&quot;" value="${sites-string-list}"
+             encoding="${encoding}"/>
+    <replace dir="${buildDir}" token="&quot;@ant-sites-chrome-list@&quot;" value="${sites-chrome-list}"
+             encoding="${encoding}"/>
+  </target>
+
+  <!-- Tasks to prepare the list of target sites in different formats -->
+  <target name="sites">
+    <loadfile property="sites" srcFile="${build.sites}"/>
+  </target>
+  <target name="sites-userscript">
+    <loadfile property="sites-userscript" srcFile="${build.sites}">
+      <filterchain>
+        <prefixlines prefix="// @include "/>
+      </filterchain>
+    </loadfile>
+  </target>
+  <target name="sites-chrome">
+    <loadfile property="sites-chrome-list-in" srcFile="${build.sites}">
+      <filterchain>
+        <replacestring from="http*" to="http"/>
+        <replacestring from="//*" to="//*."/>
+        <prefixlines prefix="&quot;"/>
+        <suffixlines suffix="&quot;,"/>
+      </filterchain>
+    </loadfile>
+    <propertyregex property="sites-chrome-list" input="${sites-chrome-list-in}" regexp=",$" replace=""/>
+  </target>
+  <target name="sites-string-list">
+    <loadfile property="sites-string-list-in" srcFile="${build.sites}">
+      <filterchain>
+        <prefixlines prefix="&quot;"/>
+        <suffixlines suffix="&quot;,"/>
+      </filterchain>
+    </loadfile>
+    <propertyregex property="sites-string-list" input="${sites-string-list-in}" regexp=",$" replace=""/>
+  </target>
+
+  <!-- Build the userscript. -->
+  <target name="userscript" depends="preinit, copy-userscript">
+    <!-- Create a fileset that includes only the source userscript. -->
+    <fileset dir="${buildDir}" id="userscript-path">
+      <include name="*.user.js"/>
+    </fileset>
+    <!-- Add a "min" into the filename for the output filename. -->
+    <pathconvert property="userscript-path-out" refid="userscript-path">
+      <mapper>
+        <regexpmapper from="(.*?)\.user.js$" to="\1.min.user.js"/>
+      </mapper>
+    </pathconvert>
+    <!-- Convert the path to a property. -->
+    <pathconvert property="userscript-path" refid="userscript-path"/>
+    <!-- Invoke the Google Closure Compiler with the generated file names. -->
+    <java jar="${sdk.closurecompiler}" fork="true">
+      <arg value="--js"/>
+      <arg value="${userscript-path}"/>
+      <arg value="--js_output_file"/>
+      <arg value="${userscript-path-out}"/>
+    </java>
+
+    <!-- Move the compressed and the uncompressed version to the output folder. -->
+    <move todir="${dist}">
+      <fileset dir="${buildDir}">
+        <include name="*.user.js"/>
+      </fileset>
+    </move>
+    <antcall target="clean"/>
+  </target>
+
+  <!-- Copy the data required for the userscript to the build directory. -->
+  <target name="copy-userscript">
+    <antcall target="copy"/>
+    <!-- Replace pre-defined identifiers. -->
+    <antcall target="tokenreplace"/>
+  </target>
+
+  <target name="dev" depends="preinit, copy-chrome">
+    <copy todir="${dist}/chrome-dev">
+      <fileset dir="${buildDir}"/>
+    </copy>
+    <antcall target="clean"/>
+  </target>
+
+  <!-- Build the Chrome extension. -->
+  <target name="chrome" depends="preinit, copy-chrome, chrome-zip, chrome-crx, clean"/>
+
+  <!-- Copy the files required to build the Chrome extension to the build directory. -->
+  <target name="copy-chrome">
+    <copy todir="${buildDir}">
+      <fileset dir="${src.chrome}/"/>
+    </copy>
+    <!-- Copy all .js files from the common source directory and replace the "user" part in their name. -->
+    <copy todir="${buildDir}">
+      <fileset dir="${src}">
+        <include name="*.*"/>
+        <exclude name=".*"/>
+      </fileset>
+      <mapper>
+        <regexpmapper from="(.*?)(\.user)?.js$" to="\1.js"/>
+      </mapper>
+    </copy>
+    <!-- Replace pre-defined identifiers. -->
+    <antcall target="tokenreplace"/>
+    <!-- Copy required icons to output directory. -->
+    <copy todir="${buildDir}/icons">
+      <fileset dir="${src.icons}">
+        <include name="icon16.png"/>
+        <include name="icon48.png"/>
+        <include name="icon128.png"/>
+      </fileset>
+    </copy>
+  </target>
+
+  <!-- Put the Chrome extension files in a ZIP (for Chrome Web Store upload). -->
+  <target name="chrome-zip" depends="preinit, copy-chrome">
+    <zip destfile="${buildDir}/chrome.zip" basedir="${buildDir}"/>
+    <copy file="${buildDir}/chrome.zip" tofile="${dist}/${name}-webstore.zip"/>
+  </target>
+
+  <!-- Build the Chrome CRX package for direct installation. -->
+  <target name="chrome-crx" depends="chrome-keycheck, build-chrome-key">
+    <exec executable="${sdk.buildcrx}">
+      <arg value="-crx"/>
+      <arg value="${buildDir}/chrome.zip"/>
+      <arg value="${cert.chrome}"/>
+      <arg value="${dist}/${name}.crx"/>
+    </exec>
+    <!--<delete file="${build}/chrome.zip" />-->
+  </target>
+
+  <!-- Check if the key for signing the Chrome extension exists. -->
+  <target name="chrome-keycheck">
+    <condition property="cert.chrome.found">
+      <available file="${cert.chrome}" type="file"/>
+    </condition>
+  </target>
+
+  <!-- Sign the Chrome CRX package. -->
+  <target name="build-chrome-key" unless="cert.chrome.found">
+    <exec executable="${sdk.buildcrx}">
+      <arg value="-prv"/>
+      <arg value="${cert.chrome}"/>
+    </exec>
+  </target>
+
+  <!-- Build the Firefox extension. -->
+  <target name="firefox" depends="preinit, copy-firefox">
+    <zip destfile="${dist}/${name}.xpi" basedir="${buildDir}"/>
+    <antcall target="clean"/>
+  </target>
+
+  <!-- Copy the files required to build the Firefox extension to the build directory. -->
+  <target name="copy-firefox">
+    <!-- Copy all .js files from the common source directory and replace the "user" part in their name. -->
+    <copy todir="${buildDir}">
+      <fileset dir="${src}">
+        <include name="*.*"/>
+        <exclude name=".*"/>
+      </fileset>
+      <mapper>
+        <regexpmapper from="(.*?)(\.user)?.js$" to="\1.js"/>
+      </mapper>
+    </copy>
+    <!-- Move the files to the content subfolder -->
+    <move todir="${buildDir}/content">
+      <fileset dir="${buildDir}"/>
+    </move>
+    <copy todir="${buildDir}">
+      <fileset dir="${src.firefox}/"/>
+    </copy>
+    <!-- Replace pre-defined identifiers. -->
+    <antcall target="tokenreplace"/>
+    <copy todir="${buildDir}/content/icons">
+      <fileset dir="${src.icons}">
+        <include name="icon32.png"/>
+        <include name="icon64.png"/>
+      </fileset>
+    </copy>
+  </target>
+
+  <!-- Clean the build directory. -->
+  <target name="clean">
+    <delete dir="${buildDir}"/>
+  </target>
+  <!-- Alias to run all clean tasks. -->
+  <target name="clean-all" depends="clean"/>
+</project>
