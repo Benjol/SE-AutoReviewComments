@@ -2,3 +2,5 @@
 /certificates
 /output
 dist/
+*~
+.*.swp
