@@ -44,7 +44,8 @@ with_jquery(function ($) {
     var OP = 'OP';
     var prefix = "AutoReviewComments-"; //prefix to avoid clashes in localstorage
 
-    if(sitename == "Stack Exchange") sitename = arr[arr.length - 2]; //workaround for SE sites..
+    if(sitename == "Stack Exchange") sitename = arr[arr.length - 2]; //workaround for some SE sites (e.g. Area 51, Stack Apps)
+    sitename = sitename.replace(/ ?Stack Exchange/, '');             //same for others ("Android Enthusiasts Stack Exchange", SR, and more)
     if(!GetStorage("WelcomeMessage")) SetStorage("WelcomeMessage", 'Welcome to ' + sitename + '! ');
     var greeting = GetStorage("WelcomeMessage") == "NONE" ? "" : GetStorage("WelcomeMessage");
     var showGreeting = false;
