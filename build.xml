@@ -41,8 +41,15 @@
   <property name="src.firefox" value="${src}/.firefox"/>
 
   <!-- Location of buildcrx. Used to pack the Chrome extension into a CRX.
-       See: https://code.google.com/p/buildcrx/ -->
-  <property name="sdk.buildcrx" value="${basedir}/SDK/buildcrx.exe"/>
+       See: https://github.com/kylehuff/buildcrx
+       If Arch detection becomes necessaray see https://github.com/twall/jna/blob/master/build.xml#L168
+       -->
+  <condition property="sdk.buildcrx" value="${basedir}/SDK/buildcrx.exe">
+    <os family="windows" />
+  </condition>
+  <condition property="sdk.buildcrx" value="${basedir}/SDK/buildcrx">
+    <os family="unix" />
+  </condition>
   <!-- Location of Google Closure Compiler. Used to pack userscript.
        See: https://developers.google.com/closure/compiler/ -->
   <property name="sdk.closurecompiler" value="${basedir}/SDK/compiler.jar"/>
@@ -229,7 +236,6 @@
   <!-- Build the Chrome CRX package for direct installation. -->
   <target name="chrome-crx" depends="chrome-keycheck, build-chrome-key">
     <exec executable="${sdk.buildcrx}">
-      <arg value="-crx"/>
       <arg value="${buildDir}/chrome.zip"/>
       <arg value="${cert.chrome}"/>
       <arg value="${dist}/${name}.crx"/>
