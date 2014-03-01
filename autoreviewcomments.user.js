@@ -144,12 +144,13 @@ with_jquery(function ($) {
             <span class="lsep"> | </span>                                                                                                 \
             <a title="configure welcome" class="popup-actions-welcome">welcome</a>                                                        \
           </div>                                                                                                                          \
-          <div style="float:right;">                                                                                                      \
+          <div style="float:right;display:none;">                                                                                         \
             <input class="popup-submit" type="button" disabled="disabled" style="float:none; margin-left: 5px" value="Insert">            \
           </div>                                                                                                                          \
          </div>                                                                                                                           \
        </div>                                                                                                                             \
-    </div>';
+    </div>                                                                                                                                \
+    <style>#popup li:hover { background-color: #eee; border-radius: 3px; }</style>';
 
     var messageTemplate = '                                                                                                                             \
     <div id="announcement" style="background:orange;padding:7px;margin-bottom:10px;font-size:15px">                                                     \
@@ -161,7 +162,10 @@ with_jquery(function ($) {
 
     var optionTemplate = '                                                                                            \
     <li>                                                                                                              \
-      <input id="comment-$ID$" type="radio" name="commentreview"                />                                    \
+      <input id="comment-$ID$" type="radio" name="commentreview" hidden="hidden"/>                                    \
+      <div style="float:right">                                                                                       \
+        <input class="popup-select-and-submit" type="button" style="float:none; margin-left: 5px" value="Insert now"> \
+      </div>                                                                                                          \
       <label for="comment-$ID$">                                                                                      \
         <span id="name-$ID$" class="action-name">$NAME$</span>                                                        \
         <span id="desc-$ID$" class="action-desc">$DESCRIPTION$</span>                                                 \
@@ -643,6 +647,11 @@ with_jquery(function ($) {
         //Handle remote url & welcome
         SetupRemoteBox(popup);
         SetupWelcomeBox(popup);
+
+        popup.find('.popup-select-and-submit').click(function () {
+          $(this).parent().siblings('input:radio').attr('checked', 'checked');
+          popup.find('.popup-submit').trigger('click');
+        });
 
         //on submit, convert html to markdown and copy to comment textarea
         popup.find('.popup-submit').click(function () {
