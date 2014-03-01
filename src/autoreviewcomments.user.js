@@ -49,75 +49,7 @@ with_jquery(function ($) {
     var greeting = GetStorage("WelcomeMessage") == "NONE" ? "" : GetStorage("WelcomeMessage");
     var showGreeting = false;
 
-    var markupTemplate = '                                                                                                                \
-    <div id="popup" class="popup" style="width:690px; position: absolute; display: block">                                                \
-       <div id="close" class="popup-close"><a title="close this popup (or hit Esc)">&#215;</a></div>                                      \
-       <h2 class="handle">Which review comment to insert?</h2>                                                                            \
-       <div style="overflow:hidden" id="main">                                                                                            \
-         <div class="popup-active-pane">                                                                                                  \
-           <div id="userinfo" style="padding:5px;background:#EAEFEF">                                                                     \
-              <img src="http://sstatic.net/img/progress-dots.gif"/>                                                                       \
-           </div>                                                                                                                         \
-          <ul class="action-list" style="height:440;overflow-y:auto" >                                                                    \
-          </ul>                                                                                                                           \
-         </div>                                                                                                                           \
-         <div style="display:none" class="share-tip" id="remote-popup">                                                                   \
-            enter url for remote source of comments (use import/export to create jsonp)                                                   \
-            <input id="remoteurl" type="text" style="display: block; width: 400px;"/>                                                     \
-            <img id="throbber1" style="display:none" src="http://sstatic.net/img/progress-dots.gif"/>                                     \
-            <span id="remoteerror1" style="color:red"/>                                                                                   \
-            <div style="float:left">                                                                                                      \
-              <input type="checkbox" id="remoteauto"/>                                                                                    \
-              <label title="get from remote on every page refresh" for="remoteauto">auto-get</label>                                      \
-            </div>                                                                                                                        \
-            <div style="float:right">                                                                                                     \
-              <a class="remote-get">get now</a>                                                                                           \
-              <span class="lsep"> | </span>                                                                                               \
-              <a class="remote-save">save</a>                                                                                             \
-              <span class="lsep"> | </span>                                                                                               \
-              <a class="remote-cancel">cancel</a>                                                                                         \
-            </div>                                                                                                                        \
-        </div>                                                                                                                            \
-                                                                                                                                          \
-         <div style="display:none" class="share-tip" id="welcome-popup">                                                                  \
-            configure "welcome" message (empty=none):                                                                                     \
-            <div>                                                                                                                         \
-              <input id="customwelcome" type="text" style="width: 300px;"/>                                                               \
-            </div>                                                                                                                        \
-            <div style="float:right">                                                                                                     \
-              <a class="welcome-force">force</a>                                                                                          \
-              <span class="lsep"> | </span>                                                                                               \
-              <a class="welcome-save">save</a>                                                                                            \
-              <span class="lsep"> | </span>                                                                                               \
-              <a class="welcome-cancel">cancel</a>                                                                                        \
-            </div>                                                                                                                        \
-        </div>                                                                                                                            \
-         <div class="popup-actions">                                                                                                      \
-          <div style="float: left; margin-top: 18px;">                                                                                    \
-            <a title="close this popup (or hit Esc)" class="popup-actions-cancel">cancel</a>                                              \
-            <span class="lsep"> | </span>                                                                                                 \
-            <a title="see info about this popup" class="popup-actions-help" href="http://stackapps.com/q/2116" target="_blank">info</a>   \
-            <span class="lsep"> | </span>                                                                                                 \
-            <a class="popup-actions-see">see-through</a>                                                                                  \
-            <span class="lsep"> | </span>                                                                                                 \
-            <a title="reset any custom comments" class="popup-actions-reset">reset</a>                                                    \
-          <span class="lsep"> | </span>                                                                                                   \
-            <a title="use this to import/export all comments" class="popup-actions-impexp">import/export</a>                              \
-            <span class="lsep"> | </span>                                                                                                 \
-            <a title="use this to hide/show all comments" class="popup-actions-toggledesc">show/hide desc</a>                             \
-            <span class="lsep"> | </span>                                                                                                 \
-            <a title="setup remote source" class="popup-actions-remote">remote</a>                                                        \
-            <img id="throbber2" style="display:none" src="http://sstatic.net/img/progress-dots.gif"/>                                     \
-            <span id="remoteerror2" style="color:red"/>                                                                                   \
-            <span class="lsep"> | </span>                                                                                                 \
-            <a title="configure welcome" class="popup-actions-welcome">welcome</a>                                                        \
-          </div>                                                                                                                          \
-          <div style="float:right;">                                                                                                      \
-            <input class="popup-submit" type="button" disabled="disabled" style="float:none; margin-left: 5px" value="Insert">            \
-          </div>                                                                                                                          \
-         </div>                                                                                                                           \
-       </div>                                                                                                                             \
-    </div>';
+    var markupTemplate = '@ant-template-popup@';
 
     var messageTemplate = '                                                                                                                             \
     <div id="announcement" style="background:orange;padding:7px;margin-bottom:10px;font-size:15px">                                                     \

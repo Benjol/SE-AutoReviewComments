@@ -71,6 +71,8 @@
   </target>
 
   <target name="tokenreplace" depends="sites, sites-userscript, sites-string-list, sites-chrome">
+    <loadfile srcfile="templates/popup.html" property="ant-templates-popup"></loadfile>
+
     <replace dir="${buildDir}" replacefilterfile="${build.prop}" encoding="${encoding}"/>
 
     <replace dir="${buildDir}" token="@ant-sites@" value="${sites}" encoding="${encoding}"/>
