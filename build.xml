@@ -22,6 +22,9 @@
   <!-- The location where we store our signing certificates and keys. -->
   <property name="cert" value="${basedir}/.cert"/>
 
+  <!-- The location that contains our templates. -->
+  <property name="templates" value="${src}/templates"/>
+
   <!-- Sub folder in the build directory for our extension. -->
   <property name="buildDir" value="${build}/${name}"/>
 
@@ -43,6 +46,9 @@
   <!-- Location of Google Closure Compiler. Used to pack userscript.
        See: https://developers.google.com/closure/compiler/ -->
   <property name="sdk.closurecompiler" value="${basedir}/SDK/compiler.jar"/>
+  <!-- Location of HTML compressor. Used to compress template HTML.
+       See: https://code.google.com/p/htmlcompressor/ -->
+  <property name="sdk.htmlcompressor" value="${basedir}/SDK/htmlcompressor-1.5.3.jar"/>
 
   <!-- Alias target to build all targets. -->
   <target name="all" depends="preinit, userscript, chrome, firefox, clean"/>
@@ -70,9 +76,33 @@
     </copy>
   </target>
 
-  <target name="tokenreplace" depends="sites, sites-userscript, sites-string-list, sites-chrome">
-    <loadfile srcfile="templates/popup.html" property="ant-templates-popup"></loadfile>
+  <!-- Perform HTML compression on the template files to make sure their code is reduced to a single line. -->
+  <target name="compress-templates">
+    <apply executable="java" parallel="false">
+      <fileset dir="${templates}" includes="*.html">
+        <exclude name="**/leave/**" />
+      </fileset>
+      <arg value="-jar"/>
+      <arg path="${sdk.htmlcompressor}"/>
+      <arg line="--type html"/>
+      <arg value="--preserve-comments"/>
+      <srcfile/>
+      <arg value="-o"/>
+      <mapper type="glob" from="*" to="${buildDir}/templates/*"/>
+      <targetfile/>
+    </apply>
+  </target>
 
+  <target name="tokenreplace" depends="sites, sites-userscript, sites-string-list, sites-chrome, compress-templates">
+    <!-- Replace templates. -->
+    <loadfile srcfile="${buildDir}/templates/message.html" property="ant-templates-message"/>
+    <replace dir="${buildDir}" token="@ant-templates-message@" value="${ant-templates-message}"/>
+    <loadfile srcfile="${buildDir}/templates/option.html" property="ant-templates-option"/>
+    <replace dir="${buildDir}" token="@ant-templates-option@" value="${ant-templates-option}"/>
+    <loadfile srcfile="${buildDir}/templates/popup.html" property="ant-templates-popup"/>
+    <replace dir="${buildDir}" token="@ant-templates-popup@" value="${ant-templates-popup}"/>
+
+    <!-- General token replacing in the rest of the code. -->
     <replace dir="${buildDir}" replacefilterfile="${build.prop}" encoding="${encoding}"/>
 
     <replace dir="${buildDir}" token="@ant-sites@" value="${sites}" encoding="${encoding}"/>

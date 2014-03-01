@@ -49,24 +49,9 @@ with_jquery(function ($) {
     var greeting = GetStorage("WelcomeMessage") == "NONE" ? "" : GetStorage("WelcomeMessage");
     var showGreeting = false;
 
-    var markupTemplate = '@ant-template-popup@';
-
-    var messageTemplate = '                                                                                                                             \
-    <div id="announcement" style="background:orange;padding:7px;margin-bottom:10px;font-size:15px">                                                     \
-      <span class="notify-close" style="border:2px solid black;cursor:pointer;display:block;float:right;margin:0 4px;padding:0 4px;line-height:17px">   \
-         <a title="dismiss this notification" style="color:black;text-decoration:none;font-weight:bold;font-size:16px">x</a>                            \
-      </span>                                                                                                                                           \
-      <strong>$TITLE$</strong> $BODY$                                                                                                                   \
-    </div>';
-
-    var optionTemplate = '                                                                                            \
-    <li>                                                                                                              \
-      <input id="comment-$ID$" type="radio" name="commentreview"                />                                    \
-      <label for="comment-$ID$">                                                                                      \
-        <span id="name-$ID$" class="action-name">$NAME$</span>                                                        \
-        <span id="desc-$ID$" class="action-desc">$DESCRIPTION$</span>                                                 \
-      </label>                                                                                                        \
-    </li>';
+    var markupTemplate = '@ant-templates-popup@';
+    var messageTemplate = '@ant-templates-message@';
+    var optionTemplate = '@ant-templates-option@';
 
     //default comments
     var defaultcomments = [
