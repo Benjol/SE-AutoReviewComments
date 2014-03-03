@@ -43,9 +43,9 @@ This script was inspired by answers to [this question on meta][1].
 
     If you prefix your comment title with `[Q]`, it will be only displayed for questions (`[A]` for answers). Non-prefixed comments are displayed for both.
 
-1. **`[type here]`, `[username]` & `[OP]`**
+1. **`[type here]`, `[username]` & `[OP]` (& $MYUSERID$)**
 
-    If the text `[type here]` is included in a comment, it will be automatically selected for completion when inserted. `[username]` will be replaced with the user's name (or just 'user' if nothing was found), and [OP] with the original poster's name (if found, else 'OP').
+    If the text `[type here]` is included in a comment, it will be automatically selected for completion when inserted. `[username]` will be replaced with the user's name (or just 'user' if nothing was found), and [OP] with the original poster's name (if found, else 'OP'). Also, $MYUSERID$ will be replaced with your user id for the current site.
 
 1. **Customise welcome message**
 
@@ -68,6 +68,8 @@ For more information about user scripts, check out the [tag:script] tag wiki [he
 ## Update info
 
 (See comments and answers below for details)
+
+**V1.3.2** - New $MYUSERID$ placeholder from [Izzy][51], will be replaced with your user id for the current site. Also, under the covers this version contains all the scaffolding necessary for building browser extensions (hat-tip to Caleb and Oliver Salzburg who did all the heavy lifting)
 
 **V1.3.1** - MOVED TO GITHUB! (With many thanks to [Izzy & Caleb][15]). Also now includes https (as requested by [bmdixon][16]). **From now on, please prefer reporting issues [directly in github][17]**
 
@@ -154,12 +156,15 @@ Can be used in tandem with my [other user script](http://stackapps.com/questions
 
 - [TomWij][43] ([below][44]) created a modified version of the script, which inspired my V1.0.8
 - [balpha][45] came up with the clever (evil) way to make the script '[self-updating][46]'
-- All the people who made suggestions in the comments and answers below!
+- All the people who made suggestions in the comments and answers [here][50]!
+- All the contributors here on github
 
 ## Known issues/Future plans
 
 - The main future plan is to get this script adopted by SE. I like maintaining it, but some of the usability niggles (sharing across sites is still clunky, even with the remote option) can only be resolved centrally. (Vote [here][47] if you agree!)
 - Modifying the script so that it also works in edit summary (as per [this request][48]), and the custom off-topic close reason (as per [this request][49]).
+- Work is in progress to create (Firefox & Chrome) browser extensions for this script, whilst maintaining 'reverse compatibility' with a (minified) grease-monkey version.
+- In future in should also be possible to create shared 'custom comments' on a per-site basis (useful for moderators & reviewers)
 
 
   [1]: http://meta.stackoverflow.com/questions/74194/how-to-review-can-we-agree-on-a-review-policy
@@ -211,3 +216,5 @@ Can be used in tandem with my [other user script](http://stackapps.com/questions
   [47]: http://meta.stackoverflow.com/questions/117963/formal-adoption-of-pro-forma-comments-script-into-se-engine-proper
   [48]: http://stackapps.com/a/2896/876
   [49]: http://stackapps.com/a/4235/876
+  [50]: http://stackapps.com/q/2116
+  [51]: http://stackexchange.com/users/1540386/izzy
