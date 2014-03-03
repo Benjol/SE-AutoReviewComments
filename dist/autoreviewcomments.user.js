@@ -78,8 +78,10 @@ with_jquery(function ($) {
     var username = 'user';
     var OP = 'OP';
     var prefix = "AutoReviewComments-"; //prefix to avoid clashes in localstorage
+    var myuserid = getLoggedInUserId();
 
-    if(sitename == "Stack Exchange") sitename = arr[arr.length - 2]; //workaround for SE sites..
+    if(sitename == "Stack Exchange") sitename = arr[arr.length - 2]; //workaround for some SE sites (e.g. Area 51, Stack Apps)
+    sitename = sitename.replace(/ ?Stack Exchange/, '');             //same for others ("Android Enthusiasts Stack Exchange", SR, and more)
     if(!GetStorage("WelcomeMessage")) SetStorage("WelcomeMessage", 'Welcome to ' + sitename + '! ');
     var greeting = GetStorage("WelcomeMessage") == "NONE" ? "" : GetStorage("WelcomeMessage");
     var showGreeting = false;
@@ -161,6 +163,15 @@ with_jquery(function ($) {
         return d + (r > 0 ? "." + r : "") + "k"
       }
       else return Math.round(r / 1E3) + "k"
+    }
+
+    // Get the Id of the logged-in user
+    function getLoggedInUserId() {
+      if ( document.getElementsByClassName('profile-me')[0].href.match(/\/users\/(\d+)\/.*/i) ) {
+        return RegExp.$1;
+      } else {
+        return '';
+      }
     }
 
     //Get userId for post
@@ -282,13 +293,13 @@ with_jquery(function ($) {
     }
 
     function UnTag(text) {
-      return text.replace(/\$SITENAME\$/g, sitename).replace(/\$SITEURL\$/g, siteurl)
+      return text.replace(/\$SITENAME\$/g, sitename).replace(/\$SITEURL\$/g, siteurl).replace(/\$MYUSERID\$/g, myuserid);
     }
 
     function Tag(html) {
       //put tags back in
-      var regname = new RegExp(sitename, "g"), regurl = new RegExp('http://' + siteurl, "g");
-      return html.replace(regname, '$SITENAME$').replace(regurl, 'http://$SITEURL$');
+      var regname = new RegExp(sitename, "g"), regurl = new RegExp('http://' + siteurl, "g"), reguid = new RegExp('/' + myuserid + '[)]', "g");
+      return html.replace(regname, '$SITENAME$').replace(regurl, 'http://$SITEURL$').replace(reguid, '/$MYUSERID$)');
     }
 
     //Replace contents of element with a textarea (containing markdown of contents), and save/cancel buttons
@@ -348,7 +359,7 @@ with_jquery(function ($) {
       for(var i = 0; i < GetStorage("commentcount"); i++) {
         var commenttype = GetCommentType(GetStorage('name-' + i));
         if(commenttype == "any" || (commenttype == popup.posttype)) {
-          var desc = GetStorage('desc-' + i).replace(/\$SITENAME\$/g, sitename).replace(/\$SITEURL\$/g, siteurl).replace(/\$/g, "$$$");
+          var desc = GetStorage('desc-' + i).replace(/\$SITENAME\$/g, sitename).replace(/\$SITEURL\$/g, siteurl).replace(/\$MYUSERID\$/g, myuserid).replace(/\$/g, "$$$");
           var opt = optionTemplate.replace(/\$ID\$/g, i)
                           .replace("$NAME$", GetStorage('name-' + i).replace(/\$/g, "$$$"))
                           .replace("$DESCRIPTION$", (showGreeting ? greeting : "") + desc);
@@ -434,14 +445,14 @@ with_jquery(function ($) {
       if(lastCheck == null) { //first time visitor
         ShowMessage(popup, "Please read this!", 'Thanks for installing this script. \
                             Please note that you can EDIT the texts inline by double-clicking them. \
-                            For other options, please read the full text <a href="http://stackapps.com/q/2116" target="_blank">here</a>.',
+                            For other options, please see the README at <a href="https://github.com/Benjol/SE-AutoReviewComments" target="_blank">here</a>.',
                             function () { });
       }
       if(lastCheck != null && lastCheck != today) {
         var lastVersion = GetStorage("LastVersionAcknowledged");
         updateCheck(function (newver, oldver, url) {
           if(newver != lastVersion) {
-            ShowMessage(popup, "New Version!", 'A new version (' + newver + ') of the <a href="http://stackapps.com/q/2116">AutoReviewComments</a> userscript is now available (this notification will only appear once per new version, and per site).',
+            ShowMessage(popup, "New Version!", 'A new version (' + newver + ') of the <a href="http://stackapps.com/q/2116">AutoReviewComments</a> userscript is now available, see the <a href="https://github.com/Benjol/SE-AutoReviewComments/releases">release notes</a> for details. (this notification will only appear once per new version, and per site)',
               function () { SetStorage("LastVersionAcknowledged", newver); });
           }
         });
