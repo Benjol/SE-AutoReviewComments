@@ -78,8 +78,10 @@ with_jquery(function ($) {
     var username = 'user';
     var OP = 'OP';
     var prefix = "AutoReviewComments-"; //prefix to avoid clashes in localstorage
+    var myuserid = getLoggedInUserId();
 
-    if(sitename == "Stack Exchange") sitename = arr[arr.length - 2]; //workaround for SE sites..
+    if(sitename == "Stack Exchange") sitename = arr[arr.length - 2]; //workaround for some SE sites (e.g. Area 51, Stack Apps)
+    sitename = sitename.replace(/ ?Stack Exchange/, '');             //same for others ("Android Enthusiasts Stack Exchange", SR, and more)
     if(!GetStorage("WelcomeMessage")) SetStorage("WelcomeMessage", 'Welcome to ' + sitename + '! ');
     var greeting = GetStorage("WelcomeMessage") == "NONE" ? "" : GetStorage("WelcomeMessage");
     var showGreeting = false;
@@ -161,6 +163,15 @@ with_jquery(function ($) {
         return d + (r > 0 ? "." + r : "") + "k"
       }
       else return Math.round(r / 1E3) + "k"
+    }
+
+    // Get the Id of the logged-in user
+    function getLoggedInUserId() {
+      if ( document.getElementsByClassName('profile-me')[0].href.match(/\/users\/(\d+)\/.*/i) ) {
+        return RegExp.$1;
+      } else {
+        return '';
+      }
     }
 
     //Get userId for post
@@ -282,13 +293,13 @@ with_jquery(function ($) {
     }
 
     function UnTag(text) {
-      return text.replace(/\$SITENAME\$/g, sitename).replace(/\$SITEURL\$/g, siteurl)
+      return text.replace(/\$SITENAME\$/g, sitename).replace(/\$SITEURL\$/g, siteurl).replace(/\$MYUSERID\$/g, myuserid);
     }
 
     function Tag(html) {
       //put tags back in
-      var regname = new RegExp(sitename, "g"), regurl = new RegExp('http://' + siteurl, "g");
-      return html.replace(regname, '$SITENAME$').replace(regurl, 'http://$SITEURL$');
+      var regname = new RegExp(sitename, "g"), regurl = new RegExp('http://' + siteurl, "g"), reguid = new RegExp('/' + myuserid + '[)]', "g");
+      return html.replace(regname, '$SITENAME$').replace(regurl, 'http://$SITEURL$').replace(reguid, '/$MYUSERID$)');
     }
 
     //Replace contents of element with a textarea (containing markdown of contents), and save/cancel buttons
@@ -348,7 +359,7 @@ with_jquery(function ($) {
       for(var i = 0; i < GetStorage("commentcount"); i++) {
         var commenttype = GetCommentType(GetStorage('name-' + i));
         if(commenttype == "any" || (commenttype == popup.posttype)) {
-          var desc = GetStorage('desc-' + i).replace(/\$SITENAME\$/g, sitename).replace(/\$SITEURL\$/g, siteurl).replace(/\$/g, "$$$");
+          var desc = GetStorage('desc-' + i).replace(/\$SITENAME\$/g, sitename).replace(/\$SITEURL\$/g, siteurl).replace(/\$MYUSERID\$/g, myuserid).replace(/\$/g, "$$$");
           var opt = optionTemplate.replace(/\$ID\$/g, i)
                           .replace("$NAME$", GetStorage('name-' + i).replace(/\$/g, "$$$"))
                           .replace("$DESCRIPTION$", (showGreeting ? greeting : "") + desc);
