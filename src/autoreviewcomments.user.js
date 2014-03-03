@@ -410,14 +410,14 @@ with_jquery(function ($) {
       if(lastCheck == null) { //first time visitor
         ShowMessage(popup, "Please read this!", 'Thanks for installing this script. \
                             Please note that you can EDIT the texts inline by double-clicking them. \
-                            For other options, please read the full text <a href="http://stackapps.com/q/2116" target="_blank">here</a>.',
+                            For other options, please see the README at <a href="https://github.com/Benjol/SE-AutoReviewComments" target="_blank">here</a>.',
                             function () { });
       }
       if(lastCheck != null && lastCheck != today) {
         var lastVersion = GetStorage("LastVersionAcknowledged");
         updateCheck(function (newver, oldver, url) {
           if(newver != lastVersion) {
-            ShowMessage(popup, "New Version!", 'A new version (' + newver + ') of the <a href="http://stackapps.com/q/2116">AutoReviewComments</a> userscript is now available (this notification will only appear once per new version, and per site).',
+            ShowMessage(popup, "New Version!", 'A new version (' + newver + ') of the <a href="http://stackapps.com/q/2116">AutoReviewComments</a> userscript is now available, see the <a href="https://github.com/Benjol/SE-AutoReviewComments/releases">release notes</a> for details. (this notification will only appear once per new version, and per site)',
               function () { SetStorage("LastVersionAcknowledged", newver); });
           }
         });
