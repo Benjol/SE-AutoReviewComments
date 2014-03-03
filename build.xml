@@ -45,11 +45,23 @@
        If Arch detection becomes necessaray see https://github.com/twall/jna/blob/master/build.xml#L168
        -->
   <condition property="sdk.buildcrx" value="${basedir}/SDK/buildcrx.exe">
-    <os family="windows" />
+    <os family="windows"/>
   </condition>
-  <condition property="sdk.buildcrx" value="${basedir}/SDK/buildcrx">
-    <os family="unix" />
+  <condition property="sdk.buildcrx" value="${basedir}/SDK/buildcrx_linux_x86">
+    <and>
+      <os family="unix"/>
+      <not>
+        <isset property="arch"/>
+      </not>
+    </and>
   </condition>
+  <condition property="sdk.buildcrx" value="${basedir}/SDK/buildcrx_linux_x86_64">
+    <and>
+      <os family="unix"/>
+      <equals arg1="${arch}" arg2="64"/>
+    </and>
+  </condition>
+
   <!-- Location of Google Closure Compiler. Used to pack userscript.
        See: https://developers.google.com/closure/compiler/ -->
   <property name="sdk.closurecompiler" value="${basedir}/SDK/compiler.jar"/>
