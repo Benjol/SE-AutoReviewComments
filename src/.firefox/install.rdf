@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+     xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+    
+  <Description about="urn:mozilla:install-manifest">
+    <em:id>{1f369631-31dd-43a8-8597-e159af817152}</em:id>
+    <em:version>@ant-version@</em:version>
+    <em:type>2</em:type>
+
+    <em:targetApplication>
+      <Description>
+        <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
+        <em:minVersion>8.0</em:minVersion>
+        <em:maxVersion>27.*</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+        
+    <em:name>@ant-name@</em:name>
+    <em:description>@ant-description@</em:description>
+    <em:creator>@ant-author@</em:creator>
+    <em:homepageURL>@ant-homepage@</em:homepageURL>
+    
+    <em:bootstrap>false</em:bootstrap>
+    
+    <em:iconURL>chrome://autoreviewcomments-1f369631-31dd-43a8-8597-e159af817152/content/icons/icon32.png</em:iconURL>
+    <em:icon64URL>chrome://autoreviewcomments-1f369631-31dd-43a8-8597-e159af817152/content/icons/icon64.png</em:icon64URL>
+		
+  </Description>
+</RDF>
