@@ -387,16 +387,6 @@ with_jquery(function ($) {
       popup.find('h2').before(message);
     }
 
-    //We only show announcement once for each version
-    function CheckForAnnouncement(popup) {
-      var previous = GetStorage("LastMessage");
-      GetRemote('http://dl.dropbox.com/u/2835366/SO/announcement.json', function (announcement) {
-        if(previous != announcement.id) {
-          ShowMessage(popup, "Service announcement", announcement.message, function () { SetStorage("LastMessage", announcement.id); });
-        }
-      });
-    }
-
     //Get remote content via ajax, target url must contain valid json wrapped in callback() function
     function GetRemote(url, callback, onerror) {
       $.ajax({ type: "GET", url: url + '?jsonp=?', dataType: "jsonp", jsonpCallback: "callback", timeout: 2000, success: callback, error: onerror, async: false });
@@ -559,10 +549,6 @@ with_jquery(function ($) {
             function () { WriteComments(popup); throbber.hide(); },
             function (d, msg) { remoteerror.text(msg); });
         }
-
-        //check if we need to show announcement
-        //Timing issues here: if we put this before remote code, data from announcement and remote get mixed up
-        //if(!window.VersionChecked) CheckForAnnouncement(popup); //commented out, this has to be dismissed on every site - not a good idea!
 
         //add popup and center on screen
         $('#' + divid).append(popup);
