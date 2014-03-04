@@ -1,8 +1,8 @@
 /** @preserve
 // ==UserScript==
-// @name           AutoReviewComments for Stack Exchange sites
+// @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.3.2
+// @version        1.3.3
 // @description    No more re-typing the same comments over and over!
 // @homepage       https://github.com/Benjol/SE-AutoReviewComments
 // @grant          none
@@ -54,24 +54,68 @@ function with_jquery(f) {
 
 with_jquery(function ($) {
   StackExchange.ready(function () {
-    //**selfupdatingscript starts here (see https://gist.github.com/raw/874058/selfupdatingscript.user.js)
-    var VERSION = '1.3.2';
-    var URL = "https://github.com/Benjol/SE-AutoReviewComments/raw/master/dist/autoreviewcomments.min.user.js";
+    //// Self Updating Userscript, see https://gist.github.com/Benjol/874058
+// (the first line of this template _must_ be a comment!)
+var VERSION = '1.3.3';
+var URL = "https://raw.github.com/Benjol/SE-AutoReviewComments/master/dist/autoreviewcomments.user.js";
 
-    if(window["selfUpdaterCallback:" + URL]) {
-      window["selfUpdaterCallback:" + URL](VERSION);
-      return;
+// This hack is necessary to bring people up from the last working auto-uptate gist
+// release if they manually installed the latest version. (can be removed after some
+// time has passed and last released version is at least 1.3.4)
+for (var key in window) {
+  if (key.indexOf('selfUpdaterCallback') != -1) {
+    window[key](VERSION);
+    return;
+  }
+}
+// End hack
+
+if(window["AutoReviewComments_AutoUpdateCallback"]) {
+  window["AutoReviewComments_AutoUpdateCallback"](VERSION);
+  return;
+}
+
+function updateCheck(notifier) {
+  window["AutoReviewComments_AutoUpdateCallback"] = function (newver) {
+      if(newver > VERSION) notifier(newver, VERSION, URL);
     }
+  $("<script />").attr("src", URL).appendTo("head");
+}
 
-    function updateCheck(notifier) {
-      window["selfUpdaterCallback:" + URL] = function (newver) {
-        if(newver > VERSION) notifier(newver, VERSION, URL);
+// Check to see if a new version has become available since last check
+// - only checks once a day
+// - does not check for first time visitors, shows them a welcome message instead
+// - called at the end of the main script if function exists
+function CheckForNewVersion(popup) {
+  var today = (new Date().setHours(0, 0, 0, 0));
+  var LastUpdateCheckDay = GetStorage("LastUpdateCheckDay");
+  if(LastUpdateCheckDay == null) { //first time visitor
+    ShowMessage(popup, "Please read this!", 'Thanks for installing this script. \
+                            Please note that you can EDIT the texts inline by double-clicking them. \
+                            For other options, please see the README at <a href="https://github.com/Benjol/SE-AutoReviewComments" target="_blank">here</a>.',
+                function () { });
+  } else if ( LastUpdateCheckDay != today) {
+    updateCheck(function (newver, oldver, install_url) {
+      if(newver != GetStorage("LastVersionAcknowledged")) {
+        ShowMessage(popup, "New Version!", 'A new version (' + newver + ') of the <a href="http://stackapps.com/q/2116">AutoReviewComments</a> userscript is now available, see the <a href="https://github.com/Benjol/SE-AutoReviewComments/releases">release notes</a> for details or <a href="' + install_url + '">click here</a> to install now.',
+                    function () { SetStorage("LastVersionAcknowledged", newver); });
       }
-      $("<script />").attr("src", URL).appendTo("head");
-    }
-    //**selfupdatingscript ends here (except for call to updateCheck further down in code)
+    });
+  }
+  SetStorage("LastUpdateCheckDay", today);
+}
 
-    //autoreviewcomments script starts here
+/* How does this work?
+   1. The installed script loads first, and sets the local VERSION variable with the currently installed version number
+   2. window["AutoReviewComments_AutoUpdateCallback"] is not defined, so this is skipped
+   3. When updateCheck() is called, it defines window["AutoReviewComments_AutoUpdateCallback"], which retains the installed version number in VERSION (closure)
+   4. updateCheck() then loads the external version of the script into the page header
+   5. when the external version of the script loads, it defines its own local VERSION with the external (potentially new) version number
+   6. window["AutoReviewComments_AutoUpdateCallback"] is now defined, so it is invoked, and the external version number is passed in
+   7. if the external version number (ver) is greater than the installed version (VERSION), the notification is invoked
+ */
+
+
     var siteurl = window.location.hostname;
     var arr = document.title.split(' - ');
     var sitename = arr[arr.length - 1];
@@ -422,42 +466,9 @@ with_jquery(function ($) {
       popup.find('h2').before(message);
     }
 
-    //We only show announcement once for each version
-    function CheckForAnnouncement(popup) {
-      var previous = GetStorage("LastMessage");
-      GetRemote('http://dl.dropbox.com/u/2835366/SO/announcement.json', function (announcement) {
-        if(previous != announcement.id) {
-          ShowMessage(popup, "Service announcement", announcement.message, function () { SetStorage("LastMessage", announcement.id); });
-        }
-      });
-    }
-
     //Get remote content via ajax, target url must contain valid json wrapped in callback() function
     function GetRemote(url, callback, onerror) {
       $.ajax({ type: "GET", url: url + '?jsonp=?', dataType: "jsonp", jsonpCallback: "callback", timeout: 2000, success: callback, error: onerror, async: false });
-    }
-
-    //Check to see if a new version has become available since last check
-    // only checks once a day
-    function CheckForNewVersion(popup) {
-      var today = (new Date().setHours(0, 0, 0, 0));
-      var lastCheck = GetStorage("LastUpdateCheckDay");
-      if(lastCheck == null) { //first time visitor
-        ShowMessage(popup, "Please read this!", 'Thanks for installing this script. \
-                            Please note that you can EDIT the texts inline by double-clicking them. \
-                            For other options, please see the README at <a href="https://github.com/Benjol/SE-AutoReviewComments" target="_blank">here</a>.',
-                            function () { });
-      }
-      if(lastCheck != null && lastCheck != today) {
-        var lastVersion = GetStorage("LastVersionAcknowledged");
-        updateCheck(function (newver, oldver, url) {
-          if(newver != lastVersion) {
-            ShowMessage(popup, "New Version!", 'A new version (' + newver + ') of the <a href="http://stackapps.com/q/2116">AutoReviewComments</a> userscript is now available, see the <a href="https://github.com/Benjol/SE-AutoReviewComments/releases">release notes</a> for details. (this notification will only appear once per new version, and per site)',
-              function () { SetStorage("LastVersionAcknowledged", newver); });
-          }
-        });
-      }
-      SetStorage("LastUpdateCheckDay", today);
     }
 
     //customise welcome
@@ -595,10 +606,6 @@ with_jquery(function ($) {
             function (d, msg) { remoteerror.text(msg); });
         }
 
-        //check if we need to show announcement
-        //Timing issues here: if we put this before remote code, data from announcement and remote get mixed up
-        //if(!window.VersionChecked) CheckForAnnouncement(popup); //commented out, this has to be dismissed on every site - not a good idea!
-
         //add popup and center on screen
         $('#' + divid).append(popup);
         popup.center();
@@ -611,7 +618,7 @@ with_jquery(function ($) {
 
         //We only actually perform the updates check when someone clicks, this should make it less costly, and more timely
         //also wrap it so that it only gets called the *FIRST* time we open this dialog on any given page (not much of an optimisation).
-        if(!window.VersionChecked) { CheckForNewVersion(popup); window.VersionChecked = true; }
+        if(typeof CheckForNewVersion == "function" && !window.VersionChecked) { CheckForNewVersion(popup); window.VersionChecked = true; }
       }));
 
       setTimeout(function() {
