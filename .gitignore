@@ -3,9 +3,7 @@
 *.pem
 
 # Packaged extensions
-dist/*.zip
-dist/*.crx
-dist/*.xpi
+dist/*
 
 # Develeper scratch files
 *~
