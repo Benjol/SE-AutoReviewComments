@@ -1,7 +1,7 @@
 // Self Updating Userscript, see https://gist.github.com/Benjol/874058
 // (the first line of this template _must_ be a comment!)
 var VERSION = '@ant-version@';
-var URL = "https://raw.github.com/Benjol/SE-AutoReviewComments/master/dist/autoreviewcomments.user.js";
+var URL = "@ant-raw-source-root@@ant-userscript-filename@";
 
 // This hack is necessary to bring people up from the last working auto-uptate gist
 // release if they manually installed the latest version. (can be removed after some
