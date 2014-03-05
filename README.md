@@ -63,11 +63,12 @@ Click [HERE][12] to preview the code.
 
 For more information about user scripts, check out the [tag:script] tag wiki [here][13].
 
-(**Note**, you may like [this][14] fork from Oliver Salzburg)
 
 ## Update info
 
 (See comments and answers below for details)
+
+**V1.3.3** - 'Service' release to correct the auto-update script (which was 'broken' by having changed script location). Also now supports updating the minified version of the script.
 
 **V1.3.2** - New $MYUSERID$ placeholder from [Izzy][51], will be replaced with your user id for the current site. Also, under the covers this version contains all the scaffolding necessary for building browser extensions (hat-tip to Caleb and Oliver Salzburg who did all the heavy lifting)
 
