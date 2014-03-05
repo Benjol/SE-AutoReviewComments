@@ -255,12 +255,22 @@
 
   <!-- Build the Chrome CRX package for direct installation. -->
   <target name="chrome-crx" depends="chrome-keycheck, build-chrome-key">
-    <exec executable="${sdk.buildcrx}" failonerror="true">
-      <arg value="${buildDir}/chrome.zip"/>
-      <arg value="${cert.chrome}"/>
-      <arg value="${dist}/${name}.crx"/>
-    </exec>
-    <!--<delete file="${build}/chrome.zip" />-->
+    <condition property="isMac">
+      <os family="mac"/>
+    </condition>
+    <if>
+      <os family="mac"/>
+      <then>
+        <echo message="Building the Chrome CRX archive is currently not supported on the MacOS operating system family!" if="isMac"/>
+      </then>
+      <else>
+        <exec executable="${sdk.buildcrx}" failonerror="true">
+          <arg value="${buildDir}/chrome.zip"/>
+          <arg value="${cert.chrome}"/>
+          <arg value="${dist}/${name}.crx"/>
+        </exec>
+      </else>
+    </if>
   </target>
 
   <!-- Check if the key for signing the Chrome extension exists. -->
