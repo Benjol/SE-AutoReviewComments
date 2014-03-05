@@ -21,7 +21,6 @@ with_jquery(function ($) {
   StackExchange.ready(function () {
     //@ant-modules-autoupdater@
 
-    //autoreviewcomments script starts here
     var siteurl = window.location.hostname;
     var arr = document.title.split(' - ');
     var sitename = arr[arr.length - 1];
