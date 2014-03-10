@@ -261,7 +261,7 @@
     <if>
       <os family="mac"/>
       <then>
-        <echo message="Building the Chrome CRX archive is currently not supported on the MacOS operating system family!" if="isMac"/>
+        <echo message="Building the Chrome CRX archive is currently not supported on the MacOS operating system family!"/>
       </then>
       <else>
         <exec executable="${sdk.buildcrx}" failonerror="true">
