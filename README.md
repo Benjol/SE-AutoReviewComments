@@ -64,109 +64,22 @@ Click [HERE][12] to preview the code.
 For more information about user scripts, check out the [tag:script] tag wiki [here][13].
 
 
-## Update info
+## Credits
 
-(See comments and answers below for details)
+* [Benjol][14], see [all versions][15] and [commits][16]
+* [Tom Wijsman][17], see [v1.0.8][18]
+* [balpha][19], see [v1.1.0][20]
+* [Sathya][21], see [v1.1.6][22] and [commits][23]
+* [ThiefMaster][24], see [v1.2.1][25]
+* [Oliver Salzburg][44], [Github][26], see [v1.2.3][27] and [commits][28]
+* [Shog9][29], see [v1.2.4][30]
+* [PeeHaa][31], see [v1.2.9][32]
+* [Derek][33], see [v1.2.9][34] and [commits][35]
+* [Caleb][36], see [v1.3.1][37] and [commits][38]
+* [bmdixon][39], see [v1.3.1][40]
+* [Izzy][41], see [v1.3.2][42] and [commits][43]
 
-**V1.3.3** - 'Service' release to correct the auto-update script (which was 'broken' by having changed script location). Also now supports updating the minified version of the script.
-
-**V1.3.2** - New $MYUSERID$ placeholder from [Izzy][51], will be replaced with your user id for the current site. Also, under the covers this version contains all the scaffolding necessary for building browser extensions (hat-tip to Caleb and Oliver Salzburg who did all the heavy lifting)
-
-**V1.3.1** - MOVED TO GITHUB! (With many thanks to [Izzy & Caleb][15]). Also now includes https (as requested by [bmdixon][16]). **From now on, please prefer reporting issues [directly in github][17]**
-
-**V1.3.0** - Update to latest version of [API][18]. Correct bug in import which screwed things up if there was white space on 'empty' lines (reported [here][19] and [here][20])
-
-**V1.2.9** - Fix for braking change (thanks SE devs!), suggested by [PeeHaa][21]. (Any other suggestions *not* including `setTimeout` are welcome!)
-
-**V1.2.8** - Update to take advantage of new ['draggable dialogue'][22] functionality.
-
-**V1.2.7** - Correct bug noted by [Oddthinking][23], and implement the 'force welcome' function requested by [Martin Scharrer][24].
-
-**V1.2.6** - Implement [the][25] [much-requested][26] [override][27] for the new user Welcome message. Correct [a bug][28] with mangled markdown and [another][29] due to modified SE markup.
-
-**V1.2.5** - Implement `[OP]` tag as [suggested][30] by [Gaffi][31]. 'Fix' for markdown/html conversion [bug][32] reported by [Madara Uchiha][33].
-
-**V1.2.4** - Modify code to get script working in new Review (reported by [Oliver Salzburg][34]), hat-tip to [Shog9][35] for the fix.
-
-**V1.2.3** - Slight modification to remote dialogue (details [here](http://stackapps.com/a/3281/876)). You can now use `[username]` as a wildcard (as suggested by [daviesgeek](http://stackapps.com/a/3473/876)). Corrected `&` bug noted by [Oliver Salzburg](http://stackapps.com/a/3474/876)
-
-**V1.2.2** - Remote comment sources. Broadcasts. Read the details [here](http://stackapps.com/a/3281/876).
-
-**V1.2.1** - update to work with 10k tools (suggested/implemented by [ThiefMaster][36])
-
-**V1.2.0** - one fix (remove greeting before switching to edit mode), and one feature: hit Enter key to submit ([suggested by Bruno Pereira][37]). *Note that this isn't a major change, it's just my version comparison is string-wise, so V1.1.10 won't work*.
-
-**V1.1.9** - fixed nasty javascript regex backreference replace bug (reported by [ThiefMaster][38]). For explanations see [here][39] and [here][40].
-
-**V1.1.8** - fixed 'jQuery 1.7.1' bug, which stopped insert button being enabled. (No idea why it stopped working - though judging from [this][41], maybe it should never have worked, as I was using `attr("disabled", "")`)
-
-**V1.1.7** - create pseudo categories for differentiating between comments for questions and comments for answers (suggested by [oers](http://stackapps.com/a/2692/876)) - simply prefix the comment *title* with `[Q]` or `[A]`
-
-**V1.1.6** - make script work in `/admin/dashboard` (for moderators, requested/implemented by [Sathya](http://stackapps.com/users/74/sathya))
-
-**V1.1.5** - make script work in `/review` (requested by [Gilles](http://stackapps.com/users/4259/gilles) (now uses jquery delegate for attaching events)
-
-**V1.1.4** - if the text `[type here]` is included in a comment, it will be automatically selected for completion (requested by [daviesgeek](http://stackapps.com/users/8109/daviesgeek))
-
-**V1.1.3** - include Registered/Unregistered in user info (requested by [waiwai933](http://stackapps.com/q/2582)).
-
-**V1.1.2** - Fixed bug when using 'magic' links (reported by [Alex](http://stackapps.com/q/2500))
-
-**V1.1.1** - If you have descriptions auto-hidden, the selected one will still be shown (suggested by [Alex](http://stackapps.com/q/2498)).
-
-**V1.1.0** - bug fix. (SE's `full.js` is now delayed at load, so the `unbind('click')` was undoing my `click()` - fix from [@balpha][42]).
-
-**V1.0.9** -  
-- a) removed upgrading bits from previous version  
-- b) added internal notification feature  
-- c) now uses internal notification for announcing new versions 
-- d) corrected the 'new versions announced once only' (it never worked AFAICT)  
-- e) corrected the `$SITEURL$` escaping 'quirk'  
-- f) stopped using `.owner` class for userinfo
-- g) corrected bug which showed greeting twice.  
-
-**V1.0.8** -  
-- a) Mend see-through code.  
-- b) Make storage more neighbour-friendly (add prefix, backwards compatible).  
-- c) Allow variable number of custom comments (can only be modified via import).  
-- d) Add show/hide description functionality. Add vertical scrollbars if too many comments.  
-- e) Use 'selfupdatingscript' for update checks  
-- f) Revert `$SITEURL$` to not contain the `http://`.  
-
-**V1.0.7** - add an import/export function - can be used to transport custom comments between sites (note the use of `$SITEURL$` and `$SITENAME$` tags),
-
-**V1.0.6** - changes to the list of included urls
-
-**V1.0.5** - suppress warnings on new updates if already installed (previously each site would tell you about a new update, even if you'd already installed it)
-
-**V1.0.4** - corrected two bugs in code detecting the appropriate userid to lookup
-
-**V1.0.3** - corrected a bug in rep formatting. Integrated a function to poll once a day for new versions and notify user if any found.
-
-**V1.0.2** - implemented customisation, using HTML5 storage to allow users to create/modify their own messages
-
-**V1.0.1** - some refactoring, corrected a bug in the regex that converted html to markup.
-
-## Note
-
-Any comments welcome, whether on the functionality or the code.
-
-Can be used in tandem with my [other user script](http://stackapps.com/questions/2069/change-unanswered-tab-to-review).
-
-## Credits 
-
-- [TomWij][43] ([below][44]) created a modified version of the script, which inspired my V1.0.8
-- [balpha][45] came up with the clever (evil) way to make the script '[self-updating][46]'
-- All the people who made suggestions in the comments and answers [here][50]!
-- All the contributors here on github
-
-## Known issues/Future plans
-
-- The main future plan is to get this script adopted by SE. I like maintaining it, but some of the usability niggles (sharing across sites is still clunky, even with the remote option) can only be resolved centrally. (Vote [here][47] if you agree!)
-- Modifying the script so that it also works in edit summary (as per [this request][48]), and the custom off-topic close reason (as per [this request][49]).
-- Work is in progress to create (Firefox & Chrome) browser extensions for this script, whilst maintaining 'reverse compatibility' with a (minified) grease-monkey version.
-- In future in should also be possible to create shared 'custom comments' on a per-site basis (useful for moderators & reviewers)
-
+All the people who noted bugs and made suggestions in the comments and answers [on the Stack Apps page][45]!
 
   [1]: http://meta.stackoverflow.com/questions/74194/how-to-review-can-we-agree-on-a-review-policy
   [2]: http://i.stack.imgur.com/L3Cqp.png
@@ -181,41 +94,36 @@ Can be used in tandem with my [other user script](http://stackapps.com/questions
   [11]: http://stackapps.com/tags/script/info
   [12]: https://github.com/Benjol/SE-AutoReviewComments/blob/master/autoreviewcomments.user.js
   [13]: http://stackapps.com/tags/script/info
-  [14]: http://stackapps.com/a/4359
-  [15]: http://stackapps.com/a/4564/876
-  [16]: http://stackapps.com/a/4565/876
-  [17]: https://github.com/Benjol/SE-AutoReviewComments/issues/new
-  [18]: http://blog.stackoverflow.com/2014/02/stack-exchange-api-v2-2-and-the-demise-of-v1-x/
-  [19]: http://stackapps.com/a/4390
-  [20]: http://stackapps.com/a/4332/876
-  [21]: http://stackapps.com/a/4241
-  [22]: http://meta.stackoverflow.com/a/166398
-  [23]: http://stackapps.com/a/3887/876
-  [24]: http://stackapps.com/a/3426/876
-  [25]: http://stackapps.com/a/3317/876
-  [26]: http://stackapps.com/a/3215/876
-  [27]: http://stackapps.com/a/3235/876
-  [28]: http://stackapps.com/a/3727/876
-  [29]: http://stackapps.com/a/3866/876
-  [30]: http://stackapps.com/a/3584/876
-  [31]: http://stackapps.com/users/10417/gaffi
-  [32]: http://stackapps.com/a/3727/876
-  [33]: http://stackapps.com/users/9137/madara-uchiha
-  [34]: http://stackapps.com/a/3540/876
-  [35]: http://chat.meta.stackoverflow.com/transcript/message/1025260#1025260
-  [36]: http://stackapps.com/a/3254/876
-  [37]: http://stackapps.com/a/3249/876
-  [38]: http://stackapps.com/a/3176/876
-  [39]: http://www.regexguru.com/2010/06/replacement-text-syntax-for-javascripts-stringreplace/
-  [40]: http://stackoverflow.com/questions/2466917/weird-javascript-regex-replace-backreference-behavior
-  [41]: http://www.weba11y.com/Examples/disabledAttr.html
-  [42]: http://stackapps.com/users/43/balpha
-  [43]: http://stackapps.com/users/5631/tomwij
-  [44]: http://stackapps.com/questions/2116/pro-forma-comments/2163#2163
-  [45]: http://stackapps.com/users/43/balpha
-  [46]: https://gist.github.com/874058
-  [47]: http://meta.stackoverflow.com/questions/117963/formal-adoption-of-pro-forma-comments-script-into-se-engine-proper
-  [48]: http://stackapps.com/a/2896/876
-  [49]: http://stackapps.com/a/4235/876
-  [50]: http://stackapps.com/q/2116
-  [51]: http://stackexchange.com/users/1540386/izzy
+  [14]: http://stackexchange.com/users/6711/benjol
+  [15]: https://github.com/Benjol/SE-AutoReviewComments/releases
+  [16]: https://github.com/Benjol/SE-AutoReviewComments/commits?author=Benjol
+  [17]: http://stackexchange.com/users/19908/tom-wijsman
+  [18]: https://github.com/Benjol/SE-AutoReviewComments/releases/tag/v1.0.8
+  [19]: http://stackexchange.com/users/40051/balpha
+  [20]: https://github.com/Benjol/SE-AutoReviewComments/releases/tag/v1.1.0
+  [21]: http://stackexchange.com/users/33230/sathya
+  [22]: https://github.com/Benjol/SE-AutoReviewComments/releases/tag/v1.0.6
+  [23]: https://github.com/Benjol/SE-AutoReviewComments/commits?author=SathyaBhat
+  [24]: http://stackexchange.com/users/113304/thiefmaster
+  [25]: https://github.com/Benjol/SE-AutoReviewComments/releases/tag/v1.2.1
+  [26]: https://github.com/oliversalzburg
+  [27]: https://github.com/Benjol/SE-AutoReviewComments/releases/tag/v1.2.3
+  [28]: https://github.com/Benjol/SE-AutoReviewComments/commits?author=oliversalzburg
+  [29]: http://stackexchange.com/users/620/shog9
+  [30]: https://github.com/Benjol/SE-AutoReviewComments/releases/tag/v1.2.4
+  [31]: http://stackexchange.com/users/239224/peehaa
+  [32]: https://github.com/Benjol/SE-AutoReviewComments/releases/tag/v1.2.9
+  [33]: http://stackexchange.com/users/106573/derek
+  [34]: https://github.com/Benjol/SE-AutoReviewComments/releases/tag/v1.3.1
+  [35]: https://github.com/Benjol/SE-AutoReviewComments/commits?author=derek1906
+  [36]: http://stackexchange.com/users/120635/caleb
+  [37]: https://github.com/Benjol/SE-AutoReviewComments/releases/tag/v1.3.1
+  [38]: https://github.com/Benjol/SE-AutoReviewComments/commits?author=alerque
+  [39]: http://stackexchange.com/users/412603/bmdixon
+  [40]: https://github.com/Benjol/SE-AutoReviewComments/releases/tag/v1.3.1
+  [41]: http://stackexchange.com/users/1540386/izzy
+  [42]: https://github.com/Benjol/SE-AutoReviewComments/releases/tag/v1.3.2
+  [43]: https://github.com/Benjol/SE-AutoReviewComments/commits?author=IzzySoft
+  [44]: http://stackexchange.com/users/95447/oliver-salzburg
+  [45]: http://stackapps.com/q/2116
+
