@@ -2,38 +2,54 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.3.3.1
+// @version        1.3.3.2
 // @description    No more re-typing the same comments over and over!
 // @homepage       https://github.com/Benjol/SE-AutoReviewComments
 // @grant          none
-// @include http*://*stackoverflow.com/questions*
-// @include http*://*stackoverflow.com/review*
-// @include http*://*stackoverflow.com/admin/dashboard*
-// @include http*://*stackoverflow.com/tools*
-// @include http*://*serverfault.com/questions*
-// @include http*://*serverfault.com/review*
-// @include http*://*serverfault.com/admin/dashboard*
-// @include http*://*serverfault.com/tools*
-// @include http*://*superuser.com/questions*
-// @include http*://*superuser.com/review*
-// @include http*://*superuser.com/admin/dashboard*
-// @include http*://*superuser.com/tools*
-// @include http*://*stackexchange.com/questions*
-// @include http*://*stackexchange.com/review*
-// @include http*://*stackexchange.com/admin/dashboard*
-// @include http*://*stackexchange.com/tools*
-// @include http*://*askubuntu.com/questions*
-// @include http*://*askubuntu.com/review*
-// @include http*://*askubuntu.com/admin/dashboard*
-// @include http*://*askubuntu.com/tools*
-// @include http*://*answers.onstartups.com/questions*
-// @include http*://*answers.onstartups.com/review*
-// @include http*://*answers.onstartups.com/admin/dashboard*
-// @include http*://*answers.onstartups.com/tools*
-// @include http*://*mathoverflow.net/questions*
-// @include http*://*mathoverflow.net/review*
-// @include http*://*mathoverflow.net/admin/dashboard*
-// @include http*://*mathoverflow.net/tools*
+// @include http*://stackoverflow.com/questions*
+// @include http*://stackoverflow.com/review*
+// @include http*://stackoverflow.com/admin/dashboard*
+// @include http*://stackoverflow.com/tools*
+// @include http*://*.stackoverflow.com/questions*
+// @include http*://*.stackoverflow.com/review*
+// @include http*://*.stackoverflow.com/admin/dashboard*
+// @include http*://*.stackoverflow.com/tools*
+// @include http*://serverfault.com/questions*
+// @include http*://serverfault.com/review*
+// @include http*://serverfault.com/admin/dashboard*
+// @include http*://serverfault.com/tools*
+// @include http*://*.serverfault.com/questions*
+// @include http*://*.serverfault.com/review*
+// @include http*://*.serverfault.com/admin/dashboard*
+// @include http*://*.serverfault.com/tools*
+// @include http*://superuser.com/questions*
+// @include http*://superuser.com/review*
+// @include http*://superuser.com/admin/dashboard*
+// @include http*://superuser.com/tools*
+// @include http*://*.superuser.com/questions*
+// @include http*://*.superuser.com/review*
+// @include http*://*.superuser.com/admin/dashboard*
+// @include http*://*.superuser.com/tools*
+// @include http*://*.stackexchange.com/questions*
+// @include http*://*.stackexchange.com/review*
+// @include http*://*.stackexchange.com/admin/dashboard*
+// @include http*://*.stackexchange.com/tools*
+// @include http*://askubuntu.com/questions*
+// @include http*://askubuntu.com/review*
+// @include http*://askubuntu.com/admin/dashboard*
+// @include http*://askubuntu.com/tools*
+// @include http*://*.askubuntu.com/questions*
+// @include http*://*.askubuntu.com/review*
+// @include http*://*.askubuntu.com/admin/dashboard*
+// @include http*://*.askubuntu.com/tools*
+// @include http*://mathoverflow.net/questions*
+// @include http*://mathoverflow.net/review*
+// @include http*://mathoverflow.net/admin/dashboard*
+// @include http*://mathoverflow.net/tools*
+// @include http*://*.mathoverflow.net/questions*
+// @include http*://*.mathoverflow.net/review*
+// @include http*://*.mathoverflow.net/admin/dashboard*
+// @include http*://*.mathoverflow.net/tools*
 // @include http*://discuss.area51.stackexchange.com/questions/*
 // @include http*://discuss.area51.stackexchange.com/review*
 // @include http*://discuss.area51.stackexchange.com/admin/dashboard*
@@ -42,6 +58,7 @@
 // @include http*://stackapps.com/review*
 // @include http*://stackapps.com/admin/dashboard*
 // @include http*://stackapps.com/tools*
+
 // ==/UserScript==
 */
 
@@ -56,7 +73,7 @@ with_jquery(function ($) {
   StackExchange.ready(function () {
     //// Self Updating Userscript, see https://gist.github.com/Benjol/874058
 // (the first line of this template _must_ be a comment!)
-var VERSION = '1.3.3.1';
+var VERSION = '1.3.3.2';
 var URL = "https://raw.github.com/Benjol/SE-AutoReviewComments/master/dist/autoreviewcomments.user.js";
 
 // This hack is necessary to bring people up from the last working auto-uptate gist

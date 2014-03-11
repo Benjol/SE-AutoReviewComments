@@ -3,38 +3,54 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.3.3.1
+// @version        1.3.3.2
 // @description    No more re-typing the same comments over and over!
 // @homepage       https://github.com/Benjol/SE-AutoReviewComments
 // @grant          none
-// @include http*://*stackoverflow.com/questions*
-// @include http*://*stackoverflow.com/review*
-// @include http*://*stackoverflow.com/admin/dashboard*
-// @include http*://*stackoverflow.com/tools*
-// @include http*://*serverfault.com/questions*
-// @include http*://*serverfault.com/review*
-// @include http*://*serverfault.com/admin/dashboard*
-// @include http*://*serverfault.com/tools*
-// @include http*://*superuser.com/questions*
-// @include http*://*superuser.com/review*
-// @include http*://*superuser.com/admin/dashboard*
-// @include http*://*superuser.com/tools*
-// @include http*://*stackexchange.com/questions*
-// @include http*://*stackexchange.com/review*
-// @include http*://*stackexchange.com/admin/dashboard*
-// @include http*://*stackexchange.com/tools*
-// @include http*://*askubuntu.com/questions*
-// @include http*://*askubuntu.com/review*
-// @include http*://*askubuntu.com/admin/dashboard*
-// @include http*://*askubuntu.com/tools*
-// @include http*://*answers.onstartups.com/questions*
-// @include http*://*answers.onstartups.com/review*
-// @include http*://*answers.onstartups.com/admin/dashboard*
-// @include http*://*answers.onstartups.com/tools*
-// @include http*://*mathoverflow.net/questions*
-// @include http*://*mathoverflow.net/review*
-// @include http*://*mathoverflow.net/admin/dashboard*
-// @include http*://*mathoverflow.net/tools*
+// @include http*://stackoverflow.com/questions*
+// @include http*://stackoverflow.com/review*
+// @include http*://stackoverflow.com/admin/dashboard*
+// @include http*://stackoverflow.com/tools*
+// @include http*://*.stackoverflow.com/questions*
+// @include http*://*.stackoverflow.com/review*
+// @include http*://*.stackoverflow.com/admin/dashboard*
+// @include http*://*.stackoverflow.com/tools*
+// @include http*://serverfault.com/questions*
+// @include http*://serverfault.com/review*
+// @include http*://serverfault.com/admin/dashboard*
+// @include http*://serverfault.com/tools*
+// @include http*://*.serverfault.com/questions*
+// @include http*://*.serverfault.com/review*
+// @include http*://*.serverfault.com/admin/dashboard*
+// @include http*://*.serverfault.com/tools*
+// @include http*://superuser.com/questions*
+// @include http*://superuser.com/review*
+// @include http*://superuser.com/admin/dashboard*
+// @include http*://superuser.com/tools*
+// @include http*://*.superuser.com/questions*
+// @include http*://*.superuser.com/review*
+// @include http*://*.superuser.com/admin/dashboard*
+// @include http*://*.superuser.com/tools*
+// @include http*://*.stackexchange.com/questions*
+// @include http*://*.stackexchange.com/review*
+// @include http*://*.stackexchange.com/admin/dashboard*
+// @include http*://*.stackexchange.com/tools*
+// @include http*://askubuntu.com/questions*
+// @include http*://askubuntu.com/review*
+// @include http*://askubuntu.com/admin/dashboard*
+// @include http*://askubuntu.com/tools*
+// @include http*://*.askubuntu.com/questions*
+// @include http*://*.askubuntu.com/review*
+// @include http*://*.askubuntu.com/admin/dashboard*
+// @include http*://*.askubuntu.com/tools*
+// @include http*://mathoverflow.net/questions*
+// @include http*://mathoverflow.net/review*
+// @include http*://mathoverflow.net/admin/dashboard*
+// @include http*://mathoverflow.net/tools*
+// @include http*://*.mathoverflow.net/questions*
+// @include http*://*.mathoverflow.net/review*
+// @include http*://*.mathoverflow.net/admin/dashboard*
+// @include http*://*.mathoverflow.net/tools*
 // @include http*://discuss.area51.stackexchange.com/questions/*
 // @include http*://discuss.area51.stackexchange.com/review*
 // @include http*://discuss.area51.stackexchange.com/admin/dashboard*
@@ -43,6 +59,7 @@
 // @include http*://stackapps.com/review*
 // @include http*://stackapps.com/admin/dashboard*
 // @include http*://stackapps.com/tools*
+
 // ==/UserScript==
 */
 function with_jquery(e){var t=document.createElement("script");t.type="text/javascript";t.textContent="("+e.toString()+")(jQuery)";document.body.appendChild(t)}
@@ -62,7 +79,7 @@ c),b.append(c)}Q(a);ba(a)}function ba(a){a.find("label > span").dblclick(functio
 function Q(a){a=a.find("ul.action-list li:not(.action-selected) span[id*='desc-']");"hide"==f("hide-desc")?a.hide():a.show()}function H(a,b,d,c){d=d.replace(/\n/g,"<BR/>");b=e(ca.replace("$TITLE$",b).replace("$BODY$",d));b.find(".notify-close").click(function(){e(this).parent().fadeOutAndRemove();c()});a.find("h2").before(b)}function da(a,b,d){e.ajax({type:"GET",url:a+"?jsonp=?",dataType:"jsonp",jsonpCallback:"callback",timeout:2E3,success:b,error:d,async:!1})}function R(a,b,d){da(a,function(a){h("commentcount",
 a.length);p("name-");p("desc-");e.each(a,function(a,b){h("name-"+a,b.name);h("desc-"+a,D(b.description))});b()},d)}function ea(a){var b=a.find("#remote-popup"),d=b.find("#remoteerror1"),c=b.find("#remoteurl"),e=b.find("#remoteauto"),g=b.find("#throbber1");a.find(".popup-actions-remote").click(function(){c.val(f("RemoteUrl"));e.prop("checked","true"==f("AutoRemote"));b.show()});a.find(".remote-cancel").click(function(){g.hide();d.text("");b.hide()});a.find(".remote-save").click(function(){h("RemoteUrl",
 c.val());h("AutoRemote",e.prop("checked"));b.hide()});a.find(".remote-get").click(function(){g.show();R(c.val(),function(){s(a);g.hide()},function(a,b){d.text(b)})})}function fa(a){var b=a.find("#welcome-popup"),d=b.find("#customwelcome");a.find(".popup-actions-welcome").click(function(){d.val(q);b.show()});a.find(".welcome-cancel").click(function(){b.hide()});a.find(".welcome-force").click(function(){u=!0;s(a);b.hide()});a.find(".welcome-save").click(function(){var a=""==d.val()?"NONE":d.val();h("WelcomeMessage",
-a);q=d.val();b.hide()})}var v="1.3.3.1",F="https://raw.github.com/Benjol/SE-AutoReviewComments/master/dist/autoreviewcomments.user.js",n;for(n in window)if(-1!=n.indexOf("selfUpdaterCallback")){window[n](v);return}if(window.AutoReviewComments_AutoUpdateCallback)window.AutoReviewComments_AutoUpdateCallback(v);else{var w=window.location.hostname;n=document.title.split(" - ");var m=n[n.length-1],B="user",S="OP",A="AutoReviewComments-",z;z=document.getElementsByClassName("profile-me")[0].href.match(/\/users\/(\d+)\/.*/i)?
+a);q=d.val();b.hide()})}var v="1.3.3.2",F="https://raw.github.com/Benjol/SE-AutoReviewComments/master/dist/autoreviewcomments.user.js",n;for(n in window)if(-1!=n.indexOf("selfUpdaterCallback")){window[n](v);return}if(window.AutoReviewComments_AutoUpdateCallback)window.AutoReviewComments_AutoUpdateCallback(v);else{var w=window.location.hostname;n=document.title.split(" - ");var m=n[n.length-1],B="user",S="OP",A="AutoReviewComments-",z;z=document.getElementsByClassName("profile-me")[0].href.match(/\/users\/(\d+)\/.*/i)?
 RegExp.$1:"";"Stack Exchange"==m&&(m=n[n.length-2]);m=m.replace(/ ?Stack Exchange/,"");f("WelcomeMessage")||h("WelcomeMessage","Welcome to "+m+"! ");var q="NONE"==f("WelcomeMessage")?"":f("WelcomeMessage"),u=!1,ca='<div id="announcement" style="background:orange;padding:7px;margin-bottom:10px;font-size:15px"> <span class="notify-close" style="border:2px solid black;cursor:pointer;display:block;float:right;margin:0 4px;padding:0 4px;line-height:17px"> <a title="dismiss this notification" style="color:black;text-decoration:none;font-weight:bold;font-size:16px">x</a> </span> <strong>$TITLE$</strong> $BODY$ </div>',
 aa='<li> <input id="comment-$ID$" type="radio" name="commentreview"/> <label for="comment-$ID$"> <span id="name-$ID$" class="action-name">$NAME$</span> <span id="desc-$ID$" class="action-desc">$DESCRIPTION$</span> </label> </li>',P=[{Name:"Answers just to say Thanks!",Description:'Please don\'t add "thanks" as answers. Invest some time in the site and you will gain sufficient <a href="http://$SITEURL$/privileges">privileges</a> to upvote answers you like, which is the $SITENAME$ way of saying thank you.'},
 {Name:"Nothing but a URL (and isn't spam)",Description:'Whilst this may theoretically answer the question, <a href="http://meta.stackoverflow.com/q/8259">it would be preferable</a> to include the essential parts of the answer here, and provide the link for reference.'},{Name:"Requests to OP for further information",Description:"This is really a comment, not an answer. With a bit more rep, <a href=\"http://$SITEURL$/privileges/comment\">you will be able to post comments</a>. For the moment I've added the comment for you, and I'm flagging this post for deletion."},
