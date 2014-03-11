@@ -19,9 +19,30 @@ if(window["AutoReviewComments_AutoUpdateCallback"]) {
   return;
 }
 
+// Split int based version number strings on dots, zero-pad the arrays to the same length and
+// compare them in order such that true is returned only if the proposted version is newer
+function isVersionNewer(proposed, current) {
+    proposed = proposed.split(".");
+    current = current.split(".");
+
+    while (proposed.length < current.length) proposed.push("0");
+    while (current.length < proposed.length) current.push("0");
+
+    for (var i = 0; i < proposed.length; i++) {
+        if (parseInt(proposed[i]) > parseInt(current[i])) {
+            return true;
+        }
+        if (parseInt(proposed[i]) < parseInt(current[i])) {
+            return false;
+        }
+    }
+
+    return false;
+}
+
 function updateCheck(notifier) {
   window["AutoReviewComments_AutoUpdateCallback"] = function (newver) {
-      if(newver > VERSION) notifier(newver, VERSION, URL);
+      if(isVersionNewer(newver, VERSION)) notifier(newver, VERSION, URL);
     }
   $("<script />").attr("src", URL).appendTo("head");
 }
