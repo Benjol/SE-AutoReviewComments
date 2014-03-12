@@ -71,7 +71,7 @@ For more information about user scripts, check out the [tag:script] tag wiki [he
 * [balpha][19], see [v1.1.0][20]
 * [Sathya][21], see [v1.1.6][22] and [commits][23]
 * [ThiefMaster][24], see [v1.2.1][25]
-* [Oliver Salzburg][44], [Github][26], see [v1.2.3][27] and [commits][28]
+* [Oliver Salzburg][26], see [v1.2.3][27] and [commits][28]
 * [Shog9][29], see [v1.2.4][30]
 * [PeeHaa][31], see [v1.2.9][32]
 * [Derek][33], see [v1.2.9][34] and [commits][35]
@@ -79,7 +79,7 @@ For more information about user scripts, check out the [tag:script] tag wiki [he
 * [bmdixon][39], see [v1.3.1][40]
 * [Izzy][41], see [v1.3.2][42] and [commits][43]
 
-All the people who noted bugs and made suggestions in the comments and answers [on the Stack Apps page][45]!
+All the people who noted bugs and made suggestions in the comments and answers [on the Stack Apps page][44]!
 
   [1]: http://meta.stackoverflow.com/questions/74194/how-to-review-can-we-agree-on-a-review-policy
   [2]: http://i.stack.imgur.com/L3Cqp.png
@@ -106,7 +106,7 @@ All the people who noted bugs and made suggestions in the comments and answers [
   [23]: https://github.com/Benjol/SE-AutoReviewComments/commits?author=SathyaBhat
   [24]: http://stackexchange.com/users/113304/thiefmaster
   [25]: https://github.com/Benjol/SE-AutoReviewComments/releases/tag/v1.2.1
-  [26]: https://github.com/oliversalzburg
+  [26]: http://stackexchange.com/users/95447/oliver-salzburg
   [27]: https://github.com/Benjol/SE-AutoReviewComments/releases/tag/v1.2.3
   [28]: https://github.com/Benjol/SE-AutoReviewComments/commits?author=oliversalzburg
   [29]: http://stackexchange.com/users/620/shog9
@@ -124,6 +124,5 @@ All the people who noted bugs and made suggestions in the comments and answers [
   [41]: http://stackexchange.com/users/1540386/izzy
   [42]: https://github.com/Benjol/SE-AutoReviewComments/releases/tag/v1.3.2
   [43]: https://github.com/Benjol/SE-AutoReviewComments/commits?author=IzzySoft
-  [44]: http://stackexchange.com/users/95447/oliver-salzburg
-  [45]: http://stackapps.com/q/2116
+  [44]: http://stackapps.com/q/2116
 
