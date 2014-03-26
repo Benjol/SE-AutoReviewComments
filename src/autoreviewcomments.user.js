@@ -454,81 +454,123 @@ with_jquery(function ($) {
       });
     }
 
-    //This is where the real work starts - add the 'auto' link next to each comment 'help' link
-    //use most local root-nodes possible (have to exist on page load) - #questions is for review pages
-    $("#content").delegate(".comments-link", "click", function () {
-      var divid = $(this).attr('id').replace('-link', '');
-      var posttype = $(this).parents(".question, .answer").attr("class").split(' ')[0]; //slightly fragile
-
-      if($('#' + divid).find('.comment-auto-link').length > 0) return; //don't create auto link if already there
-      var newspan = $('<span class="lsep"> | </span>').add($('<a class="comment-auto-link">auto</a>').click(function () {
-        //Create popup and wire-up the functionality
-        var popup = $(markupTemplate);
-        popup.find('.popup-close').click(function () { popup.fadeOutAndRemove(); });
-        popup.posttype = posttype;
-
-        //Reset this, otherwise we get the greeting twice...
-        showGreeting = false;
-
-        //create/add options
-        WriteComments(popup);
-
-        //Add handlers for command links
-        popup.find('.popup-actions-cancel').click(function () { popup.fadeOutAndRemove(); });
-        popup.find('.popup-actions-reset').click(function () { ResetComments(); WriteComments(popup); });
-        popup.find('.popup-actions-see').hover(function () {
-          popup.fadeTo('fast', '0.4').children().not('#close').fadeTo('fast', '0.0')
-        }, function () {
-          popup.fadeTo('fast', '1.0').children().not('#close').fadeTo('fast', '1.0')
-        });
-        popup.find('.popup-actions-impexp').click(function () { ImportExport(popup); });
-        popup.find('.popup-actions-toggledesc').click(function () {
-          var hideDesc = GetStorage('hide-desc') || "show";
-          SetStorage('hide-desc', hideDesc == "show" ? "hide" : "show");
-          ShowHideDescriptions(popup);
-        });
-        //Handle remote url & welcome
-        SetupRemoteBox(popup);
-        SetupWelcomeBox(popup);
-
-        //on submit, convert html to markdown and copy to comment textarea
-        popup.find('.popup-submit').click(function () {
-          var selected = popup.find('input:radio:checked');
-          var markdown = htmlToMarkDown(selected.parent().find('.action-desc').html()).replace(/\[username\]/g, username).replace(/\[OP\]/g, OP);
-          $('#' + divid).find('textarea').val(markdown).focus();  //focus provokes character count test
-          var caret = markdown.indexOf('[type here]')
-          if(caret >= 0) $('#' + divid).find('textarea')[0].setSelectionRange(caret, caret + '[type here]'.length);
-          popup.fadeOutAndRemove();
-        });
-
-        //Auto-load from remote if required
-        if(!window.VersionChecked && GetStorage("AutoRemote") == 'true') {
-          var throbber = popup.find("#throbber2");
-          var remoteerror = popup.find('#remoteerror2');
-          throbber.show();
-          LoadFromRemote(GetStorage("RemoteUrl"),
-            function () { WriteComments(popup); throbber.hide(); },
-            function (d, msg) { remoteerror.text(msg); });
+    /**
+     * Attach an "auto" link somewhere in the DOM. This link is going to trigger the iconic ARC behavior.
+     * @param {String} triggerElement A selector for a DOM element which, when clicked, will invoke the locator.
+     * @param {Function} locator A function that will search for a DOM element, next to which the "auto" link will be placed.
+     *                           This function will receive the triggerElement as the first argument when called.
+     * @param {Function} injector A function that will be called to actually inject the "auto" link into the DOM.
+     *                            This function will receive the element that the locator found as the first argument when called.
+     *                            It will receive the action function as the second argument, so it know what to invoke when the "auto" link is clicked.
+     * @param {Function} action A function that will be called when the injected "auto" link is clicked.
+     */
+    function attachAutoLinkInjector( triggerElement, locator, injector, action ) {
+      var _internalInjector = function( triggerElement, retryCount ){
+        // If we didn't find the element after 20 retries, give up.
+        if( 20 <= retryCount ) return;
+        // Try to locate the element.
+        var injectNextTo = locator( triggerElement );
+        // We didn't find it? Try again in 50ms.
+        if( !injectNextTo.length ) {
+          setTimeout( function() {
+            _internalInjector( triggerElement, retryCount + 1 );
+          }, 50 );
+        } else {
+          // Call our injector on the found element.
+          injector( injectNextTo, action );
         }
+      };
+      $( "#content" ).delegate( triggerElement, "click", function() {
+        var triggerElement = this;
+        _internalInjector( triggerElement );
+      } );
+    }
+    attachAutoLinkInjector( ".comments-link", findHelpButton, injectAutoLink, autoLinkAction);
+    attachAutoLinkInjector( ".edit-post", findSummaryInput, injectAutoLink, function(){ alert( "This is just a placeholder. Dialog isn't actually working!" ); autoLinkAction(); } );
 
-        //add popup and center on screen
-        $('#' + divid).append(popup);
-        popup.center();
-        StackExchange.helpers.bindMovablePopups();
+    function findHelpButton( where ) {
+      var divid = $(where).attr('id').replace('-link', '');
+      return $('#' + divid).find('.comment-help-link');
+    }
+    function findSummaryInput( where ) {
+      var divid = $(where).attr('href').replace('/posts/', '').replace('/edit', '');
+      return $('#post-editor-' + divid).next().find('.edit-comment');
+    }
 
-        //Get user info and inject
-        var userid = getUserId($(this));
-        getUserInfo(userid, popup);
-        OP = getOP();
+    function injectAutoLink( where, what ) {
+      var posttype = $(where).parents(".question, .answer").attr("class").split(' ')[0]; //slightly fragile
+      var _autoLinkAction = function(){
+        what( where, posttype );
+      };
+      var autoLink = $('<span class="lsep"> | </span>').add($('<a class="comment-auto-link">auto</a>').click(_autoLinkAction));
+      $(where).parent().append(autoLink);
+    }
 
-        //We only actually perform the updates check when someone clicks, this should make it less costly, and more timely
-        //also wrap it so that it only gets called the *FIRST* time we open this dialog on any given page (not much of an optimisation).
-        if(typeof CheckForNewVersion == "function" && !window.VersionChecked) { CheckForNewVersion(popup); window.VersionChecked = true; }
-      }));
+    function autoLinkAction(targetObject,posttype) {
+      //Create popup and wire-up the functionality
+      var popup = $(markupTemplate);
+      popup.find('.popup-close').click(function () { popup.fadeOutAndRemove(); });
+      popup.posttype = posttype;
 
-      setTimeout(function() {
-        $('#' + divid).find('.comment-help-link').parent().append(newspan);
-      }, 15);
-    });
+      //Reset this, otherwise we get the greeting twice...
+      showGreeting = false;
+
+      //create/add options
+      WriteComments(popup);
+
+      //Add handlers for command links
+      popup.find('.popup-actions-cancel').click(function () { popup.fadeOutAndRemove(); });
+      popup.find('.popup-actions-reset').click(function () { ResetComments(); WriteComments(popup); });
+      popup.find('.popup-actions-see').hover(function () {
+        popup.fadeTo('fast', '0.4').children().not('#close').fadeTo('fast', '0.0')
+      }, function () {
+        popup.fadeTo('fast', '1.0').children().not('#close').fadeTo('fast', '1.0')
+      });
+      popup.find('.popup-actions-impexp').click(function () { ImportExport(popup); });
+      popup.find('.popup-actions-toggledesc').click(function () {
+        var hideDesc = GetStorage('hide-desc') || "show";
+        SetStorage('hide-desc', hideDesc == "show" ? "hide" : "show");
+        ShowHideDescriptions(popup);
+      });
+      //Handle remote url & welcome
+      SetupRemoteBox(popup);
+      SetupWelcomeBox(popup);
+
+      //on submit, convert html to markdown and copy to comment textarea
+      popup.find('.popup-submit').click(function () {
+        var selected = popup.find('input:radio:checked');
+        var markdown = htmlToMarkDown(selected.parent().find('.action-desc').html()).replace(/\[username\]/g, username).replace(/\[OP\]/g, OP);
+        alert("TODO: targetObject should be dynamically assigned. This is not working!");
+        targetObject.find('textarea').val(markdown).focus();  //focus provokes character count test
+        var caret = markdown.indexOf('[type here]')
+        if(caret >= 0) $('#' + divid).find('textarea')[0].setSelectionRange(caret, caret + '[type here]'.length);
+        popup.fadeOutAndRemove();
+      });
+
+      //Auto-load from remote if required
+      if(!window.VersionChecked && GetStorage("AutoRemote") == 'true') {
+        var throbber = popup.find("#throbber2");
+        var remoteerror = popup.find('#remoteerror2');
+        throbber.show();
+        LoadFromRemote(GetStorage("RemoteUrl"),
+          function () { WriteComments(popup); throbber.hide(); },
+          function (d, msg) { remoteerror.text(msg); });
+      }
+
+      // Attach to #content, everything else is too fragile.
+      $("#content").append(popup);
+      popup.center();
+      StackExchange.helpers.bindMovablePopups();
+
+      //Get user info and inject
+      var userid = getUserId($(this));
+      getUserInfo(userid, popup);
+      OP = getOP();
+
+      //We only actually perform the updates check when someone clicks, this should make it less costly, and more timely
+      //also wrap it so that it only gets called the *FIRST* time we open this dialog on any given page (not much of an optimisation).
+      if(typeof CheckForNewVersion == "function" && !window.VersionChecked) { CheckForNewVersion(popup); window.VersionChecked = true; }
+    }
+
   });
 });
