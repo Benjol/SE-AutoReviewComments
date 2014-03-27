@@ -63,6 +63,16 @@
     </and>
   </condition>
 
+  <property name="sdk.firefox" value="${basedir}/SDK/addon-sdk-1.16"/>
+  <condition property="sdk.cfx" value="${sdk.firefox}/bin/cfx.bat">
+    <os family="windows"/>
+  </condition>
+  <condition property="sdk.cfx" value="${sdk.firefox}/bin/cfx">
+    <not>
+      <os family="windows"/>
+    </not>
+  </condition>
+
   <!-- Location of Google Closure Compiler. Used to pack userscript.
        See: https://developers.google.com/closure/compiler/ -->
   <property name="sdk.closurecompiler" value="${basedir}/SDK/compiler.jar"/>
@@ -298,6 +308,8 @@
   <target name="firefox" depends="preinit, copy-firefox">
     <zip destfile="${dist}/${name}.xpi" basedir="${buildDir}"/>
     <antcall target="clean"/>
+  </target>
+  <target name="firefox-cfx" depends="preinit, copy-firefox">
   </target>
 
   <!-- Copy the files required to build the Firefox extension to the build directory. -->
