@@ -160,7 +160,7 @@
       </filterchain>
     </loadfile>
     <!-- Remove last trailing comma from property. -->
-    <propertyregex property="sites-chrome-list" input="${sites-chrome-list-in}" regexp=",$" replace=""/>
+    <propertyregex property="sites-chrome-list" input="${sites-chrome-list-in}" regexp=",[\r\n]*?$" replace=""/>
   </target>
   <target name="sites-string-list">
     <loadfile property="sites-string-list-in" srcFile="${build.sites}">
