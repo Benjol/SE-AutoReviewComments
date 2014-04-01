@@ -168,8 +168,19 @@
   <target name="sites-string-list">
     <loadfile property="sites-string-list-in" srcFile="${build.sites}">
       <filterchain>
-        <prefixlines prefix="&quot;"/>
-        <suffixlines suffix="&quot;,"/>
+        <!-- Replace the possible *. at the start of each line with (*.)*
+             This allows for options subdomains if the line started with *. -->
+        <replaceregex pattern="^\*\." replace="(*.)?"/>
+        <!-- Dots in the line have to be escaped, to match literal dots. -->
+        <replacestring from="." to="\."/>
+        <!-- The star has to be replaced by .* to match any amount of characters. -->
+        <replacestring from="*" to=".*"/>
+        <!-- Prefix all lines with /^https?:\/\/ to match http and https URLs.
+             This also opens the regular expression with / -->
+        <prefixlines prefix="/^https?:\/\/"/>
+        <!-- Suffix all lines with a /.*$/ to match all pages on the site.
+             The also closes the regular expression with / -->
+        <suffixlines suffix="\/.*$/,"/>
       </filterchain>
     </loadfile>
     <!-- Remove last trailing comma from property. -->
