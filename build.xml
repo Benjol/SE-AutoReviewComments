@@ -299,10 +299,6 @@
 
   <!-- Build the Firefox extension. -->
   <target name="firefox" depends="preinit, copy-firefox">
-    <zip destfile="${dist}/${name}.xpi" basedir="${buildDir}"/>
-    <antcall target="clean"/>
-  </target>
-  <target name="firefox-cfx" depends="preinit, copy-firefox">
     <exec executable="python" failonerror="true">
       <arg line="${sdk.cfx}"/>
       <arg line="--pkgdir"/>
