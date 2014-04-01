@@ -308,6 +308,7 @@
       <arg line="xpi"/>
     </exec>
     <copy file="${buildDir}/${name}.xpi" tofile="${dist}/${name}.xpi"/>
+    <antcall target="clean"/>
   </target>
 
   <!-- Copy the files required to build the Firefox extension to the build directory. -->
