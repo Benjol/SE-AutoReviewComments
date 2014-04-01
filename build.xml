@@ -310,6 +310,17 @@
     <copy file="${buildDir}/${name}.xpi" tofile="${dist}/${name}.xpi"/>
     <antcall target="clean"/>
   </target>
+  <!-- Compiles the extension and runs it in an instance of Firefox. -->
+  <target name="firefox-debug" depends="preinit, copy-firefox">
+    <exec executable="python" failonerror="true">
+      <arg line="${sdk.cfx}"/>
+      <arg line="--pkgdir"/>
+      <arg line="${buildDir}"/>
+      <arg line="--output-file"/>
+      <arg line="${buildDir}/${name}.xpi"/>
+      <arg line="run"/>
+    </exec>
+  </target>
 
   <!-- Copy the files required to build the Firefox extension to the build directory. -->
   <target name="copy-firefox">
