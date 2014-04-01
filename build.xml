@@ -116,7 +116,7 @@
     </apply>
   </target>
 
-  <target name="tokenreplace" depends="sites, sites-userscript, sites-string-list, sites-chrome, compress-templates">
+  <target name="tokenreplace" depends="sites, sites-userscript, sites-chrome, sites-firefox, compress-templates">
     <!-- Replace templates. -->
     <loadfile srcfile="${buildDir}/.templates/message.html" property="ant-templates-message"/>
     <replace dir="${buildDir}" token="@ant-templates-message@" value="${ant-templates-message}"/>
@@ -134,9 +134,9 @@
 
     <replace dir="${buildDir}" token="@ant-sites@" value="${sites}" encoding="${encoding}"/>
     <replace dir="${buildDir}" token="// @ant-sites-userscript@" value="${sites-userscript}" encoding="${encoding}"/>
-    <replace dir="${buildDir}" token="&quot;@ant-sites-string-list@&quot;" value="${sites-string-list}"
-             encoding="${encoding}"/>
     <replace dir="${buildDir}" token="&quot;@ant-sites-chrome-list@&quot;" value="${sites-chrome-list}"
+             encoding="${encoding}"/>
+    <replace dir="${buildDir}" token="&quot;@ant-sites-firefox-list@&quot;" value="${sites-firefox-list}"
              encoding="${encoding}"/>
   </target>
 
@@ -144,36 +144,67 @@
   <target name="sites">
     <loadfile property="sites" srcFile="${build.sites}"/>
   </target>
+  <!-- Construct the list of target sites as required by the userscript.
+       The results have to be regular expressions.
+       For reference see: http://wiki.greasespot.net/Include_and_exclude_rules -->
   <target name="sites-userscript">
     <loadfile property="sites-userscript" srcFile="${build.sites}">
       <filterchain>
-        <replacestring from="\." to="."/>
-        <replacestring from="https?" to="http*"/>
+        <!-- Replace the possible *. at the start of each line with (*.)*
+             This allows for options subdomains if the line started with *. -->
+        <replaceregex pattern="^\*\." replace="(*.)?"/>
+        <!-- Dots in the line have to be escaped, to match literal dots. -->
+        <replacestring from="." to="\."/>
+        <!-- The star has to be replaced by .* to match any amount of characters. -->
+        <replacestring from="*" to=".*"/>
+        <!-- Prefix all lines with /^https?:\/\/ to match http and https URLs.
+             This also opens the regular expression with / -->
+        <prefixlines prefix="/^https?:\/\/"/>
+        <!-- Suffix all lines with a /.*$/ to match all pages on the site.
+             The also closes the regular expression with / -->
+        <suffixlines suffix="/.*$/"/>
+        <!-- Prefix all lines with the mandatory @include comment. -->
         <prefixlines prefix="// @include "/>
       </filterchain>
     </loadfile>
   </target>
+  <!-- Construct the list of target sites as required by Chrome.
+       The results have to be proprietary "match patterns".
+       For reference see: http://developer.chrome.com/extensions/match_patterns -->
   <target name="sites-chrome">
     <loadfile property="sites-chrome-list-in" srcFile="${build.sites}">
       <filterchain>
-        <replacestring from="https?" to="*"/>
-        <replacestring from="\." to="."/>
-        <prefixlines prefix="&quot;"/>
-        <suffixlines suffix="&quot;,"/>
+        <!-- Duplicate each line, prefixing one with http:// and the other with https://,
+             then wrap each line in quotes and suffix them with a comma. -->
+        <replaceregex pattern="(.*)" replace="&quot;http://\1/*&quot;,&quot;https://\1/*&quot;,"/>
       </filterchain>
     </loadfile>
     <!-- Remove last trailing comma from property. -->
-    <propertyregex property="sites-chrome-list" input="${sites-chrome-list-in}" regexp=",$" replace=""/>
+    <propertyregex property="sites-chrome-list" input="${sites-chrome-list-in}" regexp=",[\r\n]*$" replace=""/>
   </target>
-  <target name="sites-string-list">
-    <loadfile property="sites-string-list-in" srcFile="${build.sites}">
+  <!-- Construct the list of target sites as required by Firefox.
+       The results have to be regular expressions.
+       For reference see: https://developer.mozilla.org/en-US/Add-ons/SDK/Low-Level_APIs/util_match-pattern -->
+  <target name="sites-firefox">
+    <loadfile property="sites-firefox-list-in" srcFile="${build.sites}">
       <filterchain>
-        <prefixlines prefix="&quot;"/>
-        <suffixlines suffix="&quot;,"/>
+        <!-- Replace the possible *. at the start of each line with (*.)*
+                     This allows for options subdomains if the line started with *. -->
+        <replaceregex pattern="^\*\." replace="(*.)?"/>
+        <!-- Dots in the line have to be escaped, to match literal dots. -->
+        <replacestring from="." to="\."/>
+        <!-- The star has to be replaced by .* to match any amount of characters. -->
+        <replacestring from="*" to=".*"/>
+        <!-- Prefix all lines with /^https?:\/\/ to match http and https URLs.
+             This also opens the regular expression with / -->
+        <prefixlines prefix="/^https?:\/\/"/>
+        <!-- Suffix all lines with a /.*$/ to match all pages on the site.
+             The also closes the regular expression with / -->
+        <suffixlines suffix="\/.*$/,"/>
       </filterchain>
     </loadfile>
     <!-- Remove last trailing comma from property. -->
-    <propertyregex property="sites-string-list" input="${sites-string-list-in}" regexp=",$" replace=""/>
+    <propertyregex property="sites-firefox-list" input="${sites-firefox-list-in}" regexp=",[\r\n]*$" replace=""/>
   </target>
 
   <!-- Build the userscript. -->
