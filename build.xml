@@ -334,7 +334,7 @@
     <antcall target="tokenreplace"/>
     <copy todir="${buildDir}/content/icons">
       <fileset dir="${src.icons}">
-        <include name="icon32.png"/>
+        <include name="icon48.png"/>
         <include name="icon64.png"/>
       </fileset>
     </copy>

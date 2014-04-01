@@ -1,9 +1,12 @@
 {
+  "author": "@ant-author@",
+  "description": "@ant-description@",
+  "homepage": "@ant-homepage@",
+  "icon": "content/icons/icon48.png",
+  "icon64": "content/icons/icon64.png",
+  "id": "jid1-wDWdAV0yxYst5Q",
+  "license": "MPL 2.0",
   "name": "autoreviewcomments",
   "title": "@ant-name@",
-  "id": "jid1-wDWdAV0yxYst5Q",
-  "description": "@ant-description@",
-  "author": "@ant-author@",
-  "license": "MPL 2.0",
   "version": "@ant-version@"
 }
