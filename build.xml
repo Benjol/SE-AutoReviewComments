@@ -310,7 +310,7 @@
 
   <!-- Build the Firefox extension. -->
   <target name="firefox" depends="preinit, copy-firefox">
-    <exec executable="python" failonerror="true">
+    <exec executable="${python2}" failonerror="true">
       <arg line="${sdk.cfx}"/>
       <arg line="--pkgdir"/>
       <arg line="${buildDir}"/>
@@ -323,7 +323,7 @@
   </target>
   <!-- Compiles the extension and runs it in an instance of Firefox. -->
   <target name="firefox-debug" depends="preinit, copy-firefox">
-    <exec executable="python" failonerror="true">
+    <exec executable="${python2}" failonerror="true">
       <arg line="${sdk.cfx}"/>
       <arg line="--pkgdir"/>
       <arg line="${buildDir}"/>
