@@ -257,6 +257,8 @@
 
   <!-- Build the Chrome extension. -->
   <target name="chrome" depends="preinit, copy-chrome, chrome-zip, chrome-crx, clean"/>
+  <!-- Just places the extension in the build directory so you can load it as an unpacked extension. -->
+  <target name="chrome-debug" depends="preinit, copy-chrome"/>
 
   <!-- Copy the files required to build the Chrome extension to the build directory. -->
   <target name="copy-chrome">
