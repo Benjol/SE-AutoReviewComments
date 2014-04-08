@@ -8,4 +8,9 @@ dist/*
 # Develeper scratch files
 *~
 .*.swp
+
+# WebStorm project files
 /.idea
+
+# Compiled Python files from Firefox Addon SDK
+*.pyc

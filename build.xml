@@ -189,7 +189,7 @@
     <loadfile property="sites-firefox-list-in" srcFile="${build.sites}">
       <filterchain>
         <!-- Replace the possible *. at the start of each line with (*.)*
-                     This allows for options subdomains if the line started with *. -->
+             This allows for options subdomains if the line started with *. -->
         <replaceregex pattern="^\*\." replace="(*.)?"/>
         <!-- Dots in the line have to be escaped, to match literal dots. -->
         <replacestring from="." to="\."/>
@@ -368,7 +368,7 @@
       </mapper>
     </copy>
     <!-- Move the files to the content subfolder -->
-    <move todir="${buildDir}/content">
+    <move todir="${buildDir}/data">
       <fileset dir="${buildDir}"/>
     </move>
     <copy todir="${buildDir}">
