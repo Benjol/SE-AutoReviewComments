@@ -456,7 +456,7 @@ with_jquery(function ($) {
 
     /**
      * Attach an "auto" link somewhere in the DOM. This link is going to trigger the iconic ARC behavior.
-     * @param {String} triggerElement A selector for a DOM element which, when clicked, will invoke the locator.
+     * @param {String} triggerSelector A selector for a DOM element which, when clicked, will invoke the locator.
      * @param {Function} locator A function that will search for a DOM element, next to which the "auto" link will be placed.
      *                           This function will receive the triggerElement as the first argument when called.
      * @param {Function} injector A function that will be called to actually inject the "auto" link into the DOM.
@@ -464,8 +464,14 @@ with_jquery(function ($) {
      *                            It will receive the action function as the second argument, so it know what to invoke when the "auto" link is clicked.
      * @param {Function} action A function that will be called when the injected "auto" link is clicked.
      */
-    function attachAutoLinkInjector( triggerElement, locator, injector, action ) {
-      var _internalInjector = function( triggerElement, retryCount ){
+    function attachAutoLinkInjector( triggerSelector, locator, injector, action ) {
+      /**
+       * The internal injector invokes the locator to find an element in relation to the trigger element and then invokes the injector on it.
+       * @param {JQuery} triggerElement The element that triggered the mechanism.
+       * @param {Number} [retryCount=0] How often this operation was already retried. 20 retries will be performed in 50ms intervals.
+       * @private
+       */
+      var _internalInjector = function( triggerElement, retryCount ) {
         // If we didn't find the element after 20 retries, give up.
         if( 20 <= retryCount ) return;
         // Try to locate the element.
@@ -480,12 +486,14 @@ with_jquery(function ($) {
           injector( injectNextTo, action );
         }
       };
-      $( "#content" ).delegate( triggerElement, "click", function() {
-        var triggerElement = this;
+      // Maybe use this instead (if supported): $( "#content" ).on( "click", triggerSelector, function() {
+      $( "#content" ).delegate( triggerSelector, "click", function( event ) {
+        /** @type JQuery */
+        var triggerElement = event.target;
         _internalInjector( triggerElement );
       } );
     }
-    attachAutoLinkInjector( ".comments-link", findHelpButton, injectAutoLink, autoLinkAction);
+    attachAutoLinkInjector( ".comments-link", findHelpButton, injectAutoLink, autoLinkAction );
     attachAutoLinkInjector( ".edit-post", findSummaryInput, injectAutoLink, function(){ alert( "This is just a placeholder. Dialog isn't actually working!" ); autoLinkAction(); } );
 
     function findHelpButton( where ) {
