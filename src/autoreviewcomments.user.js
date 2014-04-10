@@ -496,29 +496,55 @@ with_jquery(function ($) {
       // Maybe use this instead (if supported): $( "#content" ).on( "click", triggerSelector, function() {
       $( "#content" ).delegate( triggerSelector, "click", function( event ) {
         /** @type JQuery */
-        var triggerElement = event.target;
+        var triggerElement = $( event.target );
         _internalInjector( triggerElement );
       } );
     }
     attachAutoLinkInjector( ".comments-link", findHelpButton, injectAutoLink, autoLinkAction );
-    attachAutoLinkInjector( ".edit-post", findSummaryInput, injectAutoLink, function(){ alert( "This is just a placeholder. Dialog isn't actually working!" ); autoLinkAction(); } );
+    attachAutoLinkInjector( ".edit-post", findSummaryInput, injectAutoLinkEdit, function(){ alert( "This is just a placeholder. Dialog isn't actually working!" ); autoLinkAction(); } );
 
+    /**
+     * A locator for the help link next to the comment box under a post.
+     * @param {JQuery} where A DOM element, near which we're looking for the location where to inject our link.
+     * @returns {*|jQuery} The DOM element next to which the link should be inserted.
+     */
     function findHelpButton( where ) {
-      var divid = $(where).attr('id').replace('-link', '');
+      var divid = where.attr('id').replace('-link', '');
       return $('#' + divid).find('.comment-help-link');
     }
+    /**
+     * A locator for the edit summary input box under a post while it is being edited.
+     * @param {JQuery} where A DOM element, near which we're looking for the location where to inject our link.
+     * @returns {*|jQuery} The DOM element next to which the link should be inserted.
+     */
     function findSummaryInput( where ) {
-      var divid = $(where).attr('href').replace('/posts/', '').replace('/edit', '');
+      var divid = where.attr('href').replace('/posts/', '').replace('/edit', '');
       return $('#post-editor-' + divid).next().find('.edit-comment');
     }
 
+    /**
+     * Inject the auto link next to the given DOM element.
+     * @param {JQuery} where The DOM element next to which we'll place the link.
+     * @param {Function} what The function that will be called when the link is clicked.
+     */
     function injectAutoLink( where, what ) {
-      var posttype = $(where).parents(".question, .answer").attr("class").split(' ')[0]; //slightly fragile
+      var posttype = where.parents(".question, .answer").attr("class").split(' ')[0]; //slightly fragile
       var _autoLinkAction = function(){
         what( where, posttype );
       };
       var autoLink = $('<span class="lsep"> | </span>').add($('<a class="comment-auto-link">auto</a>').click(_autoLinkAction));
-      $(where).parent().append(autoLink);
+      where.parent().append(autoLink);
+    }
+    /**
+     * Inject the auto link next to the edit summary input box.
+     * This will also slightly shrink the input box, so that the link will fit next to it.
+     * @param {JQuery} where The DOM element next to which we'll place the link.
+     * @param {Function} what The function that will be called when the link is clicked.
+     */
+    function injectAutoLinkEdit( where, what ){
+      where.css( "width", "510px" );
+      where.siblings( ".actual-edit-overlay" ).css( "width", "510px" );
+      injectAutoLink( where, what );
     }
 
     function autoLinkAction(targetObject,posttype) {
