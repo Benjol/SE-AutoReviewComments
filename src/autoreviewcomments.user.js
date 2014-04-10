@@ -458,8 +458,10 @@ with_jquery(function ($) {
     /**
      * Attach an "auto" link somewhere in the DOM. This link is going to trigger the iconic ARC behavior.
      * @param {String} triggerSelector A selector for a DOM element which, when clicked, will invoke the locator.
-     * @param {Function} locator A function that will search for a DOM element, next to which the "auto" link will be placed.
-     *                           This function will receive the triggerElement as the first argument when called.
+     * @param {Function} locator A function that will search for both the DOM element, next to which the "auto" link
+     *                           will be placed and where the text selected from the popup will be inserted.
+     *                           This function will receive the triggerElement as the first argument when called and it
+     *                           should return an array with the two DOM elements in the expected order.
      * @param {Function} injector A function that will be called to actually inject the "auto" link into the DOM.
      *                            This function will receive the element that the locator found as the first argument when called.
      *                            It will receive the action function as the second argument, so it know what to invoke when the "auto" link is clicked.
@@ -475,8 +477,10 @@ with_jquery(function ($) {
       var _internalInjector = function( triggerElement, retryCount ) {
         // If we didn't find the element after 20 retries, give up.
         if( 20 <= retryCount ) return;
-        // Try to locate the element.
-        var injectNextTo = locator( triggerElement );
+        // Try to locate the elements.
+        var targetElements = locator( triggerElement );
+        var injectNextTo = targetElements[ 0 ];
+        var placeCommentIn = targetElements[ 1 ]
         // We didn't find it? Try again in 50ms.
         if( !injectNextTo.length ) {
           setTimeout( function() {
@@ -484,10 +488,11 @@ with_jquery(function ($) {
           }, 50 );
         } else {
           if( debug ) {
-            $( injectNextTo ).css( "border", "1px dashed red" );
+            injectNextTo.css( "border", "1px dashed red" );
+            placeCommentIn.css( "border", "1px dashed teal" );
           }
           // Call our injector on the found element.
-          injector( injectNextTo, action );
+          injector( injectNextTo, action, placeCommentIn );
         }
       };
       if( debug ) {
@@ -500,37 +505,44 @@ with_jquery(function ($) {
         _internalInjector( triggerElement );
       } );
     }
-    attachAutoLinkInjector( ".comments-link", findHelpButton, injectAutoLink, autoLinkAction );
-    attachAutoLinkInjector( ".edit-post", findSummaryInput, injectAutoLinkEdit, function(){ alert( "This is just a placeholder. Dialog isn't actually working!" ); autoLinkAction(); } );
+    attachAutoLinkInjector( ".comments-link", findCommentElements, injectAutoLink, autoLinkAction );
+    attachAutoLinkInjector( ".edit-post", findEditSummaryElements, injectAutoLinkEdit, autoLinkAction );
 
     /**
-     * A locator for the help link next to the comment box under a post.
+     * A locator for the help link next to the comment box under a post and the textarea for the comment.
      * @param {JQuery} where A DOM element, near which we're looking for the location where to inject our link.
-     * @returns {*|jQuery} The DOM element next to which the link should be inserted.
+     * @returns {[jQuery]} The DOM element next to which the link should be inserted and the element into which the
+     *                     comment should be placed.
      */
-    function findHelpButton( where ) {
+    function findCommentElements( where ) {
       var divid = where.attr('id').replace('-link', '');
-      return $('#' + divid).find('.comment-help-link');
+      var injectNextTo = $('#' + divid).find('.comment-help-link');
+      var placeCommentIn = $('#' + divid).find("textarea");
+      return [ injectNextTo, placeCommentIn ];
     }
     /**
      * A locator for the edit summary input box under a post while it is being edited.
      * @param {JQuery} where A DOM element, near which we're looking for the location where to inject our link.
-     * @returns {*|jQuery} The DOM element next to which the link should be inserted.
+     * @returns {[jQuery]} The DOM element next to which the link should be inserted and the element into which the
+     *                     comment should be placed.
      */
-    function findSummaryInput( where ) {
+    function findEditSummaryElements( where ) {
       var divid = where.attr('href').replace('/posts/', '').replace('/edit', '');
-      return $('#post-editor-' + divid).next().find('.edit-comment');
+      var injectNextTo = $('#post-editor-' + divid).next().find('.edit-comment');
+      var placeCommentIn = injectNextTo;
+      return [ injectNextTo, placeCommentIn ];
     }
 
     /**
      * Inject the auto link next to the given DOM element.
      * @param {JQuery} where The DOM element next to which we'll place the link.
      * @param {Function} what The function that will be called when the link is clicked.
+     * @param {JQuery} placeCommentIn The DOM element into which the comment should be placed.
      */
-    function injectAutoLink( where, what ) {
+    function injectAutoLink( where, what, placeCommentIn ) {
       var posttype = where.parents(".question, .answer").attr("class").split(' ')[0]; //slightly fragile
       var _autoLinkAction = function(){
-        what( where, posttype );
+        what( placeCommentIn, posttype );
       };
       var autoLink = $('<span class="lsep"> | </span>').add($('<a class="comment-auto-link">auto</a>').click(_autoLinkAction));
       where.parent().append(autoLink);
@@ -540,14 +552,15 @@ with_jquery(function ($) {
      * This will also slightly shrink the input box, so that the link will fit next to it.
      * @param {JQuery} where The DOM element next to which we'll place the link.
      * @param {Function} what The function that will be called when the link is clicked.
+     * @param {JQuery} placeCommentIn The DOM element into which the comment should be placed.
      */
-    function injectAutoLinkEdit( where, what ){
+    function injectAutoLinkEdit( where, what, placeCommentIn ){
       where.css( "width", "510px" );
       where.siblings( ".actual-edit-overlay" ).css( "width", "510px" );
-      injectAutoLink( where, what );
+      injectAutoLink( where, what, placeCommentIn );
     }
 
-    function autoLinkAction(targetObject,posttype) {
+    function autoLinkAction( targetObject, posttype ) {
       //Create popup and wire-up the functionality
       var popup = $(markupTemplate);
       popup.find('.popup-close').click(function () { popup.fadeOutAndRemove(); });
@@ -581,8 +594,7 @@ with_jquery(function ($) {
       popup.find('.popup-submit').click(function () {
         var selected = popup.find('input:radio:checked');
         var markdown = htmlToMarkDown(selected.parent().find('.action-desc').html()).replace(/\[username\]/g, username).replace(/\[OP\]/g, OP);
-        alert("TODO: targetObject should be dynamically assigned. This is not working!");
-        targetObject.find('textarea').val(markdown).focus();  //focus provokes character count test
+        targetObject.val(markdown).focus();  //focus provokes character count test
         var caret = markdown.indexOf('[type here]')
         if(caret >= 0) $('#' + divid).find('textarea')[0].setSelectionRange(caret, caret + '[type here]'.length);
         popup.fadeOutAndRemove();
