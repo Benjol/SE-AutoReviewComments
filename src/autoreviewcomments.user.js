@@ -470,7 +470,7 @@ with_jquery(function ($) {
     function attachAutoLinkInjector( triggerSelector, locator, injector, action ) {
       /**
        * The internal injector invokes the locator to find an element in relation to the trigger element and then invokes the injector on it.
-       * @param {JQuery} triggerElement The element that triggered the mechanism.
+       * @param {jQuery} triggerElement The element that triggered the mechanism.
        * @param {Number} [retryCount=0] How often this operation was already retried. 20 retries will be performed in 50ms intervals.
        * @private
        */
@@ -500,7 +500,7 @@ with_jquery(function ($) {
       }
       // Maybe use this instead (if supported): $( "#content" ).on( "click", triggerSelector, function() {
       $( "#content" ).delegate( triggerSelector, "click", function( event ) {
-        /** @type JQuery */
+        /** @type jQuery */
         var triggerElement = $( event.target );
         _internalInjector( triggerElement );
       } );
@@ -510,7 +510,7 @@ with_jquery(function ($) {
 
     /**
      * A locator for the help link next to the comment box under a post and the textarea for the comment.
-     * @param {JQuery} where A DOM element, near which we're looking for the location where to inject our link.
+     * @param {jQuery} where A DOM element, near which we're looking for the location where to inject our link.
      * @returns {[jQuery]} The DOM element next to which the link should be inserted and the element into which the
      *                     comment should be placed.
      */
@@ -522,7 +522,7 @@ with_jquery(function ($) {
     }
     /**
      * A locator for the edit summary input box under a post while it is being edited.
-     * @param {JQuery} where A DOM element, near which we're looking for the location where to inject our link.
+     * @param {jQuery} where A DOM element, near which we're looking for the location where to inject our link.
      * @returns {[jQuery]} The DOM element next to which the link should be inserted and the element into which the
      *                     comment should be placed.
      */
@@ -535,9 +535,9 @@ with_jquery(function ($) {
 
     /**
      * Inject the auto link next to the given DOM element.
-     * @param {JQuery} where The DOM element next to which we'll place the link.
+     * @param {jQuery} where The DOM element next to which we'll place the link.
      * @param {Function} what The function that will be called when the link is clicked.
-     * @param {JQuery} placeCommentIn The DOM element into which the comment should be placed.
+     * @param {jQuery} placeCommentIn The DOM element into which the comment should be placed.
      */
     function injectAutoLink( where, what, placeCommentIn ) {
       var posttype = where.parents(".question, .answer").attr("class").split(' ')[0]; //slightly fragile
@@ -550,9 +550,9 @@ with_jquery(function ($) {
     /**
      * Inject the auto link next to the edit summary input box.
      * This will also slightly shrink the input box, so that the link will fit next to it.
-     * @param {JQuery} where The DOM element next to which we'll place the link.
+     * @param {jQuery} where The DOM element next to which we'll place the link.
      * @param {Function} what The function that will be called when the link is clicked.
-     * @param {JQuery} placeCommentIn The DOM element into which the comment should be placed.
+     * @param {jQuery} placeCommentIn The DOM element into which the comment should be placed.
      */
     function injectAutoLinkEdit( where, what, placeCommentIn ){
       where.css( "width", "510px" );
