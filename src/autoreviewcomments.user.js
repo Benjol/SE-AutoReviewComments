@@ -34,6 +34,7 @@ with_jquery(function ($) {
     if(!GetStorage("WelcomeMessage")) SetStorage("WelcomeMessage", 'Welcome to ' + sitename + '! ');
     var greeting = GetStorage("WelcomeMessage") == "NONE" ? "" : GetStorage("WelcomeMessage");
     var showGreeting = false;
+    var debug = true;
 
     var markupTemplate = '@ant-templates-popup@';
     var messageTemplate = '@ant-templates-message@';
@@ -482,10 +483,16 @@ with_jquery(function ($) {
             _internalInjector( triggerElement, retryCount + 1 );
           }, 50 );
         } else {
+          if( debug ) {
+            $( injectNextTo ).css( "border", "1px dashed red" );
+          }
           // Call our injector on the found element.
           injector( injectNextTo, action );
         }
       };
+      if( debug ) {
+        $( triggerSelector, "#content" ).css( "border", "1px dashed green" );
+      }
       // Maybe use this instead (if supported): $( "#content" ).on( "click", triggerSelector, function() {
       $( "#content" ).delegate( triggerSelector, "click", function( event ) {
         /** @type JQuery */
