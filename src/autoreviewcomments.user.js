@@ -507,6 +507,7 @@ with_jquery(function ($) {
     }
     attachAutoLinkInjector( ".comments-link", findCommentElements, injectAutoLink, autoLinkAction );
     attachAutoLinkInjector( ".edit-post", findEditSummaryElements, injectAutoLinkEdit, autoLinkAction );
+    attachAutoLinkInjector( ".close-question-link", findClosureElements, injectAutoLink, autoLinkAction );
 
     /**
      * A locator for the help link next to the comment box under a post and the textarea for the comment.
@@ -532,6 +533,17 @@ with_jquery(function ($) {
       var placeCommentIn = injectNextTo;
       return [ injectNextTo, placeCommentIn ];
     }
+    /**
+     * A locator for the text area in which to put a custom off-topic closure reason in the closure dialog.
+     * @param {jQuery} where A DOM element, near which we're looking for the location where to inject our link.
+     * @returns {[jQuery]} The DOM element next to which the link should be inserted and the element into which the
+     *                     comment should be placed.
+     */
+    function findClosureElements( where ) {
+      var injectNextTo = $(".close-as-off-topic-pane textarea");
+      var placeCommentIn = injectNextTo;
+      return [ injectNextTo, placeCommentIn ];
+    }
 
     /**
      * Inject the auto link next to the given DOM element.
@@ -545,7 +557,7 @@ with_jquery(function ($) {
         what( placeCommentIn, posttype );
       };
       var autoLink = $('<span class="lsep"> | </span>').add($('<a class="comment-auto-link">auto</a>').click(_autoLinkAction));
-      where.parent().append(autoLink);
+      autoLink.insertAfter( where );
     }
     /**
      * Inject the auto link next to the edit summary input box.
