@@ -34,7 +34,7 @@ with_jquery(function ($) {
     if(!GetStorage("WelcomeMessage")) SetStorage("WelcomeMessage", 'Welcome to ' + sitename + '! ');
     var greeting = GetStorage("WelcomeMessage") == "NONE" ? "" : GetStorage("WelcomeMessage");
     var showGreeting = false;
-    var debug = true;
+    var debug = false;
 
     var markupTemplate = '@ant-templates-popup@';
     var messageTemplate = '@ant-templates-message@';
