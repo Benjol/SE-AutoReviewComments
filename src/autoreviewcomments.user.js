@@ -663,7 +663,7 @@ with_jquery(function ($) {
         var markdown = htmlToMarkDown(selected.parent().find('.action-desc').html()).replace(/\[username\]/g, username).replace(/\[OP\]/g, OP);
         targetObject.val(markdown).focus();  //focus provokes character count test
         var caret = markdown.indexOf('[type here]')
-        if(caret >= 0) $('#' + divid).find('textarea')[0].setSelectionRange(caret, caret + '[type here]'.length);
+        if(caret >= 0) targetObject[0].setSelectionRange(caret, caret + '[type here]'.length);
         popup.fadeOutAndRemove();
       });
 
