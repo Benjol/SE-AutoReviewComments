@@ -40,13 +40,19 @@ with_jquery(function ($) {
     var messageTemplate = '@ant-templates-message@';
     var optionTemplate = '@ant-templates-option@';
 
+    /**
+     * All the different "targets" a comment can be placed on.
+     * The given values are used as prefixes in the comment titles, to make it easy for the user to change the targets,
+     * by simply adding the prefix to their comment title.
+     */
     var Target = {
-      MATCH_ALL : new RegExp( "\\[(E?[AQ]|C)(,(E?[AQ]|C))*\\]" ),
+      // A regular expression to match the possible targets in a string.
+      MATCH_ALL : new RegExp( "\\[(E?[AQ]|C)(?:,(E?[AQ]|C))*\\]" ),
       Closure : "C",
       CommentQuestion : "Q",
       CommentAnswer : "A",
       EditSummaryAnswer : "EA",
-      EditSummaryQuestion : "EQ",
+      EditSummaryQuestion : "EQ"
     };
 
     //default comments
@@ -324,9 +330,8 @@ with_jquery(function ($) {
       ul.empty();
       for(var i = 0; i < GetStorage("commentcount"); i++) {
         var commentName = GetStorage('name-' + i);
-        //var commenttype = GetCommentType(GetStorage('name-' + i));
-        //if(commenttype == "any" || (commenttype == popup.posttype)) {
         if( IsCommentValidForPostType( commentName, popup.posttype ) ) {
+          // Remove the [A,Q] or similar prefixes from the title, for cosmetic reasons.
           commentName = commentName.replace( Target.MATCH_ALL, "" );
           var desc = GetStorage('desc-' + i).replace(/\$SITENAME\$/g, sitename).replace(/\$SITEURL\$/g, siteurl).replace(/\$MYUSERID\$/g, myuserid).replace(/\$/g, "$$$");
           var opt = optionTemplate.replace(/\$ID\$/g, i)
@@ -350,12 +355,6 @@ with_jquery(function ($) {
       if( !designator ) return true;
 
       return ( -1 < designator.indexOf( postType ) );
-    }
-
-    function GetCommentType(comment) {
-      if(comment.indexOf('[Q]') > -1) return Target.CommentQuestion;
-      if(comment.indexOf('[A]') > -1) return Target.CommentAnswer;
-      return "any";
     }
 
     function AddOptionEventHandlers(popup) {
