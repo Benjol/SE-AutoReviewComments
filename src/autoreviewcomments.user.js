@@ -40,14 +40,25 @@ with_jquery(function ($) {
     var messageTemplate = '@ant-templates-message@';
     var optionTemplate = '@ant-templates-option@';
 
+    var Target = {
+      MATCH_ALL : new RegExp( "\\[(E?[AQ]|C)(,(E?[AQ]|C))*\\]" ),
+      Closure : "C",
+      CommentQuestion : "Q",
+      CommentAnswer : "A",
+      EditSummaryAnswer : "EA",
+      EditSummaryQuestion : "EQ",
+    };
+
     //default comments
     var defaultcomments = [
-     { Name: "Answers just to say Thanks!", Description: 'Please don\'t add "thanks" as answers. Invest some time in the site and you will gain sufficient <a href="http://$SITEURL$/privileges">privileges</a> to upvote answers you like, which is the $SITENAME$ way of saying thank you.' },
-     { Name: "Nothing but a URL (and isn't spam)", Description: 'Whilst this may theoretically answer the question, <a href="http://meta.stackoverflow.com/q/8259">it would be preferable</a> to include the essential parts of the answer here, and provide the link for reference.' },
-     { Name: "Requests to OP for further information", Description: 'This is really a comment, not an answer. With a bit more rep, <a href="http://$SITEURL$/privileges/comment">you will be able to post comments</a>. For the moment I\'ve added the comment for you, and I\'m flagging this post for deletion.' },
-     { Name: "OP using an answer for further information", Description: 'Please use the <em>Post answer</em> button only for actual answers. You should modify your original question to add additional information.' },
-     { Name: "OP adding a new question as an answer", Description: 'If you have another question, please ask it by clicking the <a href="http://$SITEURL$/questions/ask">Ask Question</a> button.' },
-     { Name: "Another user adding a 'Me too!'", Description: 'If you have a NEW question, please ask it by clicking the <a href="http://$SITEURL$/questions/ask">Ask Question</a> button. If you have sufficient reputation, <a href="http://$SITEURL$/privileges/vote-up">you may upvote</a> the question. Alternatively, "star" it as a favorite and you will be notified of any new answers.' }
+     { Target: [ Target.CommentAnswer, Target.CommentQuestion ], Name: "Answers just to say Thanks!", Description: 'Please don\'t add "thanks" as answers. Invest some time in the site and you will gain sufficient <a href="http://$SITEURL$/privileges">privileges</a> to upvote answers you like, which is the $SITENAME$ way of saying thank you.' },
+     { Target: [ Target.CommentAnswer, Target.CommentQuestion ], Name: "Nothing but a URL (and isn't spam)", Description: 'Whilst this may theoretically answer the question, <a href="http://meta.stackoverflow.com/q/8259">it would be preferable</a> to include the essential parts of the answer here, and provide the link for reference.' },
+     { Target: [ Target.CommentAnswer, Target.CommentQuestion ], Name: "Requests to OP for further information", Description: 'This is really a comment, not an answer. With a bit more rep, <a href="http://$SITEURL$/privileges/comment">you will be able to post comments</a>. For the moment I\'ve added the comment for you, and I\'m flagging this post for deletion.' },
+     { Target: [ Target.CommentAnswer, Target.CommentQuestion ], Name: "OP using an answer for further information", Description: 'Please use the <em>Post answer</em> button only for actual answers. You should modify your original question to add additional information.' },
+     { Target: [ Target.CommentAnswer, Target.CommentQuestion ], Name: "OP adding a new question as an answer", Description: 'If you have another question, please ask it by clicking the <a href="http://$SITEURL$/questions/ask">Ask Question</a> button.' },
+     { Target: [ Target.CommentAnswer, Target.CommentQuestion ], Name: "Another user adding a 'Me too!'", Description: 'If you have a NEW question, please ask it by clicking the <a href="http://$SITEURL$/questions/ask">Ask Question</a> button. If you have sufficient reputation, <a href="http://$SITEURL$/privileges/vote-up">you may upvote</a> the question. Alternatively, "star" it as a favorite and you will be notified of any new answers.' },
+     { Target: [ Target.Closure ], Name: "Too localized", Description: 'This question appears to be off-topic because it is too localized.' },
+     { Target: [ Target.EditSummaryQuestion ], Name: "Improper tagging", Description: 'The tags you were using are not appropritate for this question. Please review <a href="http://$SITEURL$/help/tagging">What are tags, and how should I use them?</a>' }
     ];
 
     var weekday_name = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -295,7 +306,12 @@ with_jquery(function ($) {
     function ResetComments() {
       ClearStorage("name-"); ClearStorage("desc-");
       $.each(defaultcomments, function (index, value) {
-        SetStorage('name-' + index, value["Name"]);
+        var targetsPrefix = "";
+        if( value.Target ) {
+          var targets = value.Target.join(",");
+          targetsPrefix = "[" + targets + "] ";
+        }
+        SetStorage('name-' + index, targetsPrefix + value["Name"]);
         SetStorage('desc-' + index, value["Description"]);
       });
       SetStorage("commentcount", defaultcomments.length);
@@ -307,11 +323,14 @@ with_jquery(function ($) {
       var ul = popup.find('.action-list');
       ul.empty();
       for(var i = 0; i < GetStorage("commentcount"); i++) {
-        var commenttype = GetCommentType(GetStorage('name-' + i));
-        if(commenttype == "any" || (commenttype == popup.posttype)) {
+        var commentName = GetStorage('name-' + i);
+        //var commenttype = GetCommentType(GetStorage('name-' + i));
+        //if(commenttype == "any" || (commenttype == popup.posttype)) {
+        if( IsCommentValidForPostType( commentName, popup.posttype ) ) {
+          commentName = commentName.replace( Target.MATCH_ALL, "" );
           var desc = GetStorage('desc-' + i).replace(/\$SITENAME\$/g, sitename).replace(/\$SITEURL\$/g, siteurl).replace(/\$MYUSERID\$/g, myuserid).replace(/\$/g, "$$$");
           var opt = optionTemplate.replace(/\$ID\$/g, i)
-                          .replace("$NAME$", GetStorage('name-' + i).replace(/\$/g, "$$$"))
+                          .replace("$NAME$", commentName.replace(/\$/g, "$$$"))
                           .replace("$DESCRIPTION$", (showGreeting ? greeting : "") + desc);
           ul.append(opt);
         }
@@ -320,9 +339,22 @@ with_jquery(function ($) {
       AddOptionEventHandlers(popup);
     }
 
+    /**
+     * Checks if a given comment could be used together with a given post type.
+     * @param {String} comment The comment itself.
+     * @param {Target} postType The type of post the comment could be placed on.
+     * @return {Boolean} true if the comment is valid for the type of post; false otherwise.
+     */
+    function IsCommentValidForPostType( comment, postType ) {
+      var designator = comment.match( Target.MATCH_ALL );
+      if( !designator ) return true;
+
+      return ( -1 < designator.indexOf( postType ) );
+    }
+
     function GetCommentType(comment) {
-      if(comment.indexOf('[Q]') > -1) return "question";
-      if(comment.indexOf('[A]') > -1) return "answer";
+      if(comment.indexOf('[Q]') > -1) return Target.CommentQuestion;
+      if(comment.indexOf('[A]') > -1) return Target.CommentAnswer;
       return "any";
     }
 
@@ -507,7 +539,7 @@ with_jquery(function ($) {
     }
     attachAutoLinkInjector( ".comments-link", findCommentElements, injectAutoLink, autoLinkAction );
     attachAutoLinkInjector( ".edit-post", findEditSummaryElements, injectAutoLinkEdit, autoLinkAction );
-    attachAutoLinkInjector( ".close-question-link", findClosureElements, injectAutoLink, autoLinkAction );
+    attachAutoLinkInjector( ".close-question-link", findClosureElements, injectAutoLinkClosure, autoLinkAction );
 
     /**
      * A locator for the help link next to the comment box under a post and the textarea for the comment.
@@ -553,6 +585,8 @@ with_jquery(function ($) {
      */
     function injectAutoLink( where, what, placeCommentIn ) {
       var posttype = where.parents(".question, .answer").attr("class").split(' ')[0]; //slightly fragile
+      if( "answer" == posttype ) posttype = Target.CommentAnswer;
+      if( "question" == posttype ) posttype = Target.CommentQuestion;
       var _autoLinkAction = function(){
         what( placeCommentIn, posttype );
       };
@@ -569,7 +603,29 @@ with_jquery(function ($) {
     function injectAutoLinkEdit( where, what, placeCommentIn ){
       where.css( "width", "510px" );
       where.siblings( ".actual-edit-overlay" ).css( "width", "510px" );
-      injectAutoLink( where, what, placeCommentIn );
+
+      var posttype = where.parents(".question, .answer").attr("class").split(' ')[0]; //slightly fragile
+      if( "answer" == posttype ) posttype = Target.EditSummaryAnswer;
+      if( "question" == posttype ) posttype = Target.EditSummaryQuestion;
+
+      var _autoLinkAction = function(){
+        what( placeCommentIn, posttype );
+      };
+      var autoLink = $('<span class="lsep"> | </span>').add($('<a class="comment-auto-link">auto</a>').click(_autoLinkAction));
+      autoLink.insertAfter( where );
+    }
+    /**
+     * Inject the auto link next to the given DOM element.
+     * @param {jQuery} where The DOM element next to which we'll place the link.
+     * @param {Function} what The function that will be called when the link is clicked.
+     * @param {jQuery} placeCommentIn The DOM element into which the comment should be placed.
+     */
+    function injectAutoLinkClosure( where, what, placeCommentIn ) {
+      var _autoLinkAction = function(){
+        what( placeCommentIn, Target.Closure );
+      };
+      var autoLink = $('<span class="lsep"> | </span>').add($('<a class="comment-auto-link">auto</a>').click(_autoLinkAction));
+      autoLink.insertAfter( where );
     }
 
     function autoLinkAction( targetObject, posttype ) {
