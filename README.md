@@ -9,6 +9,9 @@ This script was inspired by answers to [this question on meta][1].
 
 ![Thumbnail][2]
 
+## Building
+In case you want to build the script and/or browser extensions yourself. Please have a look at our [building instructions](https://github.com/Benjol/SE-AutoReviewComments/wiki/Building).
+
 ##Features
 
 1. **Read your comment before you post it!**
