@@ -109,6 +109,7 @@
       <arg path="${sdk.htmlcompressor}"/>
       <arg line="--type html"/>
       <arg value="--preserve-comments"/>
+      <arg value="--compress-css"/>
       <srcfile/>
       <arg value="-o"/>
       <mapper type="glob" from="*" to="${buildDir}/.templates/*"/>
