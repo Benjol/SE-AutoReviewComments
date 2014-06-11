@@ -15,6 +15,14 @@
     float: right;
   }
 
+  .auto-review-comments.popup .throbber {
+    display: none;
+  }
+
+  .auto-review-comments.popup .remoteerror {
+    color: red;
+  }
+
   /* Element-specific classes. */
   .auto-review-comments.popup .main {
     overflow: hidden;
@@ -43,24 +51,8 @@
     width: 400px;
   }
 
-  .auto-review-comments.popup .main .share-tip .throbber1 {
-    display: none;
-  }
-
-  .auto-review-comments.popup .main .share-tip .remoteerror1 {
-    color: red;
-  }
-
   .auto-review-comments.popup .main .popup-actions .actions {
     margin-top: 18px;
-  }
-
-  .auto-review-comments.popup .main .popup-actions .actions .throbber2 {
-    display: none;
-  }
-
-  .auto-review-comments.popup .main .popup-actions .actions .remoteerror2 {
-    color: red;
   }
 
   .auto-review-comments.popup .main .popup-actions .popup-submit {
@@ -70,12 +62,26 @@
 
   /* Classes for elements in the public announcement box. */
   .auto-review-comments.announcement {
-    background:orange;padding:7px;margin-bottom:10px;font-size:15px;
+    background: orange;
+    padding: 7px;
+    margin-bottom: 10px;
+    font-size: 15px;
   }
+
   .auto-review-comments.announcement .notify-close {
-    border:2px solid black;cursor:pointer;display:block;float:right;margin:0 4px;padding:0 4px;line-height:17px;
+    border: 2px solid black;
+    cursor: pointer;
+    display: block;
+    float: right;
+    margin: 0 4px;
+    padding: 0 4px;
+    line-height: 17px;
   }
+
   .auto-review-comments.announcement .notify-close a {
-    color:black;text-decoration:none;font-weight:bold;font-size:16px;
+    color: black;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 16px;
   }
 </style>
