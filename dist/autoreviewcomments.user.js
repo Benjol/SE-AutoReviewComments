@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.3.3
+// @version        1.3.3.1
 // @description    No more re-typing the same comments over and over!
 // @homepage       https://github.com/Benjol/SE-AutoReviewComments
 // @grant          none
@@ -56,7 +56,7 @@ with_jquery(function ($) {
   StackExchange.ready(function () {
     //// Self Updating Userscript, see https://gist.github.com/Benjol/874058
 // (the first line of this template _must_ be a comment!)
-var VERSION = '1.3.3';
+var VERSION = '1.3.3.1';
 var URL = "https://raw.github.com/Benjol/SE-AutoReviewComments/master/dist/autoreviewcomments.user.js";
 
 // This hack is necessary to bring people up from the last working auto-uptate gist
@@ -247,7 +247,7 @@ function CheckForNewVersion(popup) {
       }
       $.ajax({
         type: "GET",
-        url: 'http://api.stackexchange.com/2.2/users/' + userid + '?site=' + siteurl + '&jsonp=?',
+        url: location.protocol + '//api.stackexchange.com/2.2/users/' + userid + '?site=' + siteurl + '&jsonp=?',
         dataType: "jsonp",
         timeout: 2000,
         success: function (data) {
