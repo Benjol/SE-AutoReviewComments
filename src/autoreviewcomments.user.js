@@ -498,6 +498,10 @@ with_jquery(function ($) {
 
         //on submit, convert html to markdown and copy to comment textarea
         popup.find('.popup-submit').click(function () {
+          // Don't submit anything if the button isn't enabled.
+          // This can happen when the event handler is programatically invoked.
+          if(popup.find('.popup-submit').is(':disabled')) return;
+
           var selected = popup.find('input:radio:checked');
           var markdown = htmlToMarkDown(selected.parent().find('.action-desc').html()).replace(/\[username\]/g, username).replace(/\[OP\]/g, OP);
           $('#' + divid).find('textarea').val(markdown).focus();  //focus provokes character count test
