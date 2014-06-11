@@ -152,7 +152,7 @@ with_jquery(function ($) {
       }
       $.ajax({
         type: "GET",
-        url: 'http://api.stackexchange.com/2.2/users/' + userid + '?site=' + siteurl + '&jsonp=?',
+        url: location.protocol + '//api.stackexchange.com/2.2/users/' + userid + '?site=' + siteurl + '&jsonp=?',
         dataType: "jsonp",
         timeout: 2000,
         success: function (data) {
