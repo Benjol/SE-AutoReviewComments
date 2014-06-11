@@ -329,6 +329,16 @@ with_jquery(function ($) {
 
     function AddOptionEventHandlers(popup) {
       popup.find('label > span').dblclick(function () { ToEditable($(this)); });
+      popup.find('label > .quick-insert').click(function () {
+        var parent = $(this).parent();
+        var li = parent.parent();
+        var radio = parent.siblings("input");
+        // Mark action as selected.
+        li.addClass('action-selected');
+        radio.prop('checked',true);
+        // Triger form submission.
+        popup.find('.popup-submit').trigger('click');
+      });
       //add click handler to radio buttons
       popup.find('input:radio').click(function () {
         popup.find('.popup-submit').removeAttr("disabled"); //enable submit button
