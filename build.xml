@@ -119,6 +119,8 @@
 
   <target name="tokenreplace" depends="sites, sites-userscript, sites-chrome, sites-firefox, compress-templates">
     <!-- Replace templates. -->
+    <loadfile srcfile="${buildDir}/.templates/css.html" property="ant-templates-css"/>
+    <replace dir="${buildDir}" token="@ant-templates-css@" value="${ant-templates-css}"/>
     <loadfile srcfile="${buildDir}/.templates/message.html" property="ant-templates-message"/>
     <replace dir="${buildDir}" token="@ant-templates-message@" value="${ant-templates-message}"/>
     <loadfile srcfile="${buildDir}/.templates/option.html" property="ant-templates-option"/>
