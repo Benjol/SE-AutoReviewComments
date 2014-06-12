@@ -181,7 +181,7 @@ with_jquery(function ($) {
     //Show textarea in front of popup to import/export all comments (for other sites or for posting somewhere)
     function ImportExport(popup) {
       var tohide = popup.find('#main');
-      var div = $('<div><textarea/><a class="jsonp">jsonp</a><span class="lsep"> | </span><a class="save">save</a><span class="lsep"> | </span><a class="cancel">cancel</a></div>');
+      var div = $('<div><textarea/><div class="actions"><a class="jsonp">jsonp</a><span class="lsep"> | </span><a class="save">save</a><span class="lsep"> | </span><a class="cancel">cancel</a></div></div>');
       //Painful, but shortest way I've found to position div over the tohide element
       div.css({ position: 'absolute', left: tohide.position().left, top: tohide.position().top,
         width: tohide.css('width'), height: tohide.css('height'), background: 'white'
@@ -194,7 +194,7 @@ with_jquery(function ($) {
         txt += '###' + name + '\n' + htmlToMarkDown(desc) + '\n\n'; //the leading ### makes prettier if pasting to markdown, and differentiates names from descriptions
       }
 
-      div.find('textarea').width('100%').height('95%').val(txt);
+      div.find('textarea').val(txt);
       div.find('.jsonp').click(function () {
         var txt = 'callback(\n[\n';
         for(var i = 0; i < GetStorage("commentcount"); i++) {
@@ -257,17 +257,18 @@ with_jquery(function ($) {
       var backup = el.html();
       var html = Tag(el.html().replace(greeting, ''));  //remove greeting before editing..
       if(html.indexOf('<textarea') > -1) return; //don't want to create a new textarea inside this one!
-      var txt = $('<textarea />').css('height', 2 * el.height())
-                .css('width', el.css('width'))
-                .val(htmlToMarkDown(html));
+      var txt = $('<textarea />').val(htmlToMarkDown(html));
 
       BorkFor(el); //this is a hack
       //save/cancel links to add to textarea
-      var commands = $('<a>save</a>').click(function () { SaveEditable($(this).parent()); UnborkFor(el); })
+      var actions = $('<div class="actions">');
+      var commands = $('<a>save</a>').click(function () { SaveEditable($(this).parent().parent()); UnborkFor(el); })
                       .add('<span class="lsep"> | </span>')
-                      .add($('<a>cancel</a>').click(function () { CancelEditable($(this).parent(), backup); UnborkFor(el); }));
+                      .add($('<a>cancel</a>').click(function () { CancelEditable($(this).parent().parent(), backup); UnborkFor(el); }));
+      actions.append(commands);
+
       //set contents of element to textarea with links
-      el.html(txt.add(commands));
+      el.html(txt.add(actions));
     }
 
     //This is to stop the input pinching focus when I click inside textarea
@@ -497,6 +498,10 @@ with_jquery(function ($) {
 
         //on submit, convert html to markdown and copy to comment textarea
         popup.find('.popup-submit').click(function () {
+          // Don't submit anything if the button isn't enabled.
+          // This can happen when the event handler is programatically invoked.
+          if(popup.find('.popup-submit').is(':disabled')) return;
+
           var selected = popup.find('input:radio:checked');
           var markdown = htmlToMarkDown(selected.parent().find('.action-desc').html()).replace(/\[username\]/g, username).replace(/\[OP\]/g, OP);
           $('#' + divid).find('textarea').val(markdown).focus();  //focus provokes character count test
