@@ -35,6 +35,7 @@ with_jquery(function ($) {
     var greeting = GetStorage("WelcomeMessage") == "NONE" ? "" : GetStorage("WelcomeMessage");
     var showGreeting = false;
 
+    var cssTemplate = '@ant-templates-css@';
     var markupTemplate = '@ant-templates-popup@';
     var messageTemplate = '@ant-templates-message@';
     var optionTemplate = '@ant-templates-option@';
@@ -453,6 +454,9 @@ with_jquery(function ($) {
         welcome.hide();
       });
     }
+
+    var cssElement = $(cssTemplate);
+    $("head").append(cssElement);
 
     //This is where the real work starts - add the 'auto' link next to each comment 'help' link
     //use most local root-nodes possible (have to exist on page load) - #questions is for review pages
