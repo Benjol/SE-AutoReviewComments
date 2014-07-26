@@ -462,7 +462,7 @@ with_jquery(function ($) {
     //This is where the real work starts - add the 'auto' link next to each comment 'help' link
     //use most local root-nodes possible (have to exist on page load) - #questions is for review pages
     $("#content").delegate(".comments-link", "click", function () {
-      var divid = $(this).attr('id').replace('-link', '');
+      var divid = $(this).parent().attr('id').replace('-link', '');
       var posttype = $(this).parents(".question, .answer").attr("class").split(' ')[0]; //slightly fragile
 
       if($('#' + divid).find('.comment-auto-link').length > 0) return; //don't create auto link if already there
