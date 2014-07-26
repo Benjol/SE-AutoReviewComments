@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.3.3
+// @version        1.3.3.3
 // @description    No more re-typing the same comments over and over!
 // @homepage       https://github.com/Benjol/SE-AutoReviewComments
 // @grant          none
@@ -56,7 +56,7 @@ with_jquery(function ($) {
   StackExchange.ready(function () {
     //// Self Updating Userscript, see https://gist.github.com/Benjol/874058
 // (the first line of this template _must_ be a comment!)
-var VERSION = '1.3.3';
+var VERSION = '1.3.3.3';
 var URL = "https://raw.github.com/Benjol/SE-AutoReviewComments/master/dist/autoreviewcomments.user.js";
 
 // This hack is necessary to bring people up from the last working auto-uptate gist
@@ -552,7 +552,7 @@ function CheckForNewVersion(popup) {
     //This is where the real work starts - add the 'auto' link next to each comment 'help' link
     //use most local root-nodes possible (have to exist on page load) - #questions is for review pages
     $("#content").delegate(".comments-link", "click", function () {
-      var divid = $(this).attr('id').replace('-link', '');
+      var divid = $(this).parent().attr('id').replace('-link', '');
       var posttype = $(this).parents(".question, .answer").attr("class").split(' ')[0]; //slightly fragile
 
       if($('#' + divid).find('.comment-auto-link').length > 0) return; //don't create auto link if already there
