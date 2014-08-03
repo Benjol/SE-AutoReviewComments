@@ -117,7 +117,8 @@ with_jquery(function ($) {
 
     // Get the Id of the logged-in user
     function getLoggedInUserId() {
-      if ( document.getElementsByClassName('profile-me')[0].href.match(/\/users\/(\d+)\/.*/i) ) {
+      var profileMeElement = document.getElementsByClassName('profile-me');
+      if ( profileMeElement.length && profileMeElement[0].href.match(/\/users\/(\d+)\/.*/i) ) {
         return RegExp.$1;
       } else {
         return '';
