@@ -71,6 +71,8 @@ For more information about user scripts, check out the [tag:script] tag wiki [he
 
 (See comments and answers below for details)
 
+**V1.3.3.4** - Hotfix release to adjust for another change in the page DOM; fixes Google login issue.
+
 **V1.3.3.3** - Hotfix release to adjust for change in Stack Exchange site code that broke this script.
 
 **V1.3.3.2** - Google Chrome Store realease bumped version number in 'official' release to be newer than the version under the user-contributed account.
