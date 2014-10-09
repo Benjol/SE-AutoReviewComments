@@ -1,4 +1,5 @@
 # AutoReviewComments
+
 ## Pro-forma comments for Stack Exchange
 
 ### No more re-typing the same comments over and over!
@@ -12,7 +13,7 @@ This script was inspired by answers to [this question on meta][1].
 ## Building
 In case you want to build the script and/or browser extensions yourself. Please have a look at our [building instructions](https://github.com/Benjol/SE-AutoReviewComments/wiki/Building).
 
-##Features
+## Features
 
 1. **Read your comment before you post it!**
 
@@ -58,14 +59,15 @@ In case you want to build the script and/or browser extensions yourself. Please 
 
 ## Installation
 
-Click [HERE][7] to install the user script. (**warning** Google is making things difficult for non-store user scripts. A workaround is explained [here][8]. Or use a script manager, like [tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=en). **NEW** [Derek][9] has kindly uploaded the script into the [Chrome store][10].
+The app is available for installation:
 
-For other browser-specific instructions, read the instructions [here][11])
+* As a [Chrome extension][53]
+* As a [FireFox Add-On][57]
+* For advanced users, as a [userscript][52] (for some browsers this will require a user script manage such as [Tampermonkey][55] for Chrome or [Greasemonkey][56] for FireFox)
 
-Click [HERE][12] to preview the code.
+You may also download the code and run the [build process yourself][54] to generate the userscript version as well as Chrome, Firefox and Opera extensions that you can install locally if you'd rather not use the store versions.
 
-For more information about user scripts, check out the [tag:script] tag wiki [here][13].
-
+For more information about user scripts, check out the script tag wiki [here][13].
 
 ## Update info
 
@@ -162,7 +164,7 @@ Any comments welcome, whether on the functionality or the code.
 
 Can be used in tandem with my [other user script](http://stackapps.com/questions/2069/change-unanswered-tab-to-review).
 
-## Credits 
+## Credits
 
 - [TomWij][43] ([below][44]) created a modified version of the script, which inspired my V1.0.8
 - [balpha][45] came up with the clever (evil) way to make the script '[self-updating][46]'
@@ -183,12 +185,7 @@ Can be used in tandem with my [other user script](http://stackapps.com/questions
   [4]: http://stackapps.com/a/3281/876
   [5]: http://i.stack.imgur.com/GjOkQm.png
   [6]: http://i.stack.imgur.com/GjOkQ.png
-  [7]: https://github.com/Benjol/SE-AutoReviewComments/raw/master/dist/autoreviewcomments.user.js
-  [8]: https://support.google.com/chrome_webstore/answer/2664769?p=crx_warning&rd=1
-  [9]: http://stackapps.com/users/24114/derek
   [10]: https://chrome.google.com/webstore/detail/denkbaalahjlbbfnifkacdigaofcnogg
-  [11]: http://stackapps.com/tags/script/info
-  [12]: https://github.com/Benjol/SE-AutoReviewComments/blob/master/autoreviewcomments.user.js
   [13]: http://stackapps.com/tags/script/info
   [14]: http://stackapps.com/a/4359
   [15]: http://stackapps.com/a/4564/876
@@ -228,3 +225,9 @@ Can be used in tandem with my [other user script](http://stackapps.com/questions
   [49]: http://stackapps.com/a/4235/876
   [50]: http://stackapps.com/q/2116
   [51]: http://stackexchange.com/users/1540386/izzy
+  [52]: https://raw.github.com/Benjol/SE-AutoReviewComments/master/dist/autoreviewcomments.user.js
+  [53]: https://chrome.google.com/webstore/detail/autoreviewcomments/bcfoamnigomkoaaiceppbbdlembpeejc
+  [54]: https://github.com/Benjol/SE-AutoReviewComments/wiki/Building
+  [55]: https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=en
+  [56]: https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/
+  [57]: https://addons.mozilla.org/en-US/firefox/addon/se-autoreviewcomments/
