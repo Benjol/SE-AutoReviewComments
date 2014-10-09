@@ -183,7 +183,7 @@ Can be used in tandem with my [other user script](http://stackapps.com/questions
   [4]: http://stackapps.com/a/3281/876
   [5]: http://i.stack.imgur.com/GjOkQm.png
   [6]: http://i.stack.imgur.com/GjOkQ.png
-  [7]: https://github.com/Benjol/SE-AutoReviewComments/raw/master/autoreviewcomments.user.js
+  [7]: https://github.com/Benjol/SE-AutoReviewComments/raw/master/dist/autoreviewcomments.user.js
   [8]: https://support.google.com/chrome_webstore/answer/2664769?p=crx_warning&rd=1
   [9]: http://stackapps.com/users/24114/derek
   [10]: https://chrome.google.com/webstore/detail/denkbaalahjlbbfnifkacdigaofcnogg
