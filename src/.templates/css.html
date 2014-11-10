@@ -70,6 +70,7 @@
   }
 
   .auto-review-comments.popup .main .action-list li label {
+    position: relative;
     display: block;
     padding: 10px;
   }
@@ -102,6 +103,26 @@
   .auto-review-comments.popup .main .action-list li label .action-desc textarea {
     /* Textare for description can be slightly higher. */
     height: 42px;
+  }
+
+  .auto-review-comments.popup .main .action-list li label .quick-insert {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    margin: 0;
+    font-size: 20px;
+    color: transparent;
+    background-color: transparent;
+    border: none;
+    transition: .3s;
+    text-shadow: 0 0 1px #fff;
+    cursor: pointer;
+  }
+
+  .auto-review-comments.popup .main .action-list li label .quick-insert:hover {
+    background-color: #222;
+    color: #fff;
   }
 
   .auto-review-comments.popup .main .share-tip {
