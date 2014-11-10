@@ -40,14 +40,31 @@ with_jquery(function ($) {
     var messageTemplate = '@ant-templates-message@';
     var optionTemplate = '@ant-templates-option@';
 
+    /**
+     * All the different "targets" a comment can be placed on.
+     * The given values are used as prefixes in the comment titles, to make it easy for the user to change the targets,
+     * by simply adding the prefix to their comment title.
+     */
+    var Target = {
+      // A regular expression to match the possible targets in a string.
+      MATCH_ALL : new RegExp( "\\[(E?[AQ]|C)(?:,(E?[AQ]|C))*\\]" ),
+      Closure : "C",
+      CommentQuestion : "Q",
+      CommentAnswer : "A",
+      EditSummaryAnswer : "EA",
+      EditSummaryQuestion : "EQ"
+    };
+
     //default comments
     var defaultcomments = [
-     { Name: "Answers just to say Thanks!", Description: 'Please don\'t add "thanks" as answers. Invest some time in the site and you will gain sufficient <a href="http://$SITEURL$/privileges">privileges</a> to upvote answers you like, which is the $SITENAME$ way of saying thank you.' },
-     { Name: "Nothing but a URL (and isn't spam)", Description: 'Whilst this may theoretically answer the question, <a href="http://meta.stackoverflow.com/q/8259">it would be preferable</a> to include the essential parts of the answer here, and provide the link for reference.' },
-     { Name: "Requests to OP for further information", Description: 'This is really a comment, not an answer. With a bit more rep, <a href="http://$SITEURL$/privileges/comment">you will be able to post comments</a>. For the moment I\'ve added the comment for you, and I\'m flagging this post for deletion.' },
-     { Name: "OP using an answer for further information", Description: 'Please use the <em>Post answer</em> button only for actual answers. You should modify your original question to add additional information.' },
-     { Name: "OP adding a new question as an answer", Description: 'If you have another question, please ask it by clicking the <a href="http://$SITEURL$/questions/ask">Ask Question</a> button.' },
-     { Name: "Another user adding a 'Me too!'", Description: 'If you have a NEW question, please ask it by clicking the <a href="http://$SITEURL$/questions/ask">Ask Question</a> button. If you have sufficient reputation, <a href="http://$SITEURL$/privileges/vote-up">you may upvote</a> the question. Alternatively, "star" it as a favorite and you will be notified of any new answers.' }
+     { Target: [ Target.CommentAnswer, Target.CommentQuestion ], Name: "Answers just to say Thanks!", Description: 'Please don\'t add "thanks" as answers. Invest some time in the site and you will gain sufficient <a href="http://$SITEURL$/privileges">privileges</a> to upvote answers you like, which is the $SITENAME$ way of saying thank you.' },
+     { Target: [ Target.CommentAnswer, Target.CommentQuestion ], Name: "Nothing but a URL (and isn't spam)", Description: 'Whilst this may theoretically answer the question, <a href="http://meta.stackoverflow.com/q/8259">it would be preferable</a> to include the essential parts of the answer here, and provide the link for reference.' },
+     { Target: [ Target.CommentAnswer, Target.CommentQuestion ], Name: "Requests to OP for further information", Description: 'This is really a comment, not an answer. With a bit more rep, <a href="http://$SITEURL$/privileges/comment">you will be able to post comments</a>. For the moment I\'ve added the comment for you, and I\'m flagging this post for deletion.' },
+     { Target: [ Target.CommentAnswer, Target.CommentQuestion ], Name: "OP using an answer for further information", Description: 'Please use the <em>Post answer</em> button only for actual answers. You should modify your original question to add additional information.' },
+     { Target: [ Target.CommentAnswer, Target.CommentQuestion ], Name: "OP adding a new question as an answer", Description: 'If you have another question, please ask it by clicking the <a href="http://$SITEURL$/questions/ask">Ask Question</a> button.' },
+     { Target: [ Target.CommentAnswer, Target.CommentQuestion ], Name: "Another user adding a 'Me too!'", Description: 'If you have a NEW question, please ask it by clicking the <a href="http://$SITEURL$/questions/ask">Ask Question</a> button. If you have sufficient reputation, <a href="http://$SITEURL$/privileges/vote-up">you may upvote</a> the question. Alternatively, "star" it as a favorite and you will be notified of any new answers.' },
+     { Target: [ Target.Closure ], Name: "Too localized", Description: 'This question appears to be off-topic because it is too localized.' },
+     { Target: [ Target.EditSummaryQuestion ], Name: "Improper tagging", Description: 'The tags you were using are not appropritate for this question. Please review <a href="http://$SITEURL$/help/tagging">What are tags, and how should I use them?</a>' }
     ];
 
     var weekday_name = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -297,7 +314,12 @@ with_jquery(function ($) {
     function ResetComments() {
       ClearStorage("name-"); ClearStorage("desc-");
       $.each(defaultcomments, function (index, value) {
-        SetStorage('name-' + index, value["Name"]);
+        var targetsPrefix = "";
+        if( value.Target ) {
+          var targets = value.Target.join(",");
+          targetsPrefix = "[" + targets + "] ";
+        }
+        SetStorage('name-' + index, targetsPrefix + value["Name"]);
         SetStorage('desc-' + index, value["Description"]);
       });
       SetStorage("commentcount", defaultcomments.length);
@@ -309,11 +331,14 @@ with_jquery(function ($) {
       var ul = popup.find('.action-list');
       ul.empty();
       for(var i = 0; i < GetStorage("commentcount"); i++) {
-        var commenttype = GetCommentType(GetStorage('name-' + i));
-        if(commenttype == "any" || (commenttype == popup.posttype)) {
+        var commentName = GetStorage('name-' + i);
+        //var commenttype = GetCommentType(GetStorage('name-' + i));
+        //if(commenttype == "any" || (commenttype == popup.posttype)) {
+        if( IsCommentValidForPostType( commentName, popup.posttype ) ) {
+          commentName = commentName.replace( Target.MATCH_ALL, "" );
           var desc = GetStorage('desc-' + i).replace(/\$SITENAME\$/g, sitename).replace(/\$SITEURL\$/g, siteurl).replace(/\$MYUSERID\$/g, myuserid).replace(/\$/g, "$$$");
           var opt = optionTemplate.replace(/\$ID\$/g, i)
-                          .replace("$NAME$", GetStorage('name-' + i).replace(/\$/g, "$$$"))
+                          .replace("$NAME$", commentName.replace(/\$/g, "$$$"))
                           .replace("$DESCRIPTION$", (showGreeting ? greeting : "") + desc);
           ul.append(opt);
         }
@@ -322,9 +347,22 @@ with_jquery(function ($) {
       AddOptionEventHandlers(popup);
     }
 
+    /**
+     * Checks if a given comment could be used together with a given post type.
+     * @param {String} comment The comment itself.
+     * @param {Target} postType The type of post the comment could be placed on.
+     * @return {Boolean} true if the comment is valid for the type of post; false otherwise.
+     */
+    function IsCommentValidForPostType( comment, postType ) {
+      var designator = comment.match( Target.MATCH_ALL );
+      if( !designator ) return true;
+
+      return ( -1 < designator.indexOf( postType ) );
+    }
+
     function GetCommentType(comment) {
-      if(comment.indexOf('[Q]') > -1) return "question";
-      if(comment.indexOf('[A]') > -1) return "answer";
+      if(comment.indexOf('[Q]') > -1) return Target.CommentQuestion;
+      if(comment.indexOf('[A]') > -1) return Target.CommentAnswer;
       return "any";
     }
 
@@ -460,85 +498,203 @@ with_jquery(function ($) {
     var cssElement = $(cssTemplate);
     $("head").append(cssElement);
 
-    //This is where the real work starts - add the 'auto' link next to each comment 'help' link
-    //use most local root-nodes possible (have to exist on page load) - #questions is for review pages
-    $("#content").delegate(".comments-link", "click", function () {
-      var divid = $(this).parent().attr('id').replace('-link', '');
-      var posttype = $(this).parents(".question, .answer").attr("class").split(' ')[0]; //slightly fragile
-
-      if($('#' + divid).find('.comment-auto-link').length > 0) return; //don't create auto link if already there
-      var newspan = $('<span class="lsep"> | </span>').add($('<a class="comment-auto-link">auto</a>').click(function () {
-        //Create popup and wire-up the functionality
-        var popup = $(markupTemplate);
-        popup.find('.popup-close').click(function () { popup.fadeOutAndRemove(); });
-        popup.posttype = posttype;
-
-        //Reset this, otherwise we get the greeting twice...
-        showGreeting = false;
-
-        //create/add options
-        WriteComments(popup);
-
-        //Add handlers for command links
-        popup.find('.popup-actions-cancel').click(function () { popup.fadeOutAndRemove(); });
-        popup.find('.popup-actions-reset').click(function () { ResetComments(); WriteComments(popup); });
-        popup.find('.popup-actions-see').hover(function () {
-          popup.fadeTo('fast', '0.4').children().not('#close').fadeTo('fast', '0.0')
-        }, function () {
-          popup.fadeTo('fast', '1.0').children().not('#close').fadeTo('fast', '1.0')
-        });
-        popup.find('.popup-actions-impexp').click(function () { ImportExport(popup); });
-        popup.find('.popup-actions-toggledesc').click(function () {
-          var hideDesc = GetStorage('hide-desc') || "show";
-          SetStorage('hide-desc', hideDesc == "show" ? "hide" : "show");
-          ShowHideDescriptions(popup);
-        });
-        //Handle remote url & welcome
-        SetupRemoteBox(popup);
-        SetupWelcomeBox(popup);
-
-        //on submit, convert html to markdown and copy to comment textarea
-        popup.find('.popup-submit').click(function () {
-          // Don't submit anything if the button isn't enabled.
-          // This can happen when the event handler is programatically invoked.
-          if(popup.find('.popup-submit').is(':disabled')) return;
-
-          var selected = popup.find('input:radio:checked');
-          var markdown = htmlToMarkDown(selected.parent().find('.action-desc').html()).replace(/\[username\]/g, username).replace(/\[OP\]/g, OP);
-          $('#' + divid).find('textarea').val(markdown).focus();  //focus provokes character count test
-          var caret = markdown.indexOf('[type here]')
-          if(caret >= 0) $('#' + divid).find('textarea')[0].setSelectionRange(caret, caret + '[type here]'.length);
-          popup.fadeOutAndRemove();
-        });
-
-        //Auto-load from remote if required
-        if(!window.VersionChecked && GetStorage("AutoRemote") == 'true') {
-          var throbber = popup.find("#throbber2");
-          var remoteerror = popup.find('#remoteerror2');
-          throbber.show();
-          LoadFromRemote(GetStorage("RemoteUrl"),
-            function () { WriteComments(popup); throbber.hide(); },
-            function (d, msg) { remoteerror.text(msg); });
+    /**
+     * Attach an "auto" link somewhere in the DOM. This link is going to trigger the iconic ARC behavior.
+     * @param {String} triggerSelector A selector for a DOM element which, when clicked, will invoke the locator.
+     * @param {Function} locator A function that will search for both the DOM element, next to which the "auto" link
+     *                           will be placed and where the text selected from the popup will be inserted.
+     *                           This function will receive the triggerElement as the first argument when called and it
+     *                           should return an array with the two DOM elements in the expected order.
+     * @param {Function} injector A function that will be called to actually inject the "auto" link into the DOM.
+     *                            This function will receive the element that the locator found as the first argument when called.
+     *                            It will receive the action function as the second argument, so it know what to invoke when the "auto" link is clicked.
+     * @param {Function} action A function that will be called when the injected "auto" link is clicked.
+     */
+    function attachAutoLinkInjector( triggerSelector, locator, injector, action ) {
+      /**
+       * The internal injector invokes the locator to find an element in relation to the trigger element and then invokes the injector on it.
+       * @param {jQuery} triggerElement The element that triggered the mechanism.
+       * @param {Number} [retryCount=0] How often this operation was already retried. 20 retries will be performed in 50ms intervals.
+       * @private
+       */
+      var _internalInjector = function( triggerElement, retryCount ) {
+        // If we didn't find the element after 20 retries, give up.
+        if( 20 <= retryCount ) return;
+        // Try to locate the elements.
+        var targetElements = locator( triggerElement );
+        var injectNextTo = targetElements[ 0 ];
+        var placeCommentIn = targetElements[ 1 ]
+        // We didn't find it? Try again in 50ms.
+        if( !injectNextTo.length ) {
+          setTimeout( function() {
+            _internalInjector( triggerElement, retryCount + 1 );
+          }, 50 );
+        } else {
+          // Call our injector on the found element.
+          injector( injectNextTo, action, placeCommentIn );
         }
+      };
+      // Maybe use this instead (if supported): $( "#content" ).on( "click", triggerSelector, function() {
+      $( "#content" ).delegate( triggerSelector, "click", function( event ) {
+        /** @type jQuery */
+        var triggerElement = $( event.target );
+        _internalInjector( triggerElement );
+      } );
+    }
+    attachAutoLinkInjector( ".comments-link", findCommentElements, injectAutoLink, autoLinkAction );
+    attachAutoLinkInjector( ".edit-post", findEditSummaryElements, injectAutoLinkEdit, autoLinkAction );
+    attachAutoLinkInjector( ".close-question-link", findClosureElements, injectAutoLinkClosure, autoLinkAction );
 
-        //add popup and center on screen
-        $('#' + divid).append(popup);
-        popup.center();
-        StackExchange.helpers.bindMovablePopups();
+    /**
+     * A locator for the help link next to the comment box under a post and the textarea for the comment.
+     * @param {jQuery} where A DOM element, near which we're looking for the location where to inject our link.
+     * @returns {[jQuery]} The DOM element next to which the link should be inserted and the element into which the
+     *                     comment should be placed.
+     */
+    function findCommentElements( where ) {
+      var divid = where.parent().attr('id').replace('-link', '');
+      var injectNextTo = $('#' + divid).find('.comment-help-link');
+      var placeCommentIn = $('#' + divid).find("textarea");
+      return [ injectNextTo, placeCommentIn ];
+    }
+    /**
+     * A locator for the edit summary input box under a post while it is being edited.
+     * @param {jQuery} where A DOM element, near which we're looking for the location where to inject our link.
+     * @returns {[jQuery]} The DOM element next to which the link should be inserted and the element into which the
+     *                     comment should be placed.
+     */
+    function findEditSummaryElements( where ) {
+      var divid = where.attr('href').replace('/posts/', '').replace('/edit', '');
+      var injectNextTo = $('#post-editor-' + divid).next().find('.edit-comment');
+      var placeCommentIn = injectNextTo;
+      return [ injectNextTo, placeCommentIn ];
+    }
+    /**
+     * A locator for the text area in which to put a custom off-topic closure reason in the closure dialog.
+     * @param {jQuery} where A DOM element, near which we're looking for the location where to inject our link.
+     * @returns {[jQuery]} The DOM element next to which the link should be inserted and the element into which the
+     *                     comment should be placed.
+     */
+    function findClosureElements( where ) {
+      var injectNextTo = $(".close-as-off-topic-pane textarea");
+      var placeCommentIn = injectNextTo;
+      return [ injectNextTo, placeCommentIn ];
+    }
 
-        //Get user info and inject
-        var userid = getUserId($(this));
-        getUserInfo(userid, popup);
-        OP = getOP();
+    /**
+     * Inject the auto link next to the given DOM element.
+     * @param {jQuery} where The DOM element next to which we'll place the link.
+     * @param {Function} what The function that will be called when the link is clicked.
+     * @param {jQuery} placeCommentIn The DOM element into which the comment should be placed.
+     */
+    function injectAutoLink( where, what, placeCommentIn ) {
+      var posttype = where.parents(".question, .answer").attr("class").split(' ')[0]; //slightly fragile
+      if( "answer" == posttype ) posttype = Target.CommentAnswer;
+      if( "question" == posttype ) posttype = Target.CommentQuestion;
+      var _autoLinkAction = function(){
+        what( placeCommentIn, posttype );
+      };
+      var autoLink = $('<span class="lsep"> | </span>').add($('<a class="comment-auto-link">auto</a>').click(_autoLinkAction));
+      autoLink.insertAfter( where );
+    }
+    /**
+     * Inject the auto link next to the edit summary input box.
+     * This will also slightly shrink the input box, so that the link will fit next to it.
+     * @param {jQuery} where The DOM element next to which we'll place the link.
+     * @param {Function} what The function that will be called when the link is clicked.
+     * @param {jQuery} placeCommentIn The DOM element into which the comment should be placed.
+     */
+    function injectAutoLinkEdit( where, what, placeCommentIn ){
+      where.css( "width", "510px" );
+      where.siblings( ".actual-edit-overlay" ).css( "width", "510px" );
 
-        //We only actually perform the updates check when someone clicks, this should make it less costly, and more timely
-        //also wrap it so that it only gets called the *FIRST* time we open this dialog on any given page (not much of an optimisation).
-        if(typeof CheckForNewVersion == "function" && !window.VersionChecked) { CheckForNewVersion(popup); window.VersionChecked = true; }
-      }));
+      var posttype = where.parents(".question, .answer").attr("class").split(' ')[0]; //slightly fragile
+      if( "answer" == posttype ) posttype = Target.EditSummaryAnswer;
+      if( "question" == posttype ) posttype = Target.EditSummaryQuestion;
 
-      setTimeout(function() {
-        $('#' + divid).find('.comment-help-link').parent().append(newspan);
-      }, 15);
-    });
+      var _autoLinkAction = function(){
+        what( placeCommentIn, posttype );
+      };
+      var autoLink = $('<span class="lsep"> | </span>').add($('<a class="comment-auto-link">auto</a>').click(_autoLinkAction));
+      autoLink.insertAfter( where );
+    }
+    /**
+     * Inject the auto link next to the given DOM element.
+     * @param {jQuery} where The DOM element next to which we'll place the link.
+     * @param {Function} what The function that will be called when the link is clicked.
+     * @param {jQuery} placeCommentIn The DOM element into which the comment should be placed.
+     */
+    function injectAutoLinkClosure( where, what, placeCommentIn ) {
+      var _autoLinkAction = function(){
+        what( placeCommentIn, Target.Closure );
+      };
+      var autoLink = $('<span class="lsep"> | </span>').add($('<a class="comment-auto-link">auto</a>').click(_autoLinkAction));
+      autoLink.insertAfter( where );
+    }
+
+    function autoLinkAction( targetObject, posttype ) {
+      //Create popup and wire-up the functionality
+      var popup = $(markupTemplate);
+      popup.find('.popup-close').click(function () { popup.fadeOutAndRemove(); });
+      popup.posttype = posttype;
+
+      //Reset this, otherwise we get the greeting twice...
+      showGreeting = false;
+
+      //create/add options
+      WriteComments(popup);
+
+      //Add handlers for command links
+      popup.find('.popup-actions-cancel').click(function () { popup.fadeOutAndRemove(); });
+      popup.find('.popup-actions-reset').click(function () { ResetComments(); WriteComments(popup); });
+      popup.find('.popup-actions-see').hover(function () {
+        popup.fadeTo('fast', '0.4').children().not('#close').fadeTo('fast', '0.0')
+      }, function () {
+        popup.fadeTo('fast', '1.0').children().not('#close').fadeTo('fast', '1.0')
+      });
+      popup.find('.popup-actions-impexp').click(function () { ImportExport(popup); });
+      popup.find('.popup-actions-toggledesc').click(function () {
+        var hideDesc = GetStorage('hide-desc') || "show";
+        SetStorage('hide-desc', hideDesc == "show" ? "hide" : "show");
+        ShowHideDescriptions(popup);
+      });
+      //Handle remote url & welcome
+      SetupRemoteBox(popup);
+      SetupWelcomeBox(popup);
+
+      //on submit, convert html to markdown and copy to comment textarea
+      popup.find('.popup-submit').click(function () {
+        var selected = popup.find('input:radio:checked');
+        var markdown = htmlToMarkDown(selected.parent().find('.action-desc').html()).replace(/\[username\]/g, username).replace(/\[OP\]/g, OP);
+        targetObject.val(markdown).focus();  //focus provokes character count test
+        var caret = markdown.indexOf('[type here]')
+        if(caret >= 0) targetObject[0].setSelectionRange(caret, caret + '[type here]'.length);
+        popup.fadeOutAndRemove();
+      });
+
+      //Auto-load from remote if required
+      if(!window.VersionChecked && GetStorage("AutoRemote") == 'true') {
+        var throbber = popup.find("#throbber2");
+        var remoteerror = popup.find('#remoteerror2');
+        throbber.show();
+        LoadFromRemote(GetStorage("RemoteUrl"),
+          function () { WriteComments(popup); throbber.hide(); },
+          function (d, msg) { remoteerror.text(msg); });
+      }
+
+      // Attach to #content, everything else is too fragile.
+      $("#content").append(popup);
+      popup.center();
+      StackExchange.helpers.bindMovablePopups();
+
+      //Get user info and inject
+      var userid = getUserId($(this));
+      getUserInfo(userid, popup);
+      OP = getOP();
+
+      //We only actually perform the updates check when someone clicks, this should make it less costly, and more timely
+      //also wrap it so that it only gets called the *FIRST* time we open this dialog on any given page (not much of an optimisation).
+      if(typeof CheckForNewVersion == "function" && !window.VersionChecked) { CheckForNewVersion(popup); window.VersionChecked = true; }
+    }
   });
 });
