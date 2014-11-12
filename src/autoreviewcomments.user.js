@@ -551,7 +551,7 @@ with_jquery(function ($) {
         _internalInjector( triggerElement );
       } );
     }
-    attachAutoLinkInjector( ".comments-link", findCommentElements, injectAutoLink, autoLinkAction );
+    attachAutoLinkInjector( ".js-add-link", findCommentElements, injectAutoLink, autoLinkAction );
     attachAutoLinkInjector( ".edit-post", findEditSummaryElements, injectAutoLinkEdit, autoLinkAction );
     attachAutoLinkInjector( ".close-question-link", findClosureElements, injectAutoLinkClosure, autoLinkAction );
 
