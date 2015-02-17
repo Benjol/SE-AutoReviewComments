@@ -57,6 +57,7 @@ var AutoReviewComments = {
     ];
 
     targetSites.forEach( function( site ) {
+      site = site.replace( "http*", "(http|https)" );
       site = site.replace( "*", ".*?" );
       var siteRegexp = new RegExp( site );
       if( siteRegexp.test( href ) ) {
