@@ -247,8 +247,8 @@ with_jquery(function ($) {
 
     function Tag(html) {
       //put tags back in
-      var regname = new RegExp(sitename, "g"), regurl = new RegExp('http://' + siteurl, "g"), reguid = new RegExp('/' + myuserid + '[)]', "g");
-      return html.replace(regname, '$SITENAME$').replace(regurl, 'http://$SITEURL$').replace(reguid, '/$MYUSERID$)');
+      var regname = new RegExp(sitename, "g"), regurl = new RegExp('//' + siteurl, "g"), reguid = new RegExp('/' + myuserid + '[)]', "g");
+      return html.replace(regname, '$SITENAME$').replace(regurl, '//$SITEURL$').replace(reguid, '/$MYUSERID$)');
     }
 
     //Replace contents of element with a textarea (containing markdown of contents), and save/cancel buttons
