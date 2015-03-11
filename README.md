@@ -10,6 +10,9 @@ This script was inspired by answers to [this question on meta][1].
 
 ![Thumbnail][2]
 
+## Developers
+Thank you for all your input. Ideally merge requests should be made on devel, where we can all try them out and integrate them cleanly into future releases.
+
 ## Building
 In case you want to build the script and/or browser extensions yourself. Please have a look at our [building instructions](https://github.com/Benjol/SE-AutoReviewComments/wiki/Building).
 
@@ -72,6 +75,7 @@ For more information about user scripts, check out the script tag wiki [here][13
 ## Update info
 
 (See comments and answers below for details)
+**V1.3.3.4** - Use protocol-relative URLs to support using Stack Exchange sites over HTTPS
 
 **V1.3.3.3** - Hotfix release to adjust for change in Stack Exchange site code that broke this script.
 

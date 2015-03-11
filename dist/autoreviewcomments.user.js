@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.3.3.3
+// @version        1.3.3.4
 // @description    No more re-typing the same comments over and over!
 // @homepage       https://github.com/Benjol/SE-AutoReviewComments
 // @grant          none
@@ -56,7 +56,7 @@ with_jquery(function ($) {
   StackExchange.ready(function () {
     //// Self Updating Userscript, see https://gist.github.com/Benjol/874058
 // (the first line of this template _must_ be a comment!)
-var VERSION = '1.3.3.3';
+var VERSION = '1.3.3.4';
 var URL = "https://raw.github.com/Benjol/SE-AutoReviewComments/master/dist/autoreviewcomments.user.js";
 
 // This hack is necessary to bring people up from the last working auto-uptate gist
@@ -136,12 +136,12 @@ function CheckForNewVersion(popup) {
 
     //default comments
     var defaultcomments = [
-     { Name: "Answers just to say Thanks!", Description: 'Please don\'t add "thanks" as answers. Invest some time in the site and you will gain sufficient <a href="http://$SITEURL$/privileges">privileges</a> to upvote answers you like, which is the $SITENAME$ way of saying thank you.' },
-     { Name: "Nothing but a URL (and isn't spam)", Description: 'Whilst this may theoretically answer the question, <a href="http://meta.stackoverflow.com/q/8259">it would be preferable</a> to include the essential parts of the answer here, and provide the link for reference.' },
-     { Name: "Requests to OP for further information", Description: 'This is really a comment, not an answer. With a bit more rep, <a href="http://$SITEURL$/privileges/comment">you will be able to post comments</a>. For the moment I\'ve added the comment for you, and I\'m flagging this post for deletion.' },
+     { Name: "Answers just to say Thanks!", Description: 'Please don\'t add "thanks" as answers. Invest some time in the site and you will gain sufficient <a href="//$SITEURL$/privileges">privileges</a> to upvote answers you like, which is the $SITENAME$ way of saying thank you.' },
+     { Name: "Nothing but a URL (and isn't spam)", Description: 'Whilst this may theoretically answer the question, <a href="//meta.stackoverflow.com/q/8259">it would be preferable</a> to include the essential parts of the answer here, and provide the link for reference.' },
+     { Name: "Requests to OP for further information", Description: 'This is really a comment, not an answer. With a bit more rep, <a href="//$SITEURL$/privileges/comment">you will be able to post comments</a>. For the moment I\'ve added the comment for you, and I\'m flagging this post for deletion.' },
      { Name: "OP using an answer for further information", Description: 'Please use the <em>Post answer</em> button only for actual answers. You should modify your original question to add additional information.' },
-     { Name: "OP adding a new question as an answer", Description: 'If you have another question, please ask it by clicking the <a href="http://$SITEURL$/questions/ask">Ask Question</a> button.' },
-     { Name: "Another user adding a 'Me too!'", Description: 'If you have a NEW question, please ask it by clicking the <a href="http://$SITEURL$/questions/ask">Ask Question</a> button. If you have sufficient reputation, <a href="http://$SITEURL$/privileges/vote-up">you may upvote</a> the question. Alternatively, "star" it as a favorite and you will be notified of any new answers.' }
+     { Name: "OP adding a new question as an answer", Description: 'If you have another question, please ask it by clicking the <a href="//$SITEURL$/questions/ask">Ask Question</a> button.' },
+     { Name: "Another user adding a 'Me too!'", Description: 'If you have a NEW question, please ask it by clicking the <a href="//$SITEURL$/questions/ask">Ask Question</a> button. If you have sufficient reputation, <a href="//$SITEURL$/privileges/vote-up">you may upvote</a> the question. Alternatively, "star" it as a favorite and you will be notified of any new answers.' }
     ];
 
     var weekday_name = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -247,7 +247,7 @@ function CheckForNewVersion(popup) {
       }
       $.ajax({
         type: "GET",
-        url: 'http://api.stackexchange.com/2.2/users/' + userid + '?site=' + siteurl + '&jsonp=?',
+        url: '//api.stackexchange.com/2.2/users/' + userid + '?site=' + siteurl + '&jsonp=?',
         dataType: "jsonp",
         timeout: 2000,
         success: function (data) {
@@ -342,8 +342,8 @@ function CheckForNewVersion(popup) {
 
     function Tag(html) {
       //put tags back in
-      var regname = new RegExp(sitename, "g"), regurl = new RegExp('http://' + siteurl, "g"), reguid = new RegExp('/' + myuserid + '[)]', "g");
-      return html.replace(regname, '$SITENAME$').replace(regurl, 'http://$SITEURL$').replace(reguid, '/$MYUSERID$)');
+      var regname = new RegExp(sitename, "g"), regurl = new RegExp('//' + siteurl, "g"), reguid = new RegExp('/' + myuserid + '[)]', "g");
+      return html.replace(regname, '$SITENAME$').replace(regurl, '//$SITEURL$').replace(reguid, '/$MYUSERID$)');
     }
 
     //Replace contents of element with a textarea (containing markdown of contents), and save/cancel buttons
