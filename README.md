@@ -64,18 +64,19 @@ In case you want to build the script and/or browser extensions yourself. Please 
 
 The app is available for installation:
 
-* As a [Chrome extension][53]
-* As a [FireFox Add-On][57]
-* For advanced users, as a [userscript][52] (for some browsers this will require a user script manage such as [Tampermonkey][55] for Chrome or [Greasemonkey][56] for FireFox)
+* As a [Chrome extension][7]
+* As a [FireFox Add-On][8]
+* For advanced users, as a [userscript][9] (for some browsers this will require a user script manage such as [Tampermonkey][10] for Chrome or [Greasemonkey][11] for FireFox)
 
-You may also download the code and run the [build process yourself][54] to generate the userscript version as well as Chrome, Firefox and Opera extensions that you can install locally if you'd rather not use the store versions.
+You may also download the code and run the [build process yourself][12] to generate the userscript version as well as Chrome, Firefox and Opera extensions that you can install locally if you'd rather not use the store versions.
 
 For more information about user scripts, check out the script tag wiki [here][13].
 
 ## Update info
 
 (See comments and answers below for details)
-**V1.3.3.4** - Use protocol-relative URLs to support using Stack Exchange sites over HTTPS
+
+**V1.3.3.4** - Use protocol-relative URLs to support using Stack Exchange sites over HTTPS (from [mjpieters][14])
 
 **V1.3.3.3** - Hotfix release to adjust for change in Stack Exchange site code that broke this script.
 
@@ -85,35 +86,35 @@ For more information about user scripts, check out the script tag wiki [here][13
 
 **V1.3.3** - 'Service' release to correct the auto-update script (which was 'broken' by having changed script location). Also now supports updating the minified version of the script.
 
-**V1.3.2** - New $MYUSERID$ placeholder from [Izzy][51], will be replaced with your user id for the current site. Also, under the covers this version contains all the scaffolding necessary for building browser extensions (hat-tip to Caleb and Oliver Salzburg who did all the heavy lifting)
+**V1.3.2** - New $MYUSERID$ placeholder from [Izzy][15], will be replaced with your user id for the current site. Also, under the covers this version contains all the scaffolding necessary for building browser extensions (hat-tip to Caleb and Oliver Salzburg who did all the heavy lifting)
 
-**V1.3.1** - MOVED TO GITHUB! (With many thanks to [Izzy & Caleb][15]). Also now includes https (as requested by [bmdixon][16]). **From now on, please prefer reporting issues [directly in github][17]**
+**V1.3.1** - MOVED TO GITHUB! (With many thanks to [Izzy & Caleb][16]). Also now includes https (as requested by [bmdixon][17]). **From now on, please prefer reporting issues [directly in github][18]**
 
-**V1.3.0** - Update to latest version of [API][18]. Correct bug in import which screwed things up if there was white space on 'empty' lines (reported [here][19] and [here][20])
+**V1.3.0** - Update to latest version of [API][19]. Correct bug in import which screwed things up if there was white space on 'empty' lines (reported [here][20] and [here][21])
 
-**V1.2.9** - Fix for braking change (thanks SE devs!), suggested by [PeeHaa][21]. (Any other suggestions *not* including `setTimeout` are welcome!)
+**V1.2.9** - Fix for braking change (thanks SE devs!), suggested by [PeeHaa][22]. (Any other suggestions *not* including `setTimeout` are welcome!)
 
-**V1.2.8** - Update to take advantage of new ['draggable dialogue'][22] functionality.
+**V1.2.8** - Update to take advantage of new ['draggable dialogue'][23] functionality.
 
-**V1.2.7** - Correct bug noted by [Oddthinking][23], and implement the 'force welcome' function requested by [Martin Scharrer][24].
+**V1.2.7** - Correct bug noted by [Oddthinking][24], and implement the 'force welcome' function requested by [Martin Scharrer][25].
 
-**V1.2.6** - Implement [the][25] [much-requested][26] [override][27] for the new user Welcome message. Correct [a bug][28] with mangled markdown and [another][29] due to modified SE markup.
+**V1.2.6** - Implement [the][26] [much-requested][27] [override][28] for the new user Welcome message. Correct [a bug][29] with mangled markdown and [another][30] due to modified SE markup.
 
-**V1.2.5** - Implement `[OP]` tag as [suggested][30] by [Gaffi][31]. 'Fix' for markdown/html conversion [bug][32] reported by [Madara Uchiha][33].
+**V1.2.5** - Implement `[OP]` tag as [suggested][31] by [Gaffi][32]. 'Fix' for markdown/html conversion [bug][33] reported by [Madara Uchiha][34].
 
-**V1.2.4** - Modify code to get script working in new Review (reported by [Oliver Salzburg][34]), hat-tip to [Shog9][35] for the fix.
+**V1.2.4** - Modify code to get script working in new Review (reported by [Oliver Salzburg][35]), hat-tip to [Shog9][36] for the fix.
 
 **V1.2.3** - Slight modification to remote dialogue (details [here](http://stackapps.com/a/3281/876)). You can now use `[username]` as a wildcard (as suggested by [daviesgeek](http://stackapps.com/a/3473/876)). Corrected `&` bug noted by [Oliver Salzburg](http://stackapps.com/a/3474/876)
 
 **V1.2.2** - Remote comment sources. Broadcasts. Read the details [here](http://stackapps.com/a/3281/876).
 
-**V1.2.1** - update to work with 10k tools (suggested/implemented by [ThiefMaster][36])
+**V1.2.1** - update to work with 10k tools (suggested/implemented by [ThiefMaster][37])
 
-**V1.2.0** - one fix (remove greeting before switching to edit mode), and one feature: hit Enter key to submit ([suggested by Bruno Pereira][37]). *Note that this isn't a major change, it's just my version comparison is string-wise, so V1.1.10 won't work*.
+**V1.2.0** - one fix (remove greeting before switching to edit mode), and one feature: hit Enter key to submit ([suggested by Bruno Pereira][38]). *Note that this isn't a major change, it's just my version comparison is string-wise, so V1.1.10 won't work*.
 
-**V1.1.9** - fixed nasty javascript regex backreference replace bug (reported by [ThiefMaster][38]). For explanations see [here][39] and [here][40].
+**V1.1.9** - fixed nasty javascript regex backreference replace bug (reported by [ThiefMaster][39]). For explanations see [here][40] and [here][41].
 
-**V1.1.8** - fixed 'jQuery 1.7.1' bug, which stopped insert button being enabled. (No idea why it stopped working - though judging from [this][41], maybe it should never have worked, as I was using `attr("disabled", "")`)
+**V1.1.8** - fixed 'jQuery 1.7.1' bug, which stopped insert button being enabled. (No idea why it stopped working - though judging from [this][42], maybe it should never have worked, as I was using `attr("disabled", "")`)
 
 **V1.1.7** - create pseudo categories for differentiating between comments for questions and comments for answers (suggested by [oers](http://stackapps.com/a/2692/876)) - simply prefix the comment *title* with `[Q]` or `[A]`
 
@@ -129,7 +130,7 @@ For more information about user scripts, check out the script tag wiki [here][13
 
 **V1.1.1** - If you have descriptions auto-hidden, the selected one will still be shown (suggested by [Alex](http://stackapps.com/q/2498)).
 
-**V1.1.0** - bug fix. (SE's `full.js` is now delayed at load, so the `unbind('click')` was undoing my `click()` - fix from [@balpha][42]).
+**V1.1.0** - bug fix. (SE's `full.js` is now delayed at load, so the `unbind('click')` was undoing my `click()` - fix from [@balpha][43]).
 
 **V1.0.9** -  
 - a) removed upgrading bits from previous version  
@@ -170,15 +171,15 @@ Can be used in tandem with my [other user script](http://stackapps.com/questions
 
 ## Credits
 
-- [TomWij][43] ([below][44]) created a modified version of the script, which inspired my V1.0.8
-- [balpha][45] came up with the clever (evil) way to make the script '[self-updating][46]'
-- All the people who made suggestions in the comments and answers [here][50]!
+- [TomWij][44] ([below][45]) created a modified version of the script, which inspired my V1.0.8
+- [balpha][46] came up with the clever (evil) way to make the script '[self-updating][47]'
+- All the people who made suggestions in the comments and answers [here][48]!
 - All the contributors here on github
 
 ## Known issues/Future plans
 
-- The main future plan is to get this script adopted by SE. I like maintaining it, but some of the usability niggles (sharing across sites is still clunky, even with the remote option) can only be resolved centrally. (Vote [here][47] if you agree!)
-- Modifying the script so that it also works in edit summary (as per [this request][48]), and the custom off-topic close reason (as per [this request][49]).
+- The main future plan is to get this script adopted by SE. I like maintaining it, but some of the usability niggles (sharing across sites is still clunky, even with the remote option) can only be resolved centrally. (Vote [here][49] if you agree!)
+- Modifying the script so that it also works in edit summary (as per [this request][50]), and the custom off-topic close reason (as per [this request][51]).
 - Work is in progress to create (Firefox & Chrome) browser extensions for this script, whilst maintaining 'reverse compatibility' with a (minified) grease-monkey version.
 - In future in should also be possible to create shared 'custom comments' on a per-site basis (useful for moderators & reviewers)
 
@@ -189,49 +190,48 @@ Can be used in tandem with my [other user script](http://stackapps.com/questions
   [4]: http://stackapps.com/a/3281/876
   [5]: http://i.stack.imgur.com/GjOkQm.png
   [6]: http://i.stack.imgur.com/GjOkQ.png
-  [10]: https://chrome.google.com/webstore/detail/denkbaalahjlbbfnifkacdigaofcnogg
+  [7]: https://chrome.google.com/webstore/detail/autoreviewcomments/bcfoamnigomkoaaiceppbbdlembpeejc
+  [8]: https://addons.mozilla.org/en-US/firefox/addon/se-autoreviewcomments/
+  [9]: https://raw.github.com/Benjol/SE-AutoReviewComments/master/dist/autoreviewcomments.user.js
+  [10]: https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=en
+  [11]: https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/
+  [12]: https://github.com/Benjol/SE-AutoReviewComments/wiki/Building
   [13]: http://stackapps.com/tags/script/info
-  [14]: http://stackapps.com/a/4359
-  [15]: http://stackapps.com/a/4564/876
-  [16]: http://stackapps.com/a/4565/876
-  [17]: https://github.com/Benjol/SE-AutoReviewComments/issues/new
-  [18]: http://blog.stackoverflow.com/2014/02/stack-exchange-api-v2-2-and-the-demise-of-v1-x/
-  [19]: http://stackapps.com/a/4390
-  [20]: http://stackapps.com/a/4332/876
-  [21]: http://stackapps.com/a/4241
-  [22]: http://meta.stackoverflow.com/a/166398
-  [23]: http://stackapps.com/a/3887/876
-  [24]: http://stackapps.com/a/3426/876
-  [25]: http://stackapps.com/a/3317/876
-  [26]: http://stackapps.com/a/3215/876
-  [27]: http://stackapps.com/a/3235/876
-  [28]: http://stackapps.com/a/3727/876
-  [29]: http://stackapps.com/a/3866/876
-  [30]: http://stackapps.com/a/3584/876
-  [31]: http://stackapps.com/users/10417/gaffi
-  [32]: http://stackapps.com/a/3727/876
-  [33]: http://stackapps.com/users/9137/madara-uchiha
-  [34]: http://stackapps.com/a/3540/876
-  [35]: http://chat.meta.stackoverflow.com/transcript/message/1025260#1025260
-  [36]: http://stackapps.com/a/3254/876
-  [37]: http://stackapps.com/a/3249/876
-  [38]: http://stackapps.com/a/3176/876
-  [39]: http://www.regexguru.com/2010/06/replacement-text-syntax-for-javascripts-stringreplace/
-  [40]: http://stackoverflow.com/questions/2466917/weird-javascript-regex-replace-backreference-behavior
-  [41]: http://www.weba11y.com/Examples/disabledAttr.html
-  [42]: http://stackapps.com/users/43/balpha
-  [43]: http://stackapps.com/users/5631/tomwij
-  [44]: http://stackapps.com/questions/2116/pro-forma-comments/2163#2163
-  [45]: http://stackapps.com/users/43/balpha
-  [46]: https://gist.github.com/874058
-  [47]: http://meta.stackoverflow.com/questions/117963/formal-adoption-of-pro-forma-comments-script-into-se-engine-proper
-  [48]: http://stackapps.com/a/2896/876
-  [49]: http://stackapps.com/a/4235/876
-  [50]: http://stackapps.com/q/2116
-  [51]: http://stackexchange.com/users/1540386/izzy
-  [52]: https://raw.github.com/Benjol/SE-AutoReviewComments/master/dist/autoreviewcomments.user.js
-  [53]: https://chrome.google.com/webstore/detail/autoreviewcomments/bcfoamnigomkoaaiceppbbdlembpeejc
-  [54]: https://github.com/Benjol/SE-AutoReviewComments/wiki/Building
-  [55]: https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=en
-  [56]: https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/
-  [57]: https://addons.mozilla.org/en-US/firefox/addon/se-autoreviewcomments/
+  [14]: http://stackoverflow.com/users/100297/martijn-pieters
+  [15]: http://stackexchange.com/users/1540386/izzy
+  [16]: http://stackapps.com/a/4564/876
+  [17]: http://stackapps.com/a/4565/876
+  [18]: https://github.com/Benjol/SE-AutoReviewComments/issues/new
+  [19]: http://blog.stackoverflow.com/2014/02/stack-exchange-api-v2-2-and-the-demise-of-v1-x/
+  [20]: http://stackapps.com/a/4390
+  [21]: http://stackapps.com/a/4332/876
+  [22]: http://stackapps.com/a/4241
+  [23]: http://meta.stackoverflow.com/a/166398
+  [24]: http://stackapps.com/a/3887/876
+  [25]: http://stackapps.com/a/3426/876
+  [26]: http://stackapps.com/a/3317/876
+  [27]: http://stackapps.com/a/3215/876
+  [28]: http://stackapps.com/a/3235/876
+  [29]: http://stackapps.com/a/3727/876
+  [30]: http://stackapps.com/a/3866/876
+  [31]: http://stackapps.com/a/3584/876
+  [32]: http://stackapps.com/users/10417/gaffi
+  [33]: http://stackapps.com/a/3727/876
+  [34]: http://stackapps.com/users/9137/madara-uchiha
+  [35]: http://stackapps.com/a/3540/876
+  [36]: http://chat.meta.stackoverflow.com/transcript/message/1025260#1025260
+  [37]: http://stackapps.com/a/3254/876
+  [38]: http://stackapps.com/a/3249/876
+  [39]: http://stackapps.com/a/3176/876
+  [40]: http://www.regexguru.com/2010/06/replacement-text-syntax-for-javascripts-stringreplace/
+  [41]: http://stackoverflow.com/questions/2466917/weird-javascript-regex-replace-backreference-behavior
+  [42]: http://www.weba11y.com/Examples/disabledAttr.html
+  [43]: http://stackapps.com/users/43/balpha
+  [44]: http://stackapps.com/users/5631/tomwij
+  [45]: http://stackapps.com/questions/2116/pro-forma-comments/2163#2163
+  [46]: http://stackapps.com/users/43/balpha
+  [47]: https://gist.github.com/874058
+  [48]: http://stackapps.com/q/2116
+  [49]: http://meta.stackoverflow.com/questions/117963/formal-adoption-of-pro-forma-comments-script-into-se-engine-proper
+  [50]: http://stackapps.com/a/2896/876
+  [51]: http://stackapps.com/a/4235/876
