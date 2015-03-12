@@ -1,0 +1,175 @@
+<style>
+  /* Popup */
+  .auto-review-comments.popup {
+    position: absolute;
+    display: block;
+    width: 690px;
+    padding: 15px 15px 10px;
+  }
+
+  /* Utility classes to float elements */
+  .auto-review-comments.popup .float-left {
+    float: left;
+  }
+
+  .auto-review-comments.popup .float-right {
+    float: right;
+  }
+
+  .auto-review-comments.popup .throbber {
+    display: none;
+  }
+
+  .auto-review-comments.popup .remoteerror {
+    color: red;
+  }
+
+  /* Element-specific classes. */
+  /* Textarea used for import/export. */
+  .auto-review-comments.popup > div > textarea {
+    width: 100%;
+    /* This height results in a perfect fit and the action links
+      below the text area line up with those in the main dialog. */
+    height: 442px;
+  }
+
+  .auto-review-comments.popup .main {
+    overflow: hidden;
+  }
+
+  .auto-review-comments.popup .main .userinfo {
+    padding: 5px;
+    margin-bottom: 7px;
+    background: #EAEFEF;
+  }
+
+  .auto-review-comments.popup .main .action-list {
+    height: 440px;
+    margin: 0 0 7px 0 !important;
+    overflow-y: auto
+  }
+
+  /* This li is a single option in the action list (option.html template). */
+  .auto-review-comments.popup .main .action-list li {
+    /* Override SE default fixed pixel width. */
+    width: 100%;
+    padding: 0;
+    transition: .1s;
+  }
+
+  .auto-review-comments.popup .main .action-list li:hover {
+    background-color: #f2f2f2;
+  }
+
+  .auto-review-comments.popup .main .action-list li.action-selected:hover {
+    background-color: #e6e6e6;
+  }
+
+  .auto-review-comments.popup .main .action-list li input {
+    display: none;
+  }
+
+  .auto-review-comments.popup .main .action-list li label {
+    position: relative;
+    display: block;
+    padding: 10px;
+  }
+
+  .auto-review-comments.popup .main .action-list li label .action-name {
+    display: block;
+    margin-bottom: 3px;
+    /* Override SE default pointer cursor on this class. */
+    cursor: default;
+  }
+
+  .auto-review-comments.popup .main .action-list li label .action-desc {
+    margin: 0;
+    /* Description should be slightly ligher than the action name. */
+    color: #888;
+    /* Override SE default pointer cursor on this class. */
+    cursor: default;
+  }
+
+  /* Textarea for quick-editing for name and description of an action. */
+  .auto-review-comments.popup .main .action-list li label .action-name textarea,
+  .auto-review-comments.popup .main .action-list li label .action-desc textarea {
+    /* The percentage provide the safest solution here to have a nice margin
+    on the right both when the action list has a scrollbar and when not. */
+    width: 99%;
+    /* The negative margin pulls up the navigation elements below. */
+    margin: 0 0 -4px 0;
+  }
+
+  .auto-review-comments.popup .main .action-list li label .action-desc textarea {
+    /* Textare for description can be slightly higher. */
+    height: 42px;
+  }
+
+  .auto-review-comments.popup .main .action-list li label .quick-insert {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    margin: 0;
+    font-size: 300%;
+    color: transparent;
+    background-color: transparent;
+    border: none;
+    transition: .3s;
+    text-shadow: 0 0 1px #fff;
+    cursor: pointer;
+  }
+
+  .auto-review-comments.popup .main .action-list li label .quick-insert:hover {
+    background-color: #222;
+    color: #fff;
+  }
+
+  .auto-review-comments.popup .main .share-tip {
+    display: none;
+  }
+
+  .auto-review-comments.popup .main .share-tip .customwelcome {
+    width: 300px;
+  }
+
+  .auto-review-comments.popup .main .share-tip .remoteurl {
+    display: block;
+    width: 400px;
+  }
+
+  .auto-review-comments.popup .actions,
+  .auto-review-comments.popup .main .popup-actions .actions {
+    margin: 6px;
+  }
+
+  .auto-review-comments.popup .main .popup-actions .popup-submit {
+    float: none;
+    margin: 0 0 5px 0;
+  }
+
+  /* Classes for elements in the public announcement box. */
+  .auto-review-comments.announcement {
+    padding: 7px;
+    margin-bottom: 10px;
+    background: orange;
+    font-size: 15px;
+  }
+
+  .auto-review-comments.announcement .notify-close {
+    display: block;
+    float: right;
+    margin: 0 4px;
+    padding: 0 4px;
+    border: 2px solid black;
+    cursor: pointer;
+    line-height: 17px;
+  }
+
+  .auto-review-comments.announcement .notify-close a {
+    color: black;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 16px;
+  }
+</style>

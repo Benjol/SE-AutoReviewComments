@@ -63,6 +63,9 @@
     </and>
   </condition>
 
+  <property name="sdk.firefox" value="${basedir}/SDK/addon-sdk-1.16"/>
+  <property name="sdk.cfx" value="${sdk.firefox}/bin/cfx"/>
+
   <!-- Location of Google Closure Compiler. Used to pack userscript.
        See: https://developers.google.com/closure/compiler/ -->
   <property name="sdk.closurecompiler" value="${basedir}/SDK/compiler.jar"/>
@@ -106,6 +109,7 @@
       <arg path="${sdk.htmlcompressor}"/>
       <arg line="--type html"/>
       <arg value="--preserve-comments"/>
+      <arg value="--compress-css"/>
       <srcfile/>
       <arg value="-o"/>
       <mapper type="glob" from="*" to="${buildDir}/.templates/*"/>
@@ -113,8 +117,10 @@
     </apply>
   </target>
 
-  <target name="tokenreplace" depends="sites, sites-userscript, sites-string-list, sites-chrome, compress-templates">
+  <target name="tokenreplace" depends="sites, sites-userscript, sites-chrome, sites-firefox, compress-templates">
     <!-- Replace templates. -->
+    <loadfile srcfile="${buildDir}/.templates/css.html" property="ant-templates-css"/>
+    <replace dir="${buildDir}" token="@ant-templates-css@" value="${ant-templates-css}"/>
     <loadfile srcfile="${buildDir}/.templates/message.html" property="ant-templates-message"/>
     <replace dir="${buildDir}" token="@ant-templates-message@" value="${ant-templates-message}"/>
     <loadfile srcfile="${buildDir}/.templates/option.html" property="ant-templates-option"/>
@@ -131,9 +137,9 @@
 
     <replace dir="${buildDir}" token="@ant-sites@" value="${sites}" encoding="${encoding}"/>
     <replace dir="${buildDir}" token="// @ant-sites-userscript@" value="${sites-userscript}" encoding="${encoding}"/>
-    <replace dir="${buildDir}" token="&quot;@ant-sites-string-list@&quot;" value="${sites-string-list}"
-             encoding="${encoding}"/>
     <replace dir="${buildDir}" token="&quot;@ant-sites-chrome-list@&quot;" value="${sites-chrome-list}"
+             encoding="${encoding}"/>
+    <replace dir="${buildDir}" token="&quot;@ant-sites-firefox-list@&quot;" value="${sites-firefox-list}"
              encoding="${encoding}"/>
   </target>
 
@@ -141,32 +147,67 @@
   <target name="sites">
     <loadfile property="sites" srcFile="${build.sites}"/>
   </target>
+  <!-- Construct the list of target sites as required by the userscript.
+       The results have to be regular expressions.
+       For reference see: http://wiki.greasespot.net/Include_and_exclude_rules -->
   <target name="sites-userscript">
     <loadfile property="sites-userscript" srcFile="${build.sites}">
       <filterchain>
+        <!-- Replace the possible *. at the start of each line with (*.)*
+             This allows for options subdomains if the line started with *. -->
+        <replaceregex pattern="^\*\." replace="(*.)?"/>
+        <!-- Dots in the line have to be escaped, to match literal dots. -->
+        <replacestring from="." to="\."/>
+        <!-- The star has to be replaced by .* to match any amount of characters. -->
+        <replacestring from="*" to=".*"/>
+        <!-- Prefix all lines with /^https?:\/\/ to match http and https URLs.
+             This also opens the regular expression with / -->
+        <prefixlines prefix="/^https?:\/\/"/>
+        <!-- Suffix all lines with a /.*$/ to match all pages on the site.
+             The also closes the regular expression with / -->
+        <suffixlines suffix="/.*$/"/>
+        <!-- Prefix all lines with the mandatory @include comment. -->
         <prefixlines prefix="// @include "/>
       </filterchain>
     </loadfile>
   </target>
+  <!-- Construct the list of target sites as required by Chrome.
+       The results have to be proprietary "match patterns".
+       For reference see: http://developer.chrome.com/extensions/match_patterns -->
   <target name="sites-chrome">
     <loadfile property="sites-chrome-list-in" srcFile="${build.sites}">
       <filterchain>
-        <replacestring from="http*" to="*"/>
-        <replacestring from="//*" to="//*."/>
-        <prefixlines prefix="&quot;"/>
-        <suffixlines suffix="&quot;,"/>
+        <!-- Duplicate each line, prefixing one with http:// and the other with https://,
+             then wrap each line in quotes and suffix them with a comma. -->
+        <replaceregex pattern="(.*)" replace="&quot;http://\1/*&quot;,&quot;https://\1/*&quot;,"/>
       </filterchain>
     </loadfile>
-    <propertyregex property="sites-chrome-list" input="${sites-chrome-list-in}" regexp=",$" replace=""/>
+    <!-- Remove last trailing comma from property. -->
+    <propertyregex property="sites-chrome-list" input="${sites-chrome-list-in}" regexp=",[\r\n]*$" replace=""/>
   </target>
-  <target name="sites-string-list">
-    <loadfile property="sites-string-list-in" srcFile="${build.sites}">
+  <!-- Construct the list of target sites as required by Firefox.
+       The results have to be regular expressions.
+       For reference see: https://developer.mozilla.org/en-US/Add-ons/SDK/Low-Level_APIs/util_match-pattern -->
+  <target name="sites-firefox">
+    <loadfile property="sites-firefox-list-in" srcFile="${build.sites}">
       <filterchain>
-        <prefixlines prefix="&quot;"/>
-        <suffixlines suffix="&quot;,"/>
+        <!-- Replace the possible *. at the start of each line with (*.)*
+             This allows for options subdomains if the line started with *. -->
+        <replaceregex pattern="^\*\." replace="(*.)?"/>
+        <!-- Dots in the line have to be escaped, to match literal dots. -->
+        <replacestring from="." to="\."/>
+        <!-- The star has to be replaced by .* to match any amount of characters. -->
+        <replacestring from="*" to=".*"/>
+        <!-- Prefix all lines with /^https?:\/\/ to match http and https URLs.
+             This also opens the regular expression with / -->
+        <prefixlines prefix="/^https?:\/\/"/>
+        <!-- Suffix all lines with a /.*$/ to match all pages on the site.
+             The also closes the regular expression with / -->
+        <suffixlines suffix="\/.*$/,"/>
       </filterchain>
     </loadfile>
-    <propertyregex property="sites-string-list" input="${sites-string-list-in}" regexp=",$" replace=""/>
+    <!-- Remove last trailing comma from property. -->
+    <propertyregex property="sites-firefox-list" input="${sites-firefox-list-in}" regexp=",[\r\n]*$" replace=""/>
   </target>
 
   <!-- Build the userscript. -->
@@ -219,6 +260,8 @@
 
   <!-- Build the Chrome extension. -->
   <target name="chrome" depends="preinit, copy-chrome, chrome-zip, chrome-crx, clean"/>
+  <!-- Just places the extension in the build directory so you can load it as an unpacked extension. -->
+  <target name="chrome-debug" depends="preinit, copy-chrome"/>
 
   <!-- Copy the files required to build the Chrome extension to the build directory. -->
   <target name="copy-chrome">
@@ -255,12 +298,22 @@
 
   <!-- Build the Chrome CRX package for direct installation. -->
   <target name="chrome-crx" depends="chrome-keycheck, build-chrome-key">
-    <exec executable="${sdk.buildcrx}" failonerror="true">
-      <arg value="${buildDir}/chrome.zip"/>
-      <arg value="${cert.chrome}"/>
-      <arg value="${dist}/${name}.crx"/>
-    </exec>
-    <!--<delete file="${build}/chrome.zip" />-->
+    <condition property="isMac">
+      <os family="mac"/>
+    </condition>
+    <if>
+      <os family="mac"/>
+      <then>
+        <echo message="Building the Chrome CRX archive is currently not supported on the MacOS operating system family!"/>
+      </then>
+      <else>
+        <exec executable="${sdk.buildcrx}" failonerror="true">
+          <arg value="${buildDir}/chrome.zip"/>
+          <arg value="${cert.chrome}"/>
+          <arg value="${dist}/${name}.crx"/>
+        </exec>
+      </else>
+    </if>
   </target>
 
   <!-- Check if the key for signing the Chrome extension exists. -->
@@ -282,8 +335,27 @@
 
   <!-- Build the Firefox extension. -->
   <target name="firefox" depends="preinit, copy-firefox">
-    <zip destfile="${dist}/${name}.xpi" basedir="${buildDir}"/>
+    <exec executable="${python2}" failonerror="true">
+      <arg line="${sdk.cfx}"/>
+      <arg line="--pkgdir"/>
+      <arg line="${buildDir}"/>
+      <arg line="--output-file"/>
+      <arg line="${buildDir}/${name}.xpi"/>
+      <arg line="xpi"/>
+    </exec>
+    <copy file="${buildDir}/${name}.xpi" tofile="${dist}/${name}.xpi"/>
     <antcall target="clean"/>
+  </target>
+  <!-- Compiles the extension and runs it in an instance of Firefox. -->
+  <target name="firefox-debug" depends="preinit, copy-firefox">
+    <exec executable="${python2}" failonerror="true">
+      <arg line="${sdk.cfx}"/>
+      <arg line="--pkgdir"/>
+      <arg line="${buildDir}"/>
+      <arg line="--output-file"/>
+      <arg line="${buildDir}/${name}.xpi"/>
+      <arg line="run"/>
+    </exec>
   </target>
 
   <!-- Copy the files required to build the Firefox extension to the build directory. -->
@@ -299,7 +371,7 @@
       </mapper>
     </copy>
     <!-- Move the files to the content subfolder -->
-    <move todir="${buildDir}/content">
+    <move todir="${buildDir}/data">
       <fileset dir="${buildDir}"/>
     </move>
     <copy todir="${buildDir}">
@@ -309,7 +381,7 @@
     <antcall target="tokenreplace"/>
     <copy todir="${buildDir}/content/icons">
       <fileset dir="${src.icons}">
-        <include name="icon32.png"/>
+        <include name="icon48.png"/>
         <include name="icon64.png"/>
       </fileset>
     </copy>
