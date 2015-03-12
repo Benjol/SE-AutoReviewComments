@@ -18,6 +18,8 @@ This script was inspired by answers to [this question on meta][1].
 1. **Customize the texts**
 
     Simply [double click][3] on a comment text or description in order to customize it. Hit the 'reset' button if you screw up. This customization is currently **per-site**. Note that the "Welcome to `$SITENAME$`" text is automagically inserted if the user is 'new' (member for less than a week), so you don't *need* to add that to your custom text (but you can if you want to, see '9' below). 
+    
+    It is possible to target comments to specific use-cases (Answers, Questions, etc.) - see Import/export section below
 
     If you need more/less than the default 6 comments, just carry on reading...
 
@@ -34,6 +36,16 @@ This script was inspired by answers to [this question on meta][1].
     This helps with transferring custom comments between sites. The export/import 'format' is also conveniently presented as markdown, so you can post it in an answer below, and let others benefit from your words of wisdom.
 
     Note that you can also use the Import to create an arbitrary number of comments (the default is 6). If there are too many, you can use the show/hide desc link to gain a bit of space.
+    
+    The following title prefixes are allowed and permit a comment to be targeted to the associated dialogue:
+     
+    - Closure : "C",
+    - CommentQuestion : "Q",
+    - CommentAnswer : "A",
+    - EditSummaryAnswer : "EA",
+    - EditSummaryQuestion : "EQ"
+      
+    The expected format for the title prefix (in the import/export dialogue) is: `###[Q] More than one question asked`
 
 1. **Remote source for comments**
 
