@@ -334,8 +334,6 @@ with_jquery(function ($) {
       ul.empty();
       for(var i = 0; i < GetStorage("commentcount"); i++) {
         var commentName = GetStorage('name-' + i);
-        //var commenttype = GetCommentType(GetStorage('name-' + i));
-        //if(commenttype == "any" || (commenttype == popup.posttype)) {
         if( IsCommentValidForPostType( commentName, popup.posttype ) ) {
           commentName = commentName.replace( Target.MATCH_ALL, "" );
           var desc = GetStorage('desc-' + i).replace(/\$SITENAME\$/g, sitename).replace(/\$SITEURL\$/g, siteurl).replace(/\$MYUSERID\$/g, myuserid).replace(/\$/g, "$$$");
@@ -360,12 +358,6 @@ with_jquery(function ($) {
       if( !designator ) return true;
 
       return ( -1 < designator.indexOf( postType ) );
-    }
-
-    function GetCommentType(comment) {
-      if(comment.indexOf('[Q]') > -1) return Target.CommentQuestion;
-      if(comment.indexOf('[A]') > -1) return Target.CommentAnswer;
-      return "any";
     }
 
     function AddOptionEventHandlers(popup) {
