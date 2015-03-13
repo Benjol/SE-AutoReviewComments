@@ -700,7 +700,7 @@ with_jquery(function ($) {
       StackExchange.helpers.bindMovablePopups();
 
       //Get user info and inject
-      var userid = getUserId($(this));
+      var userid = getUserId(targetObject);
       getUserInfo(userid, popup);
       OP = getOP();
 
