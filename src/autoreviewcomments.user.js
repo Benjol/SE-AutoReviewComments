@@ -592,6 +592,12 @@ with_jquery(function ($) {
      * @param {jQuery} placeCommentIn The DOM element into which the comment should be placed.
      */
     function injectAutoLink( where, what, placeCommentIn ) {
+      // Don't add auto links if one already exists
+      var existingAutoLinks = where.siblings( ".comment-auto-link" );
+      if( existingAutoLinks && existingAutoLinks.length ) {
+        return;
+      }
+
       var posttype = where.parents(".question, .answer").attr("class").split(' ')[0]; //slightly fragile
       if( "answer" == posttype ) posttype = Target.CommentAnswer;
       if( "question" == posttype ) posttype = Target.CommentQuestion;
@@ -608,7 +614,13 @@ with_jquery(function ($) {
      * @param {Function} what The function that will be called when the link is clicked.
      * @param {jQuery} placeCommentIn The DOM element into which the comment should be placed.
      */
-    function injectAutoLinkEdit( where, what, placeCommentIn ){
+    function injectAutoLinkEdit( where, what, placeCommentIn ) {
+      // Don't add auto links if one already exists
+      var existingAutoLinks = where.siblings( ".comment-auto-link" );
+      if( existingAutoLinks && existingAutoLinks.length ) {
+        return;
+      }
+
       where.css( "width", "510px" );
       where.siblings( ".actual-edit-overlay" ).css( "width", "510px" );
 
@@ -629,6 +641,12 @@ with_jquery(function ($) {
      * @param {jQuery} placeCommentIn The DOM element into which the comment should be placed.
      */
     function injectAutoLinkClosure( where, what, placeCommentIn ) {
+      // Don't add auto links if one already exists
+      var existingAutoLinks = where.siblings( ".comment-auto-link" );
+      if( existingAutoLinks && existingAutoLinks.length ) {
+        return;
+      }
+      
       var _autoLinkAction = function(){
         what( placeCommentIn, Target.Closure );
       };
