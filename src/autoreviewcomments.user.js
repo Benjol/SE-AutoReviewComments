@@ -273,18 +273,23 @@ with_jquery(function ($) {
     }
 
     //Replace contents of element with a textarea (containing markdown of contents), and save/cancel buttons
-    function ToEditable(el) {
+    function ToEditable(popup, el) {
       var backup = el.html();
       var html = Tag(el.html().replace(greeting, ''));  //remove greeting before editing..
       if(html.indexOf('<textarea') > -1) return; //don't want to create a new textarea inside this one!
       var txt = $('<textarea />').val(htmlToMarkDown(html));
+
+      // Disable quick-insert while editing.
+      el.siblings(".quick-insert").hide();
+      // Disable insert while editing.
+      $(".popup-submit", popup).prop("disabled", true);
 
       BorkFor(el); //this is a hack
       //save/cancel links to add to textarea
       var actions = $('<div class="actions">');
       var commands = $('<a>save</a>').click(function () { SaveEditable($(this).parent().parent()); UnborkFor(el); })
                       .add('<span class="lsep"> | </span>')
-                      .add($('<a>cancel</a>').click(function () { CancelEditable($(this).parent().parent(), backup); UnborkFor(el); }));
+                      .add($('<a>cancel</a>').click(function () { el.siblings(".quick-insert").show(); $(".popup-submit", popup).prop("disabled", false); CancelEditable($(this).parent().parent(), backup); UnborkFor(el); }));
       actions.append(commands);
 
       //set contents of element to textarea with links
@@ -361,7 +366,7 @@ with_jquery(function ($) {
     }
 
     function AddOptionEventHandlers(popup) {
-      popup.find('label > span').dblclick(function () { ToEditable($(this)); });
+      popup.find('label > span').dblclick(function () { ToEditable(popup, $(this)); });
       popup.find('label > .quick-insert').click(function () {
         var parent = $(this).parent();
         var li = parent.parent();
