@@ -67,13 +67,21 @@ This script was inspired by answers to [this question on meta][1].
 
 ## Installation
 
-Click [HERE][7] to install the user script. (**warning** Google is making things difficult for non-store user scripts. A workaround is explained [here][8]. Or use a script manager, like [tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=en). **NEW** [Derek][9] has kindly uploaded the script into the [Chrome store][10].
+On most browswers, simple click [here to install the user script][7]. 
 
-For other browser-specific instructions, read the instructions [here][11])
+**Warning**: On Google Chrome, you need to take other steps, because Google is making things difficult for non-store user scripts. 
 
-Click [HERE][12] to preview the code.
+Either:
 
-For more information about user scripts, check out the [tag:script] tag wiki [here][13].
+  1. Follow the steps in [the workaround Google provides][8].
+  2. Visit the [Chrome store][10]. It may not have the latest version. (Thanks [Derek][9] for uploading it there.)
+  3. Use a script manager, like [tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=en).
+  
+There are also [browser-specific instructions][11] for other browsers.
+
+You can [preview the code][12].
+
+For more information about user scripts, check out the [[tag:script] tag wiki][13].
 
 
 ## Credits
