@@ -67,22 +67,23 @@ This script was inspired by answers to [this question on meta][1].
 
 ## Installation
 
-On most browsers, simple click [here to install the user script][7]. 
+#### Mozilla Firefox
 
-**Warning**: On Google Chrome, you need to take other steps, because Google is making things difficult for non-store user scripts. 
+[Install the add-on][45].
 
-Either:
+#### Google Chrome
 
-  1. Follow the steps in [the workaround Google provides][8].
-  2. Visit the [Chrome store][10]. It may not have the latest version. (Thanks [Derek][9] for uploading it there.)
-  3. Use a script manager, like [tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=en).
-  
-There are also [browser-specific instructions][11] for other browsers.
+[Install the extension][46].
 
-You can [preview the code][12].
+#### Opera
 
-For more information about user scripts, check out the [[tag:script] tag wiki][13].
+[Install the add-on][47].
 
+#### Other browsers, including Safari:
+
+You can download the [user script][7] or [preview the code][12].
+
+Here are some [useful browser-specific instructions][11] on getting it to work. For more information about user scripts, check out the [[tag:script] tag wiki][13].
 
 ## Credits
 
@@ -145,4 +146,6 @@ All the people who noted bugs and made suggestions in the comments and answers [
   [42]: https://github.com/Benjol/SE-AutoReviewComments/releases/tag/v1.3.2
   [43]: https://github.com/Benjol/SE-AutoReviewComments/commits?author=IzzySoft
   [44]: http://stackapps.com/q/2116
-
+  [45]: https://addons.mozilla.org/en-US/firefox/addon/se-autoreviewcomments
+  [46]: https://chrome.google.com/webstore/detail/autoreviewcomments/bcfoamnigomkoaaiceppbbdlembpeejc
+  [47]: https://addons.opera.com/en/extensions/details/se-autoreviewcomments/
