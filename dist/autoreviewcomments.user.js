@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.4.0
+// @version        1.4.1
 // @description    No more re-typing the same comments over and over!
 // @homepage       https://github.com/Benjol/SE-AutoReviewComments
 // @grant          none
@@ -28,7 +28,7 @@ with_jquery(function ($) {
   StackExchange.ready(function () {
     //// Self Updating Userscript, see https://gist.github.com/Benjol/874058
 // (the first line of this template _must_ be a comment!)
-var VERSION = '1.4.0';
+var VERSION = '1.4.1';
 var URL = "https://raw.github.com/Benjol/SE-AutoReviewComments/master/dist/autoreviewcomments.user.js";
 
 // This hack is necessary to bring people up from the last working auto-uptate gist
@@ -361,18 +361,23 @@ function CheckForNewVersion(popup) {
     }
 
     //Replace contents of element with a textarea (containing markdown of contents), and save/cancel buttons
-    function ToEditable(el) {
+    function ToEditable(popup, el) {
       var backup = el.html();
       var html = Tag(el.html().replace(greeting, ''));  //remove greeting before editing..
       if(html.indexOf('<textarea') > -1) return; //don't want to create a new textarea inside this one!
       var txt = $('<textarea />').val(htmlToMarkDown(html));
+
+      // Disable quick-insert while editing.
+      el.siblings(".quick-insert").hide();
+      // Disable insert while editing.
+      $(".popup-submit", popup).prop("disabled", true);
 
       BorkFor(el); //this is a hack
       //save/cancel links to add to textarea
       var actions = $('<div class="actions">');
       var commands = $('<a>save</a>').click(function () { SaveEditable($(this).parent().parent()); UnborkFor(el); })
                       .add('<span class="lsep"> | </span>')
-                      .add($('<a>cancel</a>').click(function () { CancelEditable($(this).parent().parent(), backup); UnborkFor(el); }));
+                      .add($('<a>cancel</a>').click(function () { el.siblings(".quick-insert").show(); $(".popup-submit", popup).prop("disabled", false); CancelEditable($(this).parent().parent(), backup); UnborkFor(el); }));
       actions.append(commands);
 
       //set contents of element to textarea with links
@@ -422,8 +427,6 @@ function CheckForNewVersion(popup) {
       ul.empty();
       for(var i = 0; i < GetStorage("commentcount"); i++) {
         var commentName = GetStorage('name-' + i);
-        //var commenttype = GetCommentType(GetStorage('name-' + i));
-        //if(commenttype == "any" || (commenttype == popup.posttype)) {
         if( IsCommentValidForPostType( commentName, popup.posttype ) ) {
           commentName = commentName.replace( Target.MATCH_ALL, "" );
           var desc = GetStorage('desc-' + i).replace(/\$SITENAME\$/g, sitename).replace(/\$SITEURL\$/g, siteurl).replace(/\$MYUSERID\$/g, myuserid).replace(/\$/g, "$$$");
@@ -450,14 +453,8 @@ function CheckForNewVersion(popup) {
       return ( -1 < designator.indexOf( postType ) );
     }
 
-    function GetCommentType(comment) {
-      if(comment.indexOf('[Q]') > -1) return Target.CommentQuestion;
-      if(comment.indexOf('[A]') > -1) return Target.CommentAnswer;
-      return "any";
-    }
-
     function AddOptionEventHandlers(popup) {
-      popup.find('label > span').dblclick(function () { ToEditable($(this)); });
+      popup.find('label > span').dblclick(function () { ToEditable(popup, $(this)); });
       popup.find('label > .quick-insert').click(function () {
         var parent = $(this).parent();
         var li = parent.parent();
@@ -688,6 +685,12 @@ function CheckForNewVersion(popup) {
      * @param {jQuery} placeCommentIn The DOM element into which the comment should be placed.
      */
     function injectAutoLink( where, what, placeCommentIn ) {
+      // Don't add auto links if one already exists
+      var existingAutoLinks = where.siblings( ".comment-auto-link" );
+      if( existingAutoLinks && existingAutoLinks.length ) {
+        return;
+      }
+
       var posttype = where.parents(".question, .answer").attr("class").split(' ')[0]; //slightly fragile
       if( "answer" == posttype ) posttype = Target.CommentAnswer;
       if( "question" == posttype ) posttype = Target.CommentQuestion;
@@ -704,7 +707,13 @@ function CheckForNewVersion(popup) {
      * @param {Function} what The function that will be called when the link is clicked.
      * @param {jQuery} placeCommentIn The DOM element into which the comment should be placed.
      */
-    function injectAutoLinkEdit( where, what, placeCommentIn ){
+    function injectAutoLinkEdit( where, what, placeCommentIn ) {
+      // Don't add auto links if one already exists
+      var existingAutoLinks = where.siblings( ".comment-auto-link" );
+      if( existingAutoLinks && existingAutoLinks.length ) {
+        return;
+      }
+
       where.css( "width", "510px" );
       where.siblings( ".actual-edit-overlay" ).css( "width", "510px" );
 
@@ -725,6 +734,12 @@ function CheckForNewVersion(popup) {
      * @param {jQuery} placeCommentIn The DOM element into which the comment should be placed.
      */
     function injectAutoLinkClosure( where, what, placeCommentIn ) {
+      // Don't add auto links if one already exists
+      var existingAutoLinks = where.siblings( ".comment-auto-link" );
+      if( existingAutoLinks && existingAutoLinks.length ) {
+        return;
+      }
+      
       var _autoLinkAction = function(){
         what( placeCommentIn, Target.Closure );
       };
@@ -788,7 +803,7 @@ function CheckForNewVersion(popup) {
       StackExchange.helpers.bindMovablePopups();
 
       //Get user info and inject
-      var userid = getUserId($(this));
+      var userid = getUserId(targetObject);
       getUserInfo(userid, popup);
       OP = getOP();
 
