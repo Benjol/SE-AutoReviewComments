@@ -5,7 +5,7 @@
 
 This script adds a little 'auto' link next to all comments boxes. When you click the link, you see a popup with 6 configurable auto-comments (canned responses), which you can easily click to insert.
 
-This script was inspired by answers to [thbris question on meta][1].
+This script was inspired by answers to [this question on meta][1].
 
 ![Thumbnail][2]
 
