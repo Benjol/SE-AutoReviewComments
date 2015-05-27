@@ -553,6 +553,7 @@ with_jquery(function ($) {
     attachAutoLinkInjector( ".js-add-link", findCommentElements, injectAutoLink, autoLinkAction );
     attachAutoLinkInjector( ".edit-post", findEditSummaryElements, injectAutoLinkEdit, autoLinkAction );
     attachAutoLinkInjector( ".close-question-link", findClosureElements, injectAutoLinkClosure, autoLinkAction );
+    attachAutoLinkInjector( ".review-actions input:first", findReviewQueueElements, injectAutoLinkReviewQueue, autoLinkAction );
 
     /**
      * A locator for the help link next to the comment box under a post and the textarea for the comment.
@@ -587,6 +588,17 @@ with_jquery(function ($) {
     function findClosureElements( where ) {
       var injectNextTo = $(".close-as-off-topic-pane textarea");
       var placeCommentIn = injectNextTo;
+      return [ injectNextTo, placeCommentIn ];
+    }
+    /**
+     * A locator for the edit summary you get in the "Help and Improvement" review queue.
+     * @param {jQuery} where A DOM element, near which we're looking for the location where to inject our link.
+     * @returns {[jQuery]} The DOM element next to which the link should be inserted and the element into which the
+     *                     comment should be placed.
+     */
+    function findReviewQueueElements( where ) {
+      var injectNextTo = $(".text-counter");
+      var placeCommentIn = $(".edit-comment");
       return [ injectNextTo, placeCommentIn ];
     }
 
@@ -656,6 +668,26 @@ with_jquery(function ($) {
         what( placeCommentIn, Target.Closure );
       };
       var autoLink = $('<span class="lsep"> | </span>').add($('<a class="comment-auto-link">auto</a>').click(_autoLinkAction));
+      autoLink.insertAfter( where );
+    }
+
+    /**
+     * Inject hte auto link next to the "characters left" counter below the edit summary in the review queue.
+     * @param {jQuery} where The DOM element next to which we'll place the link.
+     * @param {Function} what The function that will be called when the link is clicked.
+     * @param {jQuery} placeCommentIn The DOM element into which the comment should be placed.
+     */
+    function injectAutoLinkReviewQueue( where, what, placeCommentIn ) {
+      // Don't add auto links if one already exists
+      var existingAutoLinks = where.siblings( ".comment-auto-link" );
+      if( existingAutoLinks && existingAutoLinks.length ) {
+        return;
+      }
+
+      var _autoLinkAction = function(){
+        what( placeCommentIn, Target.EditSummaryQuestion );
+      };
+      var autoLink = $('<span class="lsep"> | </span>').add($('<a class="comment-auto-link" style="float:right;">auto</a>').click(_autoLinkAction));
       autoLink.insertAfter( where );
     }
 
