@@ -85,6 +85,13 @@ You can download the [user script][7] or [preview the code][12].
 
 Here are some [useful browser-specific instructions][11] on getting it to work. For more information about user scripts, check out the [[tag:script] tag wiki][13].
 
+## Privacy policy
+(Because Chrome store wants it)
+
+We track nothing, we record nothing, we know nothing.
+
+Everything happens in your browser.
+
 ## Credits
 
 * [Benjol][14], see [all versions][15] and [commits][16]
