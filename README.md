@@ -67,14 +67,30 @@ This script was inspired by answers to [this question on meta][1].
 
 ## Installation
 
-Click [HERE][7] to install the user script. (**warning** Google is making things difficult for non-store user scripts. A workaround is explained [here][8]. Or use a script manager, like [tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=en). **NEW** [Derek][9] has kindly uploaded the script into the [Chrome store][10].
+#### Mozilla Firefox
 
-For other browser-specific instructions, read the instructions [here][11])
+[Install the add-on][45].
 
-Click [HERE][12] to preview the code.
+#### Google Chrome
 
-For more information about user scripts, check out the [tag:script] tag wiki [here][13].
+[Install the extension][46].
 
+#### Opera
+
+[Install the add-on][47].
+
+#### Other browsers, including Safari:
+
+You can download the [user script][7] or [preview the code][12].
+
+Here are some [useful browser-specific instructions][11] on getting it to work. For more information about user scripts, check out the [[tag:script] tag wiki][13].
+
+## Privacy policy
+(Because Chrome store wants it)
+
+We track nothing, we record nothing, we know nothing.
+
+Everything happens in your browser.
 
 ## Credits
 
@@ -99,12 +115,12 @@ All the people who noted bugs and made suggestions in the comments and answers [
   [4]: http://stackapps.com/a/3281/876
   [5]: http://i.stack.imgur.com/GjOkQm.png
   [6]: http://i.stack.imgur.com/GjOkQ.png
-  [7]: https://github.com/Benjol/SE-AutoReviewComments/raw/master/autoreviewcomments.user.js
+  [7]: https://github.com/Benjol/SE-AutoReviewComments/raw/master/dist/autoreviewcomments.user.js
   [8]: https://support.google.com/chrome_webstore/answer/2664769?p=crx_warning&rd=1
   [9]: http://stackapps.com/users/24114/derek
   [10]: https://chrome.google.com/webstore/detail/denkbaalahjlbbfnifkacdigaofcnogg
   [11]: http://stackapps.com/tags/script/info
-  [12]: https://github.com/Benjol/SE-AutoReviewComments/blob/master/autoreviewcomments.user.js
+  [12]: https://github.com/Benjol/SE-AutoReviewComments/blob/master/dist/autoreviewcomments.user.js
   [13]: http://stackapps.com/tags/script/info
   [14]: http://stackexchange.com/users/6711/benjol
   [15]: https://github.com/Benjol/SE-AutoReviewComments/releases
@@ -137,4 +153,6 @@ All the people who noted bugs and made suggestions in the comments and answers [
   [42]: https://github.com/Benjol/SE-AutoReviewComments/releases/tag/v1.3.2
   [43]: https://github.com/Benjol/SE-AutoReviewComments/commits?author=IzzySoft
   [44]: http://stackapps.com/q/2116
-
+  [45]: https://addons.mozilla.org/en-US/firefox/addon/se-autoreviewcomments
+  [46]: https://chrome.google.com/webstore/detail/autoreviewcomments/bcfoamnigomkoaaiceppbbdlembpeejc
+  [47]: https://addons.opera.com/en/extensions/details/se-autoreviewcomments/
