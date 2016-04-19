@@ -106,6 +106,9 @@
   }
 
   .auto-review-comments.popup .main .action-list li label .quick-insert {
+    /* Hide the whole button by default. We'll show it when the li is hovered */
+    display: none;
+
     position: absolute;
     top: 0;
     right: 0;
@@ -113,11 +116,22 @@
     margin: 0;
     font-size: 300%;
     color: transparent;
-    background-color: transparent;
     border: none;
     transition: .3s;
     text-shadow: 0 0 1px #fff;
     cursor: pointer;
+
+    /* Override default button styles */
+    background-color: rgba(0,0,0,0.1);
+    background: rgba(0,0,0,0.1);
+
+    box-shadow: none;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+  }
+
+  .auto-review-comments.popup .main .action-list li:hover label .quick-insert {
+    display: block;
   }
 
   .auto-review-comments.popup .main .action-list li label .quick-insert:hover {

@@ -273,18 +273,23 @@ with_jquery(function ($) {
     }
 
     //Replace contents of element with a textarea (containing markdown of contents), and save/cancel buttons
-    function ToEditable(el) {
+    function ToEditable(popup, el) {
       var backup = el.html();
       var html = Tag(el.html().replace(greeting, ''));  //remove greeting before editing..
       if(html.indexOf('<textarea') > -1) return; //don't want to create a new textarea inside this one!
       var txt = $('<textarea />').val(htmlToMarkDown(html));
+
+      // Disable quick-insert while editing.
+      el.siblings(".quick-insert").hide();
+      // Disable insert while editing.
+      $(".popup-submit", popup).prop("disabled", true);
 
       BorkFor(el); //this is a hack
       //save/cancel links to add to textarea
       var actions = $('<div class="actions">');
       var commands = $('<a>save</a>').click(function () { SaveEditable($(this).parent().parent()); UnborkFor(el); })
                       .add('<span class="lsep"> | </span>')
-                      .add($('<a>cancel</a>').click(function () { CancelEditable($(this).parent().parent(), backup); UnborkFor(el); }));
+                      .add($('<a>cancel</a>').click(function () { el.siblings(".quick-insert").show(); $(".popup-submit", popup).prop("disabled", false); CancelEditable($(this).parent().parent(), backup); UnborkFor(el); }));
       actions.append(commands);
 
       //set contents of element to textarea with links
@@ -334,8 +339,6 @@ with_jquery(function ($) {
       ul.empty();
       for(var i = 0; i < GetStorage("commentcount"); i++) {
         var commentName = GetStorage('name-' + i);
-        //var commenttype = GetCommentType(GetStorage('name-' + i));
-        //if(commenttype == "any" || (commenttype == popup.posttype)) {
         if( IsCommentValidForPostType( commentName, popup.posttype ) ) {
           commentName = commentName.replace( Target.MATCH_ALL, "" );
           var desc = GetStorage('desc-' + i).replace(/\$SITENAME\$/g, sitename).replace(/\$SITEURL\$/g, siteurl).replace(/\$MYUSERID\$/g, myuserid).replace(/\$/g, "$$$");
@@ -362,14 +365,8 @@ with_jquery(function ($) {
       return ( -1 < designator.indexOf( postType ) );
     }
 
-    function GetCommentType(comment) {
-      if(comment.indexOf('[Q]') > -1) return Target.CommentQuestion;
-      if(comment.indexOf('[A]') > -1) return Target.CommentAnswer;
-      return "any";
-    }
-
     function AddOptionEventHandlers(popup) {
-      popup.find('label > span').dblclick(function () { ToEditable($(this)); });
+      popup.find('label > span').dblclick(function () { ToEditable(popup, $(this)); });
       popup.find('label > .quick-insert').click(function () {
         var parent = $(this).parent();
         var li = parent.parent();
@@ -556,6 +553,7 @@ with_jquery(function ($) {
     attachAutoLinkInjector( ".js-add-link", findCommentElements, injectAutoLink, autoLinkAction );
     attachAutoLinkInjector( ".edit-post", findEditSummaryElements, injectAutoLinkEdit, autoLinkAction );
     attachAutoLinkInjector( ".close-question-link", findClosureElements, injectAutoLinkClosure, autoLinkAction );
+    attachAutoLinkInjector( ".review-actions input:first", findReviewQueueElements, injectAutoLinkReviewQueue, autoLinkAction );
 
     /**
      * A locator for the help link next to the comment box under a post and the textarea for the comment.
@@ -592,6 +590,17 @@ with_jquery(function ($) {
       var placeCommentIn = injectNextTo;
       return [ injectNextTo, placeCommentIn ];
     }
+    /**
+     * A locator for the edit summary you get in the "Help and Improvement" review queue.
+     * @param {jQuery} where A DOM element, near which we're looking for the location where to inject our link.
+     * @returns {[jQuery]} The DOM element next to which the link should be inserted and the element into which the
+     *                     comment should be placed.
+     */
+    function findReviewQueueElements( where ) {
+      var injectNextTo = $(".text-counter");
+      var placeCommentIn = $(".edit-comment");
+      return [ injectNextTo, placeCommentIn ];
+    }
 
     /**
      * Inject the auto link next to the given DOM element.
@@ -600,6 +609,12 @@ with_jquery(function ($) {
      * @param {jQuery} placeCommentIn The DOM element into which the comment should be placed.
      */
     function injectAutoLink( where, what, placeCommentIn ) {
+      // Don't add auto links if one already exists
+      var existingAutoLinks = where.siblings( ".comment-auto-link" );
+      if( existingAutoLinks && existingAutoLinks.length ) {
+        return;
+      }
+
       var posttype = where.parents(".question, .answer").attr("class").split(' ')[0]; //slightly fragile
       if( "answer" == posttype ) posttype = Target.CommentAnswer;
       if( "question" == posttype ) posttype = Target.CommentQuestion;
@@ -616,7 +631,13 @@ with_jquery(function ($) {
      * @param {Function} what The function that will be called when the link is clicked.
      * @param {jQuery} placeCommentIn The DOM element into which the comment should be placed.
      */
-    function injectAutoLinkEdit( where, what, placeCommentIn ){
+    function injectAutoLinkEdit( where, what, placeCommentIn ) {
+      // Don't add auto links if one already exists
+      var existingAutoLinks = where.siblings( ".comment-auto-link" );
+      if( existingAutoLinks && existingAutoLinks.length ) {
+        return;
+      }
+
       where.css( "width", "510px" );
       where.siblings( ".actual-edit-overlay" ).css( "width", "510px" );
 
@@ -637,10 +658,36 @@ with_jquery(function ($) {
      * @param {jQuery} placeCommentIn The DOM element into which the comment should be placed.
      */
     function injectAutoLinkClosure( where, what, placeCommentIn ) {
+      // Don't add auto links if one already exists
+      var existingAutoLinks = where.siblings( ".comment-auto-link" );
+      if( existingAutoLinks && existingAutoLinks.length ) {
+        return;
+      }
+      
       var _autoLinkAction = function(){
         what( placeCommentIn, Target.Closure );
       };
       var autoLink = $('<span class="lsep"> | </span>').add($('<a class="comment-auto-link">auto</a>').click(_autoLinkAction));
+      autoLink.insertAfter( where );
+    }
+
+    /**
+     * Inject hte auto link next to the "characters left" counter below the edit summary in the review queue.
+     * @param {jQuery} where The DOM element next to which we'll place the link.
+     * @param {Function} what The function that will be called when the link is clicked.
+     * @param {jQuery} placeCommentIn The DOM element into which the comment should be placed.
+     */
+    function injectAutoLinkReviewQueue( where, what, placeCommentIn ) {
+      // Don't add auto links if one already exists
+      var existingAutoLinks = where.siblings( ".comment-auto-link" );
+      if( existingAutoLinks && existingAutoLinks.length ) {
+        return;
+      }
+
+      var _autoLinkAction = function(){
+        what( placeCommentIn, Target.EditSummaryQuestion );
+      };
+      var autoLink = $('<span class="lsep"> | </span>').add($('<a class="comment-auto-link" style="float:right;">auto</a>').click(_autoLinkAction));
       autoLink.insertAfter( where );
     }
 
@@ -700,7 +747,7 @@ with_jquery(function ($) {
       StackExchange.helpers.bindMovablePopups();
 
       //Get user info and inject
-      var userid = getUserId($(this));
+      var userid = getUserId(targetObject);
       getUserInfo(userid, popup);
       OP = getOP();
 
