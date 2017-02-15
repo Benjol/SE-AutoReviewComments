@@ -135,13 +135,8 @@ with_jquery(function ($) {
     }
 
     // Get the Id of the logged-in user
-    function getLoggedInUserId() {
-      var profileMeElement = document.getElementsByClassName('profile-me');
-      if ( profileMeElement.length && profileMeElement[0].href.match(/\/users\/(\d+)\/.*/i) ) {
-        return RegExp.$1;
-      } else {
-        return '';
-      }
+    function getLoggedInUserId() { 
+      return StackExchange.options && StackExchange.options.user ? StackExchange.options.user.userId : ''; 
     }
 
     //Get userId for post
