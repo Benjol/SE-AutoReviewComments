@@ -14,6 +14,9 @@
 // @include /^https?:\/\/(.*\.)?mathoverflow\.com/.*$/
 // @include /^https?:\/\/discuss\.area51\.stackexchange\.com/.*$/
 // @include /^https?:\/\/stackapps\.com/.*$/
+// @exclude *://chat.stackexchange.com/*
+// @exclude *://chat.stackoverflow.com/*
+// @exclude *://chat.meta.stackexchange.com/*
 // ==/UserScript==
 */
 
