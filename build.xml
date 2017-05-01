@@ -212,25 +212,38 @@
 
   <!-- Build the userscript. -->
   <target name="userscript" depends="preinit, copy-userscript">
+    <replace dir="${buildDir}" token="@ant-sites@" value="${sites}" encoding="${encoding}"/>
     <!-- Create a fileset that includes only the source userscript. -->
     <fileset dir="${buildDir}" id="userscript-path">
       <include name="*.user.js"/>
     </fileset>
     <!-- Add a "min" into the filename for the output filename. -->
-    <pathconvert property="userscript-path-out" refid="userscript-path">
+    <pathconvert property="userscript-path-minified" refid="userscript-path">
       <mapper>
         <regexpmapper from="(.*?)\.user.js$" to="\1.min.user.js"/>
       </mapper>
     </pathconvert>
+
     <!-- Convert the path to a property. -->
     <pathconvert property="userscript-path" refid="userscript-path"/>
+
+    <!-- Retrieve the filename of the userscript. -->
+    <basename property="userscript-filename" file="${userscript-path}" />
+    <basename property="userscript-filename-minified" file="${userscript-path-minified}" />
+    <echo message="Compiling '${userscript-filename}' -> '${userscript-filename-minified}'"/>
+
     <!-- Invoke the Google Closure Compiler with the generated file names. -->
     <java jar="${sdk.closurecompiler}" fork="true">
       <arg value="--js"/>
       <arg value="${userscript-path}"/>
       <arg value="--js_output_file"/>
-      <arg value="${userscript-path-out}"/>
+      <arg value="${userscript-path-minified}"/>
     </java>
+
+    <!-- Replace raw source links in compiled and plain version of the userscript.
+         These are used by the auto-updater. -->
+    <replace file="${userscript-path}" token="@ant-userscript-filename@" value="${userscript-filename}" encoding="${encoding}"/>
+    <replace file="${userscript-path-minified}" token="@ant-userscript-filename@" value="${userscript-filename-minified}" encoding="${encoding}"/>
 
     <!-- Move the compressed and the uncompressed version to the output folder. -->
     <move todir="${dist}">
