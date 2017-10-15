@@ -1,6 +1,6 @@
 /** @preserve
 // ==UserScript==
-// @name           AutoReviewComments - Nisarg
+// @name           AutoReviewComments
 // @namespace      benjol
 // @version        1.4.3
 // @description    No more re-typing the same comments over and over!
@@ -124,7 +124,7 @@ function CheckForNewVersion(popup) {
     var showGreeting = false;
 
     var cssTemplate = '<style>.auto-review-comments.popup{position:absolute;display:block;width:690px;padding:15px 15px 10px}.auto-review-comments.popup .float-left{float:left}.auto-review-comments.popup .float-right{float:right}.auto-review-comments.popup .throbber{display:none}.auto-review-comments.popup .remoteerror{color:red}.auto-review-comments.popup>div>textarea{width:100%;height:442px}.auto-review-comments.popup .main{overflow:hidden}.auto-review-comments.popup .main .userinfo{padding:5px;margin-bottom:7px;background:#eaefef}.auto-review-comments.popup .main .action-list{height:440px;margin:0 0 7px 0 !important;overflow-y:auto}.auto-review-comments.popup .main .action-list li{width:100%;padding:0;transition:.1s}.auto-review-comments.popup .main .action-list li:hover{background-color:#f2f2f2}.auto-review-comments.popup .main .action-list li.action-selected:hover{background-color:#e6e6e6}.auto-review-comments.popup .main .action-list li input{display:none}.auto-review-comments.popup .main .action-list li label{position:relative;display:block;padding:10px}.auto-review-comments.popup .main .action-list li label .action-name{display:block;margin-bottom:3px;cursor:default}.auto-review-comments.popup .main .action-list li label .action-desc{margin:0;color:#888;cursor:default}.auto-review-comments.popup .main .action-list li label .action-name textarea,.auto-review-comments.popup .main .action-list li label .action-desc textarea{width:99%;margin:0 0 -4px 0}.auto-review-comments.popup .main .action-list li label .action-desc textarea{height:42px}.auto-review-comments.popup .main .action-list li label .quick-insert{display:none;position:absolute;top:0;right:0;height:100%;margin:0;font-size:300%;color:transparent;border:0;transition:.3s;text-shadow:0 0 1px #fff;cursor:pointer;background-color:rgba(0,0,0,0.1);background:rgba(0,0,0,0.1);box-shadow:none;-moz-box-shadow:none;-webkit-box-shadow:none}.auto-review-comments.popup .main .action-list li:hover label .quick-insert{display:block}.auto-review-comments.popup .main .action-list li label .quick-insert:hover{background-color:#222;color:#fff}.auto-review-comments.popup .main .share-tip{display:none}.auto-review-comments.popup .main .share-tip .customwelcome{width:300px}.auto-review-comments.popup .main .share-tip .remoteurl{display:block;width:400px}.auto-review-comments.popup .actions,.auto-review-comments.popup .main .popup-actions .actions{margin:6px}.auto-review-comments.popup .main .popup-actions .popup-submit{float:none;margin:0 0 5px 0}.auto-review-comments.announcement{padding:7px;margin-bottom:10px;background:orange;font-size:15px}.auto-review-comments.announcement .notify-close{display:block;float:right;margin:0 4px;padding:0 4px;border:2px solid black;cursor:pointer;line-height:17px}.auto-review-comments.announcement .notify-close a{color:black;text-decoration:none;font-weight:bold;font-size:16px}</style>';
-    var markupTemplate = '<div class="auto-review-comments popup" id="popup" style="z-index: 10000"> <div class="popup-close" id="close"><a title="close this popup (or hit Esc)">&#215;</a></div> <h2 class="handle">Which review comment to insert?</h2> <div class="main" id="main"> <div class="popup-active-pane"> <div class="userinfo" id="userinfo"> <img src="//sstatic.net/img/progress-dots.gif"/> </div> <ul class="action-list"> </ul> </div> <div class="share-tip" id="remote-popup"> enter url for remote source of comments (use import/export to create jsonp) <input class="remoteurl" id="remoteurl" type="text"/> <img class="throbber" id="throbber1" src="//sstatic.net/img/progress-dots.gif"/> <span class="remoteerror" id="remoteerror1"></span> <div class="float-left"> <input type="checkbox" id="remoteauto"/> <label title="get from remote on every page refresh" for="remoteauto">auto-get</label> </div> <div class="float-right"> <a class="remote-get">get now</a> <span class="lsep"> | </span> <a class="remote-save">save</a> <span class="lsep"> | </span> <a class="remote-cancel">cancel</a> </div> </div> <div class="share-tip" id="welcome-popup"> configure "welcome" message (empty=none): <div> <input class="customwelcome" id="customwelcome" type="text"/> </div> <div class="float-right"> <a class="welcome-force">force</a> <span class="lsep"> | </span> <a class="welcome-save">save</a> <span class="lsep"> | </span> <a class="welcome-cancel">cancel</a> </div> </div> <div class="popup-actions"> <div class="float-left actions"> <a title="close this popup (or hit Esc)" class="popup-actions-cancel">cancel</a> <span class="lsep"> | </span> <a title="see info about this popup (v1.4.3)" class="popup-actions-help" href="//github.com/Benjol/SE-AutoReviewComments" target="_blank">info</a> <span class="lsep"> | </span> <a class="popup-actions-see">see-through</a> <span class="lsep"> | </span> <a title="reset any custom comments" class="popup-actions-reset">reset</a> <span class="lsep"> | </span> <a title="use this to import/export all comments" class="popup-actions-impexp">import/export</a> <span class="lsep"> | </span> <a title="use this to hide/show all comments" class="popup-actions-toggledesc">show/hide desc</a> <span class="lsep"> | </span> <a title="setup remote source" class="popup-actions-remote">remote</a> <img class="throbber" id="throbber2"src="//sstatic.net/img/progress-dots.gif"/> <span class="remoteerror" id="remoteerror2"></span> <span class="lsep"> | </span> <a title="configure welcome" class="popup-actions-welcome">welcome</a> </div> <div class="float-right"> <input class="popup-submit" type="button" disabled="disabled" value="Insert"> </div> </div> </div> </div>';
+    var markupTemplate = '<div class="auto-review-comments popup" id="popup"> <div class="popup-close" id="close"><a title="close this popup (or hit Esc)">&#215;</a></div> <h2 class="handle">Which review comment to insert?</h2> <div class="main" id="main"> <div class="popup-active-pane"> <div class="userinfo" id="userinfo"> <img src="//sstatic.net/img/progress-dots.gif"/> </div> <ul class="action-list"> </ul> </div> <div class="share-tip" id="remote-popup"> enter url for remote source of comments (use import/export to create jsonp) <input class="remoteurl" id="remoteurl" type="text"/> <img class="throbber" id="throbber1" src="//sstatic.net/img/progress-dots.gif"/> <span class="remoteerror" id="remoteerror1"></span> <div class="float-left"> <input type="checkbox" id="remoteauto"/> <label title="get from remote on every page refresh" for="remoteauto">auto-get</label> </div> <div class="float-right"> <a class="remote-get">get now</a> <span class="lsep"> | </span> <a class="remote-save">save</a> <span class="lsep"> | </span> <a class="remote-cancel">cancel</a> </div> </div> <div class="share-tip" id="welcome-popup"> configure "welcome" message (empty=none): <div> <input class="customwelcome" id="customwelcome" type="text"/> </div> <div class="float-right"> <a class="welcome-force">force</a> <span class="lsep"> | </span> <a class="welcome-save">save</a> <span class="lsep"> | </span> <a class="welcome-cancel">cancel</a> </div> </div> <div class="popup-actions"> <div class="float-left actions"> <a title="close this popup (or hit Esc)" class="popup-actions-cancel">cancel</a> <span class="lsep"> | </span> <a title="see info about this popup (v1.4.3)" class="popup-actions-help" href="//github.com/Benjol/SE-AutoReviewComments" target="_blank">info</a> <span class="lsep"> | </span> <a class="popup-actions-see">see-through</a> <span class="lsep"> | </span> <a title="reset any custom comments" class="popup-actions-reset">reset</a> <span class="lsep"> | </span> <a title="use this to import/export all comments" class="popup-actions-impexp">import/export</a> <span class="lsep"> | </span> <a title="use this to hide/show all comments" class="popup-actions-toggledesc">show/hide desc</a> <span class="lsep"> | </span> <a title="setup remote source" class="popup-actions-remote">remote</a> <img class="throbber" id="throbber2"src="//sstatic.net/img/progress-dots.gif"/> <span class="remoteerror" id="remoteerror2"></span> <span class="lsep"> | </span> <a title="configure welcome" class="popup-actions-welcome">welcome</a> </div> <div class="float-right"> <input class="popup-submit" type="button" disabled="disabled" value="Insert"> </div> </div> </div> </div>';
     var messageTemplate = '<div class="auto-review-comments announcement" id="announcement"> <span class="notify-close"> <a title="dismiss this notification">x</a> </span> <strong>$TITLE$</strong> $BODY$ </div>';
     var optionTemplate = '<li> <input id="comment-$ID$" type="radio" name="commentreview"/> <label for="comment-$ID$"> <span id="name-$ID$" class="action-name">$NAME$</span> <span id="desc-$ID$" class="action-desc">$DESCRIPTION$</span> <button class="quick-insert" title="Insert now">↓</button> </label> </li>';
 
@@ -140,8 +140,7 @@ function CheckForNewVersion(popup) {
       CommentQuestion : "Q",
       CommentAnswer : "A",
       EditSummaryAnswer : "EA",
-      EditSummaryQuestion : "EQ",
-	  CustomeRejectionComment : "CRC"
+      EditSummaryQuestion : "EQ"
     };
 
     //default comments
@@ -638,7 +637,6 @@ function CheckForNewVersion(popup) {
     attachAutoLinkInjector( ".edit-post", findEditSummaryElements, injectAutoLinkEdit, autoLinkAction );
     attachAutoLinkInjector( ".close-question-link", findClosureElements, injectAutoLinkClosure, autoLinkAction );
     attachAutoLinkInjector( ".review-actions input:first", findReviewQueueElements, injectAutoLinkReviewQueue, autoLinkAction );
-      attachAutoLinkInjector( ".review-actions > input[data-result-type=3]", findEditsReviewQueueElements, injectAutoLinkEditsReviewQueue, autoLinkAction );
 
     /**
      * A locator for the help link next to the comment box under a post and the textarea for the comment.
@@ -687,19 +685,6 @@ function CheckForNewVersion(popup) {
       return [ injectNextTo, placeCommentIn ];
     }
 
-	/**
-     * A locator for the custom rejection reason you get in the "Suggested edits" review queue.
-     * @param {jQuery} where A DOM element, near which we're looking for the location where to inject our link.
-     * @returns {[jQuery]} The DOM element next to which the link should be inserted and the element into which the
-     *                     comment should be placed.
-     */
-    function findEditsReviewQueueElements( where ) {
-      var injectNextTo = $(".text-counter");
-      var placeCommentIn = $(".custom-reason-text");
-      return [ injectNextTo, placeCommentIn ];
-    }
-
-	
     /**
      * Inject the auto link next to the given DOM element.
      * @param {jQuery} where The DOM element next to which we'll place the link.
@@ -770,7 +755,7 @@ function CheckForNewVersion(popup) {
     }
 
     /**
-     * Inject the auto link next to the "characters left" counter below the edit summary in the review queue.
+     * Inject hte auto link next to the "characters left" counter below the edit summary in the review queue.
      * @param {jQuery} where The DOM element next to which we'll place the link.
      * @param {Function} what The function that will be called when the link is clicked.
      * @param {jQuery} placeCommentIn The DOM element into which the comment should be placed.
@@ -784,26 +769,6 @@ function CheckForNewVersion(popup) {
 
       var _autoLinkAction = function(){
         what( placeCommentIn, Target.EditSummaryQuestion );
-      };
-      var autoLink = $('<span class="lsep"> | </span>').add($('<a class="comment-auto-link" style="float:right;">auto</a>').click(_autoLinkAction));
-      autoLink.insertAfter( where );
-    }
-	
-    /**
-     * Inject the auto link next to the "characters left" counter below the edit summary in the review queue.
-     * @param {jQuery} where The DOM element next to which we'll place the link.
-     * @param {Function} what The function that will be called when the link is clicked.
-     * @param {jQuery} placeCommentIn The DOM element into which the comment should be placed.
-     */
-    function injectAutoLinkEditsReviewQueue( where, what, placeCommentIn ) {
-      // Don't add auto links if one already exists
-      var existingAutoLinks = where.siblings( ".comment-auto-link" );
-      if( existingAutoLinks && existingAutoLinks.length ) {
-        return;
-      }
-
-      var _autoLinkAction = function(){
-        what( placeCommentIn, Target.CustomeRejectionComment );
       };
       var autoLink = $('<span class="lsep"> | </span>').add($('<a class="comment-auto-link" style="float:right;">auto</a>').click(_autoLinkAction));
       autoLink.insertAfter( where );
