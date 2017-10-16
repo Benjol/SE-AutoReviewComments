@@ -141,7 +141,7 @@ function CheckForNewVersion(popup) {
       CommentAnswer : "A",
       EditSummaryAnswer : "EA",
       EditSummaryQuestion : "EQ",
-	  SuggestedEditRejection: "SER"
+      SuggestedEditRejection: "SER"
     };
 
     //default comments
@@ -769,7 +769,7 @@ function CheckForNewVersion(popup) {
     }
 
     /**
-     * Inject hte auto link next to the "characters left" counter below the edit summary in the review queue.
+     * Inject the auto link next to the "characters left" counter below the edit summary in the review queue.
      * @param {jQuery} where The DOM element next to which we'll place the link.
      * @param {Function} what The function that will be called when the link is clicked.
      * @param {jQuery} placeCommentIn The DOM element into which the comment should be placed.
@@ -789,7 +789,7 @@ function CheckForNewVersion(popup) {
     }
 
     /**
-     * Inject hte auto link next to the "characters left" counter below the "Causes harm" textbox in "Suggested Edits" review queue.
+     * Inject the auto link next to the "characters left" counter below the "Causes harm" textbox in "Suggested Edits" review queue.
      * @param {jQuery} where: The DOM element next to which we'll place the link.
      * @param {Function} what: The function that will be called when the link is clicked.
      * @param {jQuery} placeCommentIn: The DOM element into which the comment should be placed.
