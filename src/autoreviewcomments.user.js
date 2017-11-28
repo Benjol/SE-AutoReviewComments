@@ -7,6 +7,7 @@
 // @homepage       @ant-homepage@
 // @grant          none
 // @ant-sites-userscript@
+// @ant-excludes-userscript@
 // ==/UserScript==
 */
 
@@ -135,8 +136,8 @@ with_jquery(function ($) {
     }
 
     // Get the Id of the logged-in user
-    function getLoggedInUserId() { 
-      return StackExchange.options && StackExchange.options.user ? StackExchange.options.user.userId : ''; 
+    function getLoggedInUserId() {
+      return StackExchange.options && StackExchange.options.user ? StackExchange.options.user.userId : '';
     }
 
     //Get userId for post
@@ -724,7 +725,7 @@ with_jquery(function ($) {
       if( existingAutoLinks && existingAutoLinks.length ) {
         return;
       }
-      
+
       var _autoLinkAction = function(){
         what( placeCommentIn, Target.Closure );
       };

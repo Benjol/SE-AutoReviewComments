@@ -9,6 +9,7 @@
   <property name="build.prop" value="${basedir}/build.properties"/>
   <!-- The sites our script should run on are defined in this file -->
   <property name="build.sites" value="${basedir}/build.sites"/>
+  <property name="build.excludes" value="${basedir}/build.excludes"/>
   <property name="encoding" value="UTF-8"/>
 
   <property name="name" value="autoreviewcomments"/>
@@ -117,7 +118,7 @@
     </apply>
   </target>
 
-  <target name="tokenreplace" depends="sites, sites-userscript, sites-chrome, sites-firefox, compress-templates">
+  <target name="tokenreplace" depends="sites, sites-userscript, excludes-userscript, sites-chrome, sites-firefox, compress-templates">
     <!-- Replace templates. -->
     <loadfile srcfile="${buildDir}/.templates/css.html" property="ant-templates-css"/>
     <replace dir="${buildDir}" token="@ant-templates-css@" value="${ant-templates-css}"/>
@@ -137,6 +138,7 @@
 
     <replace dir="${buildDir}" token="@ant-sites@" value="${sites}" encoding="${encoding}"/>
     <replace dir="${buildDir}" token="// @ant-sites-userscript@" value="${sites-userscript}" encoding="${encoding}"/>
+    <replace dir="${buildDir}" token="// @ant-excludes-userscript@" value="${excludes-userscript}" encoding="${encoding}"/>
     <replace dir="${buildDir}" token="&quot;@ant-sites-chrome-list@&quot;" value="${sites-chrome-list}"
              encoding="${encoding}"/>
     <replace dir="${buildDir}" token="&quot;@ant-sites-firefox-list@&quot;" value="${sites-firefox-list}"
@@ -208,6 +210,17 @@
     </loadfile>
     <!-- Remove last trailing comma from property. -->
     <propertyregex property="sites-firefox-list" input="${sites-firefox-list-in}" regexp=",[\r\n]*$" replace=""/>
+  </target>
+
+  <!-- Construct the list of exclude sites as required by the userscript.
+       For reference see: http://wiki.greasespot.net/Include_and_exclude_rules -->
+  <target name="excludes-userscript">
+    <loadfile property="excludes-userscript" srcFile="${build.excludes}">
+      <filterchain>
+        <!-- Prefix all lines with the mandatory @exclude comment. -->
+        <prefixlines prefix="// @exclude "/>
+      </filterchain>
+    </loadfile>
   </target>
 
   <!-- Build the userscript. -->
