@@ -345,6 +345,7 @@ with_jquery(function ($) {
       }
       ShowHideDescriptions(popup);
       AddOptionEventHandlers(popup);
+      AddSearchEventHandlers(popup);
     }
 
     /**
@@ -389,6 +390,71 @@ with_jquery(function ($) {
           popup.find('.popup-submit').trigger('click');
         }
       });
+    }
+
+    function filterOn(popup, text) {
+      var words = text.toLowerCase().split(/\s+/).filter(
+        function(word) {
+          return word.length > 0;
+        }
+      );
+
+      popup.find('.action-list > li').each(
+        function (idx, item) {
+          var show = true,
+              li = $(item),
+              title = li.find('.action-name').text().toLowerCase(),
+              desc = li.find('.action-desc').text().toLowerCase();
+
+          words.forEach(
+            function(word) {
+              show = show && ((title.indexOf(word) >= 0) || (desc.indexOf(word) >= 0));
+            }
+          );
+
+          if (show) {
+            li.show();
+          }
+          else {
+            li.hide();
+          }
+        }
+      );
+    }
+
+    function AddSearchEventHandlers(popup) {
+      var sbox = popup.find('.searchbox'),
+          stext = sbox.find('.searchfilter'),
+          main = popup.find('#main'),
+          kicker = popup.find('.popup-actions-filter'),
+          shown = false;
+
+      kicker.click( function() {
+        if (shown) {
+          sbox.hide();
+          stext.text('');
+          filterOn(popup, '');
+        }
+        else {
+          sbox.show();
+          stext.focus();
+        }
+
+        shown = ! shown;
+
+        return false;
+      });
+
+      var filterOnText = function() {
+        var text = stext.val();
+        filterOn(popup, text);
+      }
+
+      stext.on("keydown change search cut paste",
+        function() {
+          setTimeout( filterOnText, 100 );
+        }
+      );
     }
 
     //Adjust the descriptions so they show or hide based on the user's preference.
