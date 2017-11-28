@@ -17,6 +17,7 @@
 // @exclude *://chat.stackexchange.com/*
 // @exclude *://chat.stackoverflow.com/*
 // @exclude *://chat.meta.stackexchange.com/*
+
 // ==/UserScript==
 */
 
@@ -226,8 +227,8 @@ function CheckForNewVersion(popup) {
     }
 
     // Get the Id of the logged-in user
-    function getLoggedInUserId() { 
-      return StackExchange.options && StackExchange.options.user ? StackExchange.options.user.userId : ''; 
+    function getLoggedInUserId() {
+      return StackExchange.options && StackExchange.options.user ? StackExchange.options.user.userId : '';
     }
 
     //Get userId for post
@@ -749,7 +750,7 @@ function CheckForNewVersion(popup) {
       if( existingAutoLinks && existingAutoLinks.length ) {
         return;
       }
-      
+
       var _autoLinkAction = function(){
         what( placeCommentIn, Target.Closure );
       };

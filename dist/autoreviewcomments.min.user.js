@@ -15,6 +15,10 @@
 // @include /^https?:\/\/(.*\.)?mathoverflow\.com/.*$/
 // @include /^https?:\/\/discuss\.area51\.stackexchange\.com/.*$/
 // @include /^https?:\/\/stackapps\.com/.*$/
+// @exclude *://chat.stackexchange.com/*
+// @exclude *://chat.stackoverflow.com/*
+// @exclude *://chat.meta.stackexchange.com/*
+
 // ==/UserScript==
 */
 function with_jquery(d){var u=document.createElement("script");u.type="text/javascript";u.textContent="("+d.toString()+")(jQuery)";document.body.appendChild(u)}
