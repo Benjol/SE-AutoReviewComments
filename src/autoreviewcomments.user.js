@@ -135,8 +135,8 @@ with_jquery(function ($) {
     }
 
     // Get the Id of the logged-in user
-    function getLoggedInUserId() { 
-      return StackExchange.options && StackExchange.options.user ? StackExchange.options.user.userId : ''; 
+    function getLoggedInUserId() {
+      return StackExchange.options && StackExchange.options.user ? StackExchange.options.user.userId : '';
     }
 
     //Get userId for post
@@ -427,28 +427,36 @@ with_jquery(function ($) {
           stext = sbox.find('.searchfilter'),
           main = popup.find('#main'),
           kicker = popup.find('.popup-actions-filter'),
-          shown = false;
+          storageKey = "showFilter",
+          shown = GetStorage(storageKey) == "show";
 
-      kicker.click( function() {
+      var showHideFilter = function() {
         if (shown) {
+          sbox.show();
+          stext.focus();
+          SetStorage(storageKey, "show");
+        }
+        else {
           sbox.hide();
           stext.text('');
           filterOn(popup, '');
+          SetStorage(storageKey, "hide");
         }
-        else {
-          sbox.show();
-          stext.focus();
-        }
-
-        shown = ! shown;
-
-        return false;
-      });
+      };
 
       var filterOnText = function() {
         var text = stext.val();
         filterOn(popup, text);
-      }
+      };
+
+      showHideFilter();
+
+      kicker.click( function() {
+        shown = ! shown;
+        showHideFilter();
+
+        return false;
+      });
 
       stext.on("keydown change search cut paste",
         function() {
@@ -724,7 +732,7 @@ with_jquery(function ($) {
       if( existingAutoLinks && existingAutoLinks.length ) {
         return;
       }
-      
+
       var _autoLinkAction = function(){
         what( placeCommentIn, Target.Closure );
       };
