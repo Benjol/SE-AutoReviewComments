@@ -459,7 +459,7 @@ with_jquery(function ($) {
         return false;
       });
 
-      stext.on("keydown change search cut paste",
+      stext.on("keydown change cut paste",
         function() {
           setTimeout( filterOnText, 100 );
         }
