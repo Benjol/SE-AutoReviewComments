@@ -37,10 +37,12 @@ with_jquery(function($) {
     var greeting = GetStorage("WelcomeMessage") == "NONE" ? "" : GetStorage("WelcomeMessage");
     var showGreeting = false;
 
-    var cssTemplate = "@ant-templates-css@";
-    var markupTemplate = "@ant-templates-popup@";
-    var messageTemplate = "@ant-templates-message@";
-    var optionTemplate = "@ant-templates-option@";
+    // These are injection markers and MUST use single-quotes.
+    // The injected strings use double-quotes themselves, so that would result in parser errors.
+    var cssTemplate = '@ant-templates-css@';
+    var markupTemplate = '@ant-templates-popup@';
+    var messageTemplate = '@ant-templates-message@';
+    var optionTemplate = '@ant-templates-option@';
 
     /**
      * All the different "targets" a comment can be placed on.
