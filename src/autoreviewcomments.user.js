@@ -188,9 +188,9 @@ with_jquery(function($) {
       else if (r < 1E5) {
         var d = Math.floor(Math.round(r / 100) / 10);
         r = Math.round((r - d * 1E3) / 100);
-        return d + (r > 0 ? "." + r : "") + "k"
+        return d + (r > 0 ? "." + r : "") + "k";
       }
-      else return Math.round(r / 1E3) + "k"
+      else return Math.round(r / 1E3) + "k";
     }
 
     // Get the Id of the logged-in user
@@ -207,7 +207,7 @@ with_jquery(function($) {
       return "[NULL]";
     }
     function isNewUser(date) {
-      return (new Date() / 1000) - date < week
+      return (new Date() / 1000) - date < week;
     }
     function getOP() {
       var userlink = $("#question").find(".owner").find(".user-details > a:not([id])");
@@ -318,12 +318,12 @@ with_jquery(function($) {
     }
 
     function htmlToMarkDown(html) {
-      markdown = html.replace(/<a href="(.+?)">(.+?)<\/a>/g, "[$2]($1)").replace(/&amp;/g, "&");
+      var markdown = html.replace(/<a href="(.+?)">(.+?)<\/a>/g, "[$2]($1)").replace(/&amp;/g, "&");
       return markdown.replace(/<em>(.+?)<\/em>/g, "*$1*").replace(/<strong>(.+?)<\/strong>/g, "**$1**");
     }
 
     function markDownToHtml(markdown) {
-      html = markdown.replace(/\[([^\]]+)\]\((.+?)\)/g, "<a href=\"$2\">$1</a>");
+      var html = markdown.replace(/\[([^\]]+)\]\((.+?)\)/g, "<a href=\"$2\">$1</a>");
       return html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/\*([^`]+?)\*/g, "<em>$1</em>");
     }
 
@@ -502,7 +502,6 @@ with_jquery(function($) {
     function AddSearchEventHandlers(popup) {
       var sbox = popup.find(".searchbox"),
         stext = sbox.find(".searchfilter"),
-        main = popup.find("#main"),
         kicker = popup.find(".popup-actions-filter"),
         storageKey = "showFilter",
         shown = GetStorage(storageKey) == "show";
@@ -685,7 +684,7 @@ with_jquery(function($) {
         // Try to locate the elements.
         var targetElements = locator(triggerElement);
         var injectNextTo = targetElements[0];
-        var placeCommentIn = targetElements[1]
+        var placeCommentIn = targetElements[1];
         // We didn't find it? Try again in 50ms.
         if (!injectNextTo.length) {
           setTimeout(function() {
@@ -870,9 +869,9 @@ with_jquery(function($) {
         ResetComments(); WriteComments(popup);
       });
       popup.find(".popup-actions-see").hover(function() {
-        popup.fadeTo("fast", "0.4").children().not("#close").fadeTo("fast", "0.0")
+        popup.fadeTo("fast", "0.4").children().not("#close").fadeTo("fast", "0.0");
       }, function() {
-        popup.fadeTo("fast", "1.0").children().not("#close").fadeTo("fast", "1.0")
+        popup.fadeTo("fast", "1.0").children().not("#close").fadeTo("fast", "1.0");
       });
       popup.find(".popup-actions-impexp").click(function() {
         ImportExport(popup);
@@ -891,7 +890,7 @@ with_jquery(function($) {
         var selected = popup.find("input:radio:checked");
         var markdown = htmlToMarkDown(selected.parent().find(".action-desc").html()).replace(/\[username\]/g, username).replace(/\[OP\]/g, OP);
         targetObject.val(markdown).focus(); //focus provokes character count test
-        var caret = markdown.indexOf("[type here]")
+        var caret = markdown.indexOf("[type here]");
         if (caret >= 0) targetObject[0].setSelectionRange(caret, caret + "[type here]".length);
         popup.fadeOutAndRemove();
       });
@@ -923,7 +922,7 @@ with_jquery(function($) {
       //We only actually perform the updates check when someone clicks, this should make it less costly, and more timely
       //also wrap it so that it only gets called the *FIRST* time we open this dialog on any given page (not much of an optimisation).
       if (typeof CheckForNewVersion == "function" && !window.VersionChecked) {
-        CheckForNewVersion(popup);
+        CheckForNewVersion(popup); // eslint-disable-line no-undef 
         window.VersionChecked = true;
       }
     }
