@@ -317,13 +317,42 @@ with_jquery(function($) {
       SetStorage("commentcount", Math.min(nameIndex, descIndex));
     }
 
+    // From https://stackoverflow.com/a/12034334/259953
+    var entityMapToHtml = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;"
+    };
+    var entityMapFromHtml = {
+      "&amp;": "&",
+      "&lt;": "<",
+      "&gt;": ">"
+    };
+
+    function escapeHtml(string) {
+      return String(string).replace(/[&<>]/g, function(s) {
+        return entityMapToHtml[s];
+      });
+    }
+
+    function unescapeHtml(string) {
+      return Object.keys(entityMapFromHtml).reduce(function(result, entity) {
+        return result.replace(new RegExp(entity, "g"), function(s) {
+          return entityMapFromHtml[s];
+        });
+      }, String(string));
+    }
+
     function htmlToMarkDown(html) {
-      var markdown = html.replace(/<a href="(.+?)">(.+?)<\/a>/g, "[$2]($1)").replace(/&amp;/g, "&");
-      return markdown.replace(/<em>(.+?)<\/em>/g, "*$1*").replace(/<strong>(.+?)<\/strong>/g, "**$1**");
+      var markdown = html
+        .replace(/<a href="(.+?)">(.+?)<\/a>/g, "[$2]($1)")
+        .replace(/<em>(.+?)<\/em>/g, "*$1*").replace(/<strong>(.+?)<\/strong>/g, "**$1**");
+      return unescapeHtml(markdown);
     }
 
     function markDownToHtml(markdown) {
-      var html = markdown.replace(/\[([^\]]+)\]\((.+?)\)/g, "<a href=\"$2\">$1</a>");
+      var html = escapeHtml(markdown)
+        .replace(/\[([^\]]+)\]\((.+?)\)/g, "<a href=\"$2\">$1</a>");
       return html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/\*([^`]+?)\*/g, "<em>$1</em>");
     }
 
@@ -416,7 +445,11 @@ with_jquery(function($) {
           var opt = optionTemplate.replace(/\$ID\$/g, i)
             .replace("$NAME$", commentName.replace(/\$/g, "$$$"))
             .replace("$DESCRIPTION$", (showGreeting ? greeting : "") + desc);
-          ul.append(opt);
+
+          // Create the selectable option with the HTML preview text.
+          var optionElement = $(opt);
+          $(".action-desc", optionElement).html(desc);
+          ul.append(optionElement);
         }
       }
       ShowHideDescriptions(popup);
