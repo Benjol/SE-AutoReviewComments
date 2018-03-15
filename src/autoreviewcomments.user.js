@@ -644,7 +644,7 @@ with_jquery(function ($) {
      *                     comment should be placed.
      */
     function findEditSummaryElements( where ) {
-      var divid = where.attr('href').replace('/posts/', '').replace('/edit', '');
+      var divid = where.attr('href').match(/posts\/(\d+)\/edit/)[1];
       var injectNextTo = $('#post-editor-' + divid).next().find('.edit-comment');
       var placeCommentIn = injectNextTo;
       return [ injectNextTo, placeCommentIn ];
