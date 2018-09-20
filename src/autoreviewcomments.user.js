@@ -23,15 +23,12 @@ with_jquery(function($) {
     //@ant-modules-autoupdater@
 
     var siteurl = window.location.hostname;
-    var arr = document.title.split(" - ");
-    var sitename = arr[arr.length - 1];
+    var sitename = StackExchange.options.site.name || "";
     var username = "user";
     var OP = "OP";
     var prefix = "AutoReviewComments-"; //prefix to avoid clashes in localstorage
     var myuserid = getLoggedInUserId();
 
-    if (sitename == "Stack Exchange")
-      sitename = arr[arr.length - 2]; //workaround for some SE sites (e.g. Area 51, Stack Apps)
     sitename = sitename.replace(/ ?Stack Exchange/, ""); //same for others ("Android Enthusiasts Stack Exchange", SR, and more)
     if (!GetStorage("WelcomeMessage")) SetStorage("WelcomeMessage", "Welcome to " + sitename + "! ");
     var greeting = GetStorage("WelcomeMessage") == "NONE" ? "" : GetStorage("WelcomeMessage");
