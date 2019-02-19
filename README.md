@@ -9,7 +9,7 @@ This script was inspired by answers to [this question on meta][1]. See also [her
 
 ![Thumbnail][3]
 
-##Features
+## Features
 
 1. **Read your comment before you post it!**
 
