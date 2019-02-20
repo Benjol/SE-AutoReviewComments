@@ -839,7 +839,7 @@ function CheckForNewVersion(popup) {
      */
     function findCommentElements(where) {
       var divid = where.parent().attr("id").replace("-link", "");
-      var injectNextTo = $("#" + divid).find(".comment-help-link");
+      var injectNextTo = $("#" + divid).find(".js-comment-help-link");
       var placeCommentIn = $("#" + divid).find("textarea");
       return [injectNextTo, placeCommentIn];
     }
