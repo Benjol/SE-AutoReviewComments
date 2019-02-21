@@ -823,7 +823,7 @@ function CheckForNewVersion(popup) {
       $("#content").delegate(triggerSelector, "click", function(event) {
         /** @type jQuery */
         var triggerElement = $(event.target);
-        _internalInjector(triggerElement);
+        _internalInjector(triggerElement, 0);
       });
     }
     attachAutoLinkInjector(".js-add-link", findCommentElements, injectAutoLink, autoLinkAction);
