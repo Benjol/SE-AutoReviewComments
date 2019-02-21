@@ -76,7 +76,7 @@ with_jquery(function($) {
       {
         Target: [Target.CommentAnswer],
         Name: "Nothing but a URL (and isn't spam)",
-        Description: "Whilst this may theoretically answer the question, <a href=\"//meta.stackoverflow.com/q/8259\">it would be preferable</a> to include the essential parts of the answer here, and provide the link for reference."
+        Description: "Whilst this may theoretically answer the question, <a href=\"//meta.stackexchange.com/q/8259\">it would be preferable</a> to include the essential parts of the answer here, and provide the link for reference."
       },
       {
         Target: [Target.CommentAnswer],
