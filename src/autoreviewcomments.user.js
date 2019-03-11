@@ -224,7 +224,7 @@ with_jquery(function($) {
       }
       $.ajax({
         type: "GET",
-        url: "//api.stackexchange.com/2.2/users/" + userid + "?site=" + siteurl + '&key=JFd3cm2iIaP5z0x0qK1lDA((' + "&jsonp=?",
+        url: "//api.stackexchange.com/2.2/users/" + userid + "?site=" + siteurl + '&key=5J)5cHN9KbyhE9Yf9S*G)g((' + "&jsonp=?",
         dataType: "jsonp",
         timeout: 2000,
         success: function(data) {
