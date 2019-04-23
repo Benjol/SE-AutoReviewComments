@@ -1,9 +1,39 @@
-# AutoReviewComments
-## Pro-forma comments for Stack Exchange
+> The project is currently not being actively maintained. </br>
+> If you submit a PR, there's a good chance it'll be merged.
 
-### No more re-typing the same comments over and over!
+<br />
+<div align="center">
+  <h1 align="center">AutoReviewComments</h1>
 
-This script adds a little 'auto' link next to all comments boxes. When you click the link, you see a popup with 6 configurable auto-comments (canned responses), which you can easily click to insert.
+  <p align="center">
+    Pro-forma comments for Stack Exchange
+    <br />
+    <a href="https://github.com/Benjol/SE-AutoReviewComments/issues"><strong>Contribute now »</strong></a>
+    <br />
+    <br />
+    <a href="http://stackapps.com/q/2116">StackApps.com</a>
+    ·
+    <a href="https://github.com/Benjol/SE-AutoReviewComments/graphs/contributors">Contributors</a>
+    </br>
+  </p>
+</div>
+
+### TOC
+
+- [Introduction](#no-more-re-typing-the-same-comments-over-and-over)
+- [Features](#features)
+- [Installation](#installation)
+    + [Mozilla Firefox](#mozilla-firefox)
+    + [Google Chrome](#google-chrome)
+    + [Opera](#opera)
+    + [Other browsers, including Safari:](#other-browsers-including-safari)
+- [Privacy policy](#privacy-policy)
+- [Credits](#credits)
+
+
+## No more re-typing the same comments over and over!
+
+This script adds a little 'auto' link next to all comments boxes. When you click the link, you see a popup with customizable auto-comments (canned responses), which you can easily click to insert.
 
 This script was inspired by answers to [this question on meta][1]. See also [here][2] for some history.
 
