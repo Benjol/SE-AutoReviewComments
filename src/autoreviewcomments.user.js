@@ -805,7 +805,7 @@ with_jquery(function($) {
       var _autoLinkAction = function() {
         what(placeCommentIn, posttype);
       };
-      var autoLink = $("<span class=\"lsep\"> | </span>").add($("<a class=\"comment-auto-link\">auto</a>").click(_autoLinkAction));
+      var autoLink = $("<span class=\"lsep\"> | </span>").add($("<a class=\"comment-auto-link\" style=\"margin-left: 1em;\">auto</a>").click(_autoLinkAction));
       autoLink.insertAfter(where);
     }
     /**
@@ -834,7 +834,7 @@ with_jquery(function($) {
       var _autoLinkAction = function() {
         what(placeCommentIn, posttype);
       };
-      var autoLink = $("<span class=\"lsep\"> | </span>").add($("<a class=\"comment-auto-link\">auto</a>").click(_autoLinkAction));
+      var autoLink = $("<span class=\"lsep\"> | </span>").add($("<a class=\"comment-auto-link\" style=\"margin-left: 1em;\">auto</a>").click(_autoLinkAction));
       autoLink.insertAfter(where);
     }
     /**
@@ -853,7 +853,7 @@ with_jquery(function($) {
       var _autoLinkAction = function() {
         what(placeCommentIn, Target.Closure);
       };
-      var autoLink = $("<span class=\"lsep\"> | </span>").add($("<a class=\"comment-auto-link\">auto</a>").click(_autoLinkAction));
+      var autoLink = $("<span class=\"lsep\"> | </span>").add($("<a class=\"comment-auto-link\" style=\"margin-left: 1em;\">auto</a>").click(_autoLinkAction));
       autoLink.insertAfter(where);
     }
 
@@ -873,7 +873,7 @@ with_jquery(function($) {
       var _autoLinkAction = function() {
         what(placeCommentIn, Target.EditSummaryQuestion);
       };
-      var autoLink = $("<span class=\"lsep\"> | </span>").add($("<a class=\"comment-auto-link\" style=\"float:right;\">auto</a>").click(_autoLinkAction));
+      var autoLink = $("<span class=\"lsep\"> | </span>").add($("<a class=\"comment-auto-link\" style=\"margin-left: 1em;\" style=\"float:right;\">auto</a>").click(_autoLinkAction));
       autoLink.insertAfter(where);
     }
 
