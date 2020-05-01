@@ -23,16 +23,11 @@ with_jquery(function($) {
     //@ant-modules-autoupdater@
 
     var siteurl = window.location.hostname;
-    var sitename = StackExchange.options.site.name || "";
+    var sitename = (StackExchange.options.site.name || "")
+      .replace(/ ?Stack Exchange/, ""); // Remove trailing " Stack Exchange" from site name, eg "Android Enthusiasts Stack Exchange" -> "Android Enthusiasts"
     var username = "user";
     var OP = "OP";
-    var prefix = "AutoReviewComments-"; //prefix to avoid clashes in localstorage
     var myuserid = getLoggedInUserId();
-
-    sitename = sitename.replace(/ ?Stack Exchange/, ""); //same for others ("Android Enthusiasts Stack Exchange", SR, and more)
-    if (!GetStorage("WelcomeMessage")) SetStorage("WelcomeMessage", "Welcome to " + sitename + "! ");
-    var greeting = GetStorage("WelcomeMessage") == "NONE" ? "" : GetStorage("WelcomeMessage");
-    var showGreeting = false;
 
     // These are injection markers and MUST use single-quotes.
     // The injected strings use double-quotes themselves, so that would result in parser errors.
@@ -56,59 +51,10 @@ with_jquery(function($) {
       EditSummaryQuestion: "EQ"
     };
 
-    //default comments
-    var defaultcomments = [
-      {
-        Target: [Target.CommentQuestion],
-        Name: "More than one question asked",
-        Description: "It is preferred if you can post separate questions instead of combining your questions into one. That way, it helps the people answering your question and also others hunting for at least one of your questions. Thanks!"
-      },
-      {
-        Target: [Target.CommentQuestion],
-        Name: "Duplicate Closure",
-        Description: "This question will probably be closed as a duplicate soon. If the answers from the duplicates don't fully address your question please edit it to include why and flag this for re-opening. Thanks!"
-      },
-      {
-        Target: [Target.CommentAnswer],
-        Name: "Answers just to say Thanks!",
-        Description: "Please don't add \"thanks\" as answers. Invest some time in the site and you will gain sufficient <a href=\"//$SITEURL$/privileges\">privileges</a> to upvote answers you like, which is the $SITENAME$ way of saying thank you."
-      },
-      {
-        Target: [Target.CommentAnswer],
-        Name: "Nothing but a URL (and isn't spam)",
-        Description: "Whilst this may theoretically answer the question, <a href=\"//meta.stackexchange.com/q/8259\">it would be preferable</a> to include the essential parts of the answer here, and provide the link for reference."
-      },
-      {
-        Target: [Target.CommentAnswer],
-        Name: "Requests to OP for further information",
-        Description: "This is really a comment, not an answer. With a bit more rep, <a href=\"//$SITEURL$/privileges/comment\">you will be able to post comments</a>. For the moment I've added the comment for you, and I'm flagging this post for deletion."
-      },
-      {
-        Target: [Target.CommentAnswer],
-        Name: "OP using an answer for further information",
-        Description: "Please use the <em>Post answer</em> button only for actual answers. You should modify your original question to add additional information."
-      },
-      {
-        Target: [Target.CommentAnswer],
-        Name: "OP adding a new question as an answer",
-        Description: "If you have another question, please ask it by clicking the <a href=\"//$SITEURL$/questions/ask\">Ask Question</a> button."
-      },
-      {
-        Target: [Target.CommentAnswer],
-        Name: "Another user adding a \"Me too!\"",
-        Description: "If you have a NEW question, please ask it by clicking the <a href=\"//$SITEURL$/questions/ask\">Ask Question</a> button. If you have sufficient reputation, <a href=\"//$SITEURL$/privileges/vote-up\">you may upvote</a> the question. Alternatively, \"star\" it as a favorite and you will be notified of any new answers."
-      },
-      {
-        Target: [Target.Closure],
-        Name: "Too localized",
-        Description: "This question appears to be off-topic because it is too localized."
-      },
-      {
-        Target: [Target.EditSummaryQuestion],
-        Name: "Improper tagging",
-        Description: "The tags you were using are not appropriate for this question. Please review <a href=\"//$SITEURL$/help/tagging\">What are tags, and how should I use them?</a>"
-      }
-    ];
+    populateSettings();
+    var settings = JSON.parse(localStorage.AutoReviewCommentsSettings);
+    var greeting = settings.welcomeMessage === "NONE" ? "" : settings.welcomeMessage;
+    var showGreeting = false;
 
     var weekday_name = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     var minute = 60,
@@ -119,21 +65,128 @@ with_jquery(function($) {
       month = 2592000,
       year = 31536000;
 
-    //Wrap local storage access so that we avoid collisions with other scripts
-    function GetStorage(key) {
-      return localStorage[prefix + key];
+    /**
+     * Constructs and returns an array of default comment objects, to be put in settings.comments
+     */
+    function getDefaultComments() {
+      var defaultComments = [
+        {
+          Target: [Target.CommentQuestion],
+          Name: "More than one question asked",
+          Description: "It is preferred if you can post separate questions instead of combining your questions into one. That way, it helps the people answering your question and also others hunting for at least one of your questions. Thanks!"
+        },
+        {
+          Target: [Target.CommentQuestion],
+          Name: "Duplicate Closure",
+          Description: "This question will probably be closed as a duplicate soon. If the answers from the duplicates don't fully address your question please edit it to include why and flag this for re-opening. Thanks!"
+        },
+        {
+          Target: [Target.CommentAnswer],
+          Name: "Answers just to say Thanks!",
+          Description: "Please don't add \"thanks\" as answers. Invest some time in the site and you will gain sufficient <a href=\"//$SITEURL$/privileges\">privileges</a> to upvote answers you like, which is the $SITENAME$ way of saying thank you."
+        },
+        {
+          Target: [Target.CommentAnswer],
+          Name: "Nothing but a URL (and isn't spam)",
+          Description: "Whilst this may theoretically answer the question, <a href=\"//meta.stackexchange.com/q/8259\">it would be preferable</a> to include the essential parts of the answer here, and provide the link for reference."
+        },
+        {
+          Target: [Target.CommentAnswer],
+          Name: "Requests to OP for further information",
+          Description: "This is really a comment, not an answer. With a bit more rep, <a href=\"//$SITEURL$/privileges/comment\">you will be able to post comments</a>. For the moment I've added the comment for you, and I'm flagging this post for deletion."
+        },
+        {
+          Target: [Target.CommentAnswer],
+          Name: "OP using an answer for further information",
+          Description: "Please use the <em>Post answer</em> button only for actual answers. You should modify your original question to add additional information."
+        },
+        {
+          Target: [Target.CommentAnswer],
+          Name: "OP adding a new question as an answer",
+          Description: "If you have another question, please ask it by clicking the <a href=\"//$SITEURL$/questions/ask\">Ask Question</a> button."
+        },
+        {
+          Target: [Target.CommentAnswer],
+          Name: "Another user adding a \"Me too!\"",
+          Description: "If you have a NEW question, please ask it by clicking the <a href=\"//$SITEURL$/questions/ask\">Ask Question</a> button. If you have sufficient reputation, <a href=\"//$SITEURL$/privileges/vote-up\">you may upvote</a> the question. Alternatively, \"star\" it as a favorite and you will be notified of any new answers."
+        },
+        {
+          Target: [Target.Closure],
+          Name: "Too localized",
+          Description: "This question appears to be off-topic because it is too localized."
+        },
+        {
+          Target: [Target.EditSummaryQuestion],
+          Name: "Improper tagging",
+          Description: "The tags you were using are not appropriate for this question. Please review <a href=\"//$SITEURL$/help/tagging\">What are tags, and how should I use them?</a>"
+        }
+      ];
+      return defaultComments.map(function(comment) {
+        var targetsPrefix = comment.Target
+          ? "[" + comment.Target.join(",") + "]"
+          : "";
+        return { name: targetsPrefix + comment.Name, description: comment.Description };
+      });
     }
-    function SetStorage(key, val) {
-      localStorage[prefix + key] = val;
-    }
-    function RemoveStorage(key) {
-      localStorage.removeItem(prefix + key);
-    }
-    function ClearStorage(startsWith) {
-      for (var i = localStorage.length - 1; i >= 0; i--) {
-        var key = localStorage.key(i);
-        if (key.indexOf(prefix + startsWith) == 0) localStorage.removeItem(key);
+
+    /**
+     * Set localStorage.AutoReviewCommentsSettings with an initial settings object if one does not exist yet
+     */
+    function populateSettings() {
+      if (localStorage.AutoReviewCommentsSettings) {
+        // Settings are already populated
+        return;
       }
+      if (localStorage["AutoReviewComments-commentcount"]) {
+        migrateOldSettings();
+        return;
+      }
+      // No old keys to migrate, construct a new object
+      var defaultSettings = {
+        comments: getDefaultComments(),
+        welcomeMessage: "Welcome to " + sitename + "! ",
+        showDescription: true,
+        showFilterInput: false,
+        remoteURL: "",
+        autoRemote: false,
+        lastUpdateCheckDay: 0,
+        lastVersionAcknowledged: "@ant-version@"
+      };
+      localStorage.AutoReviewCommentsSettings = JSON.stringify(defaultSettings);
+    }
+
+    /**
+     * If user has AutoReviewComments keys spread out in Local Storage from earlier versions,
+     * construct the consolidated settings object by parsing those keys 
+     */
+    function migrateOldSettings() {
+      function getOldStorage(key) {
+        return localStorage["AutoReviewComments-" + key];
+      }
+
+      var commentCount = Number(getOldStorage("commentcount"));
+      var comments = [];
+      for (var i = 0; i < commentCount; i++) {
+        var name = getOldStorage("name-" + i);
+        var desc = getOldStorage("desc-" + i);
+        comments.push({ name: name, description: desc });
+      }
+      var migratedSettings = {
+        comments: comments,
+        welcomeMessage: getOldStorage("WelcomeMessage"),
+        showDescription: getOldStorage("hide-desc") === "show",
+        showFilterInput: getOldStorage("showFilter") === "show",
+        remoteURL: getOldStorage("RemoteUrl"),
+        autoRemote: getOldStorage("AutoRemote") === "true",
+        lastUpdateCheckDay: Number(getOldStorage("LastUpdateCheckDay")),
+        lastVersionAcknowledged: getOldStorage("LastVersionAcknowledged")
+      };
+
+      localStorage.AutoReviewCommentsSettings = JSON.stringify(migratedSettings);
+    }
+
+    function saveSettings() {
+      localStorage.AutoReviewCommentsSettings = JSON.stringify(settings);
     }
 
     //Calculate and format datespan for "Member since/for"
@@ -266,18 +319,17 @@ with_jquery(function($) {
       });
 
       var txt = "";
-      for (var i = 0; i < GetStorage("commentcount"); i++) {
-        var name = GetStorage("name-" + i);
-        var desc = GetStorage("desc-" + i);
-        txt += "###" + name + "\n" + htmlToMarkDown(desc) + "\n\n"; //the leading ### makes prettier if pasting to markdown, and differentiates names from descriptions
-      }
+      settings.comments.forEach(function(comment) {
+        // The leading ### makes prettier if pasting to markdown, and differentiates names from descriptions
+        txt += "###" + comment.name + "\n" + htmlToMarkDown(comment.description) + "\n\n";
+      });
 
       div.find("textarea").val(txt);
       div.find(".jsonp").click(function() {
         var txt = "callback(\n[\n";
-        for (var i = 0; i < GetStorage("commentcount"); i++) {
-          txt += "{ \"name\": \"" + GetStorage("name-" + i) + "\", \"description\": \"" + GetStorage("desc-" + i).replace(/"/g, "\\\"") + "\"},\n\n";
-        }
+        settings.comments.forEach(function(comment) {
+          txt += "{ \"name\": \"" + comment.name + "\", \"description\": \"" + comment.description.replace(/"/g, "\\\"") + "\"},\n\n";
+        });
         div.find("textarea").val(txt + "]\n)");
         div.find("a:lt(2)").remove(); div.find(".lsep:lt(2)").remove();
       });
@@ -293,25 +345,17 @@ with_jquery(function($) {
 
     //Import complete text into comments
     function DoImport(text) {
-      //clear out any existing stuff
-      ClearStorage("name-"); ClearStorage("desc-");
-      var arr = text.split("\n");
-      var nameIndex = 0,
-        descIndex = 0;
-      for (var i = 0; i < arr.length; i++) {
-        var line = $.trim(arr[i]);
-        if (line.indexOf("#") == 0) {
-          var name = line.replace(/^#+/g, "");
-          SetStorage("name-" + nameIndex, name);
-          nameIndex++;
-        } else if (line.length > 0) {
-          var desc = markDownToHtml(line);
-          SetStorage("desc-" + descIndex, Tag(desc));
-          descIndex++;
-        }
+      // Clear existing comments
+      settings.comments = [];
+      // Match a line starting with #s, capture what follows the #s, and capture the next line:
+      var pattern = /^#+([^#].*)\n(.+)/gm;
+      var match;
+      while (match = pattern.exec(text)) {
+        var name = match[1];
+        var description = markDownToHtml(match[2]);
+        settings.comments.push({ name: name, description: description });
       }
-      //This is de-normalised, but I don't care.
-      SetStorage("commentcount", Math.min(nameIndex, descIndex));
+      saveSettings();
     }
 
     // From https://stackoverflow.com/a/12034334/259953
@@ -377,15 +421,13 @@ with_jquery(function($) {
       // Disable insert while editing.
       $(".popup-submit", popup).prop("disabled", true);
 
-      BorkFor(el); //this is a hack
-      //save/cancel links to add to textarea
       var actions = $("<div class=\"actions\">");
       var commands = $("<a>save</a>").click(function() {
-        SaveEditable($(this).parent().parent()); UnborkFor(el);
+        SaveEditable($(this).parent().parent());
       })
         .add("<span class=\"lsep\"> | </span>")
         .add($("<a>cancel</a>").click(function() {
-          el.siblings(".quick-insert").show(); $(".popup-submit", popup).prop("disabled", false); CancelEditable($(this).parent().parent(), backup); UnborkFor(el);
+          el.siblings(".quick-insert").show(); $(".popup-submit", popup).prop("disabled", false); CancelEditable($(this).parent().parent(), backup);
         }));
       actions.append(commands);
 
@@ -393,62 +435,45 @@ with_jquery(function($) {
       el.html(txt.add(actions));
     }
 
-    //This is to stop the input pinching focus when I click inside textarea
-    //Could have done something clever with contentEditable, but this is evil, and it annoys Yi :P
-    function BorkFor(el) {
-      var label = el.parent("label");
-      label.attr("for", "borken");
-    }
-    function UnborkFor(el) {
-      var label = el.parent("label");
-      label.attr("for", label.prev().attr("id"));
-    }
     //Save textarea contents, replace element html with new edited content
-    function SaveEditable(el) {
-      var html = markDownToHtml(el.find("textarea").val());
-      SetStorage(el.attr("id"), Tag(html));
-      el.html((showGreeting ? greeting : "") + UnTag(html));
+    function SaveEditable(spanContainingTextarea) {
+      var index = spanContainingTextarea.closest("li").index();
+      var html = markDownToHtml(spanContainingTextarea.find("textarea").val());
+      var commentProp = spanContainingTextarea.hasClass("action-name") ? "name" : "description";
+      settings.comments[index][commentProp] = Tag(html);
+      saveSettings();
+      spanContainingTextarea.html((showGreeting ? greeting : "") + UnTag(html));
     }
 
     function CancelEditable(el, backup) {
       el.html(backup);
     }
 
-    //Empty all custom comments from storage and rewrite to ui
+    // Empty all custom comments from storage and replace with defaults
     function ResetComments() {
-      ClearStorage("name-"); ClearStorage("desc-");
-      $.each(defaultcomments, function(index, value) {
-        var targetsPrefix = "";
-        if (value.Target) {
-          var targets = value.Target.join(",");
-          targetsPrefix = "[" + targets + "] ";
-        }
-        SetStorage("name-" + index, targetsPrefix + value["Name"]);
-        SetStorage("desc-" + index, value["Description"]);
-      });
-      SetStorage("commentcount", defaultcomments.length);
+      settings.comments = getDefaultComments();
+      saveSettings();
     }
 
     //rewrite all comments to ui (typically after import or reset)
     function WriteComments(popup) {
-      if (!GetStorage("commentcount")) ResetComments();
       var ul = popup.find(".action-list");
       ul.empty();
-      for (var i = 0; i < GetStorage("commentcount"); i++) {
-        var commentName = GetStorage("name-" + i);
-        if (IsCommentValidForPostType(commentName, popup.posttype)) {
-          commentName = commentName.replace(Target.MATCH_ALL, "");
-          var desc = GetStorage("desc-" + i).replace(/\$SITENAME\$/g, sitename).replace(/\$SITEURL\$/g, siteurl).replace(/\$MYUSERID\$/g, myuserid).replace(/\$/g, "$$$");
-          var opt = optionTemplate.replace(/\$ID\$/g, i)
-            .replace("$NAME$", commentName.replace(/\$/g, "$$$"))
-            .replace("$DESCRIPTION$", (showGreeting ? greeting : "") + desc);
+      var commentsForThisPost = settings.comments.filter(function(comment) {
+        return IsCommentValidForPostType(comment.name, popup.posttype);
+      });
+      commentsForThisPost.forEach(function(comment) {
+        var commentNameToDisplay = comment.name.replace(Target.MATCH_ALL, "").replace(/\$/g, "$$$");;
+        var descriptionToDisplay = UnTag(comment.description).replace(/\$/g, "$$$");
+        var opt = optionTemplate
+          .replace("$NAME$", commentNameToDisplay)
+          .replace("$DESCRIPTION$", (showGreeting ? greeting : "") + descriptionToDisplay);
 
-          // Create the selectable option with the HTML preview text.
-          var optionElement = $(opt);
-          $(".action-desc", optionElement).html(desc);
-          ul.append(optionElement);
-        }
-      }
+        // Create the selectable option with the HTML preview text.
+        var optionElement = $(opt);
+        $(".action-desc", optionElement).html(descriptionToDisplay);
+        ul.append(optionElement);
+      });
       ShowHideDescriptions(popup);
       AddOptionEventHandlers(popup);
       AddSearchEventHandlers(popup);
@@ -486,7 +511,7 @@ with_jquery(function($) {
         popup.find(".popup-submit").removeAttr("disabled"); //enable submit button
         //unset/set selected class, hide others if necessary
         $(this).parents("ul").find(".action-selected").removeClass("action-selected");
-        if (GetStorage("hide-desc") == "hide") {
+        if (!settings.showDescription) {
           $(this).parents("ul").find(".action-desc").hide();
         }
         $(this).parent().addClass("action-selected")
@@ -532,20 +557,16 @@ with_jquery(function($) {
     function AddSearchEventHandlers(popup) {
       var sbox = popup.find(".searchbox"),
         stext = sbox.find(".searchfilter"),
-        kicker = popup.find(".popup-actions-filter"),
-        storageKey = "showFilter",
-        shown = GetStorage(storageKey) == "show";
+        kicker = popup.find(".popup-actions-filter");
 
       var showHideFilter = function() {
-        if (shown) {
+        if (settings.showFilterInput) {
           sbox.show();
           stext.focus();
-          SetStorage(storageKey, "show");
         } else {
           sbox.hide();
           stext.text("");
           filterOn(popup, "");
-          SetStorage(storageKey, "hide");
         }
       };
 
@@ -557,7 +578,8 @@ with_jquery(function($) {
       showHideFilter();
 
       kicker.click(function() {
-        shown = !shown;
+        settings.showFilterInput = !settings.showFilterInput;
+        saveSettings();
         showHideFilter();
 
         return false;
@@ -573,12 +595,12 @@ with_jquery(function($) {
     //Adjust the descriptions so they show or hide based on the user's preference.
     function ShowHideDescriptions(popup) {
       //get list of all descriptions except the currently selected one
-      var descriptions = popup.find("ul.action-list li:not(.action-selected) span[id*='desc-']");
+      var descriptions = popup.find("ul.action-list li:not(.action-selected) span.action-desc");
 
-      if (GetStorage("hide-desc") == "hide") {
-        descriptions.hide();
-      } else {
+      if (settings.showDescription) {
         descriptions.show();
+      } else {
+        descriptions.hide();
       }
     }
 
@@ -612,12 +634,10 @@ with_jquery(function($) {
     //reverse compatible!
     function LoadFromRemote(url, done, error) {
       GetRemote(url, function(data) {
-        SetStorage("commentcount", data.length);
-        ClearStorage("name-"); ClearStorage("desc-");
-        $.each(data, function(index, value) {
-          SetStorage("name-" + index, value.name);
-          SetStorage("desc-" + index, markDownToHtml(value.description));
+        settings.comments = data.map(function(comment) {
+          return { name: comment.name, description: markDownToHtml(comment.description) };
         });
+        saveSettings();
         done();
       }, error);
     }
@@ -631,8 +651,8 @@ with_jquery(function($) {
       var throbber = remote.find("#throbber1");
 
       popup.find(".popup-actions-remote").click(function() {
-        urlfield.val(GetStorage("RemoteUrl"));
-        autofield.prop("checked", GetStorage("AutoRemote") == "true");
+        urlfield.val(settings.remoteURL);
+        autofield.prop("checked", settings.autoRemote);
         remote.show();
       });
 
@@ -643,8 +663,9 @@ with_jquery(function($) {
       });
 
       popup.find(".remote-save").click(function() {
-        SetStorage("RemoteUrl", urlfield.val());
-        SetStorage("AutoRemote", autofield.prop("checked"));
+        settings.remoteURL = urlfield.val();
+        settings.autoRemote = autofield.prop("checked");
+        saveSettings();
         remote.hide();
       });
 
@@ -680,7 +701,8 @@ with_jquery(function($) {
 
       popup.find(".welcome-save").click(function() {
         var msg = custom.val() == "" ? "NONE" : custom.val();
-        SetStorage("WelcomeMessage", msg);
+        settings.welcomeMessage = msg;
+        saveSettings();
         greeting = custom.val();
         welcome.hide();
       });
@@ -907,8 +929,8 @@ with_jquery(function($) {
         ImportExport(popup);
       });
       popup.find(".popup-actions-toggledesc").click(function() {
-        var hideDesc = GetStorage("hide-desc") || "show";
-        SetStorage("hide-desc", hideDesc == "show" ? "hide" : "show");
+        settings.showDescription = !settings.showDescription;
+        saveSettings();
         ShowHideDescriptions(popup);
       });
       //Handle remote url & welcome
@@ -926,11 +948,11 @@ with_jquery(function($) {
       });
 
       //Auto-load from remote if required
-      if (!window.VersionChecked && GetStorage("AutoRemote") == "true") {
+      if (!window.VersionChecked && settings.autoRemote) {
         var throbber = popup.find("#throbber2");
         var remoteerror = popup.find("#remoteerror2");
         throbber.show();
-        LoadFromRemote(GetStorage("RemoteUrl"),
+        LoadFromRemote(settings.remoteURL,
           function() {
             WriteComments(popup); throbber.hide();
           },
