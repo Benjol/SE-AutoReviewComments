@@ -437,7 +437,7 @@ with_jquery(function($) {
 
     //Save textarea contents, replace element html with new edited content
     function SaveEditable(spanContainingTextarea) {
-      var index = spanContainingTextarea.closest("li").index();
+      var index = spanContainingTextarea.closest("li").data("index");
       var html = markDownToHtml(spanContainingTextarea.find("textarea").val());
       var commentProp = spanContainingTextarea.hasClass("action-name") ? "name" : "description";
       settings.comments[index][commentProp] = Tag(html);
@@ -459,10 +459,10 @@ with_jquery(function($) {
     function WriteComments(popup) {
       var ul = popup.find(".action-list");
       ul.empty();
-      var commentsForThisPost = settings.comments.filter(function(comment) {
-        return IsCommentValidForPostType(comment.name, popup.posttype);
-      });
-      commentsForThisPost.forEach(function(comment) {
+      settings.comments.forEach(function(comment, index) {
+        if (!IsCommentValidForPostType(comment.name, popup.posttype)) {
+          return;
+        }
         var commentNameToDisplay = comment.name.replace(Target.MATCH_ALL, "").replace(/\$/g, "$$$");;
         var descriptionToDisplay = UnTag(comment.description).replace(/\$/g, "$$$");
         var opt = optionTemplate
@@ -470,7 +470,8 @@ with_jquery(function($) {
           .replace("$DESCRIPTION$", (showGreeting ? greeting : "") + descriptionToDisplay);
 
         // Create the selectable option with the HTML preview text.
-        var optionElement = $(opt);
+        var optionElement = $(opt)
+          .data("index", index);
         $(".action-desc", optionElement).html(descriptionToDisplay);
         ul.append(optionElement);
       });
