@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.4.7
+// @version        1.4.8
 // @description    No more re-typing the same comments over and over!
 // @homepage       https://github.com/Benjol/SE-AutoReviewComments
 // @grant          none
@@ -862,8 +862,8 @@ function CheckForNewVersion(popup) {
      *                     comment should be placed.
      */
     function findClosureElements(where) {
-      var injectNextTo = $(".close-as-off-topic-pane textarea");
-      var placeCommentIn = injectNextTo;
+      var injectNextTo = $("#site-specific-comment .text-counter");
+      var placeCommentIn = $("#site-specific-comment textarea");
       return [injectNextTo, placeCommentIn];
     }
     /**
