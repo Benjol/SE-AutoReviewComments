@@ -2,7 +2,9 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.4.7
+// @author         benjol
+// @contributor    SmartManoj
+// @version        1.4.8
 // @description    No more re-typing the same comments over and over!
 // @homepage       https://github.com/Benjol/SE-AutoReviewComments
 // @grant          none
@@ -18,7 +20,7 @@
 // @exclude *://chat.stackexchange.com/*
 // @exclude *://chat.stackoverflow.com/*
 // @exclude *://chat.meta.stackexchange.com/*
-
+// @updateURL https://raw.github.com/Benjol/SE-AutoReviewComments/master/dist/autoreviewcomments.user.js
 // ==/UserScript==
 */
 
@@ -33,8 +35,7 @@ with_jquery(function($) {
   StackExchange.ready(function() {
     //// Self Updating Userscript, see https://gist.github.com/Benjol/874058
 // (the first line of this template _must_ be a comment!)
-var VERSION = '1.4.7';
-var URL = "https://raw.github.com/Benjol/SE-AutoReviewComments/master/dist/autoreviewcomments.user.js";
+
 
 // This hack is necessary to bring people up from the last working auto-uptate gist
 // release if they manually installed the latest version. (can be removed after some
@@ -73,12 +74,6 @@ function isVersionNewer(proposed, current) {
   return false;
 }
 
-function updateCheck(notifier) {
-  window["AutoReviewComments_AutoUpdateCallback"] = function(newver) {
-    if (isVersionNewer(newver, VERSION)) notifier(newver, VERSION, URL);
-  };
-  $("<script />").attr("src", URL).appendTo("head");
-}
 
 // Check to see if a new version has become available since last check
 // - only checks once a day
@@ -92,17 +87,7 @@ function CheckForNewVersion(popup) {
                             Please note that you can EDIT the texts inline by double-clicking them. \
                             For other options, please see the README at <a href="https://github.com/Benjol/SE-AutoReviewComments" target="_blank">here</a>.',
       function() {});
-  } else if (LastUpdateCheckDay != today) {
-    updateCheck(function(newver, oldver, install_url) {
-      if (newver != GetStorage("LastVersionAcknowledged")) {
-        ShowMessage(popup, "New Version!", 'A new version (' + newver + ') of the <a href="http://stackapps.com/q/2116">AutoReviewComments</a> userscript is now available, see the <a href="https://github.com/Benjol/SE-AutoReviewComments/releases">release notes</a> for details or <a href="' + install_url + '">click here</a> to install now.',
-          function() {
-            SetStorage("LastVersionAcknowledged", newver);
-          });
-      }
-    });
-  }
-  SetStorage("LastUpdateCheckDay", today);
+  } 
 }
 
 /* How does this work?
@@ -190,7 +175,7 @@ function CheckForNewVersion(popup) {
       {
         Target: [Target.CommentAnswer],
         Name: "Another user adding a \"Me too!\"",
-        Description: "If you have a NEW question, please ask it by clicking the <a href=\"//$SITEURL$/questions/ask\">Ask Question</a> button. If you have sufficient reputation, <a href=\"//$SITEURL$/privileges/vote-up\">you may upvote</a> the question. Alternatively, \"star\" it as a favorite and you will be notified of any new answers."
+        Description: "If you have a NEW question, please ask it by clicking the <a href=\"//$SITEURL$/questions/ask\">Ask Question</a> button. If you have sufficient reputation, <a href=\"//$SITEURL$/privileges/vote-up\">you may upvote</a> the question. Alternatively, bookmark it and you will be notified of any new answers."
       },
       {
         Target: [Target.Closure],
@@ -223,7 +208,7 @@ function CheckForNewVersion(popup) {
     function RemoveStorage(key) {
       localStorage.removeItem(prefix + key);
     }
-    function ClearStorage(startsWith) {
+    function ClearStorage(sWith) {
       for (var i = localStorage.length - 1; i >= 0; i--) {
         var key = localStorage.key(i);
         if (key.indexOf(prefix + startsWith) == 0) localStorage.removeItem(key);
