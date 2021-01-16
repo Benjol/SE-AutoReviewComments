@@ -2,9 +2,12 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.4.8
+// @author         benjol, Machavity
+// @version        1.5.0
 // @description    No more re-typing the same comments over and over!
 // @homepage       https://github.com/Benjol/SE-AutoReviewComments
+// @updateURL    https://github.com/machavity/SE-AutoReviewComments/raw/master/dist/autoreviewcomments.user.js
+// @downloadURL  https://github.com/machavity/SE-AutoReviewComments/raw/master/dist/autoreviewcomments.user.js
 // @grant          none
 // @include /^https?:\/\/(.*\.)?stackoverflow\.com/.*$/
 // @include /^https?:\/\/(.*\.)?serverfault\.com/.*$/
@@ -31,79 +34,7 @@ function with_jquery(f) {
 
 with_jquery(function($) {
   StackExchange.ready(function() {
-    //// Self Updating Userscript, see https://gist.github.com/Benjol/874058
-// (the first line of this template _must_ be a comment!)
-var VERSION = '1.4.8';
-var URL = "https://raw.github.com/Benjol/SE-AutoReviewComments/master/dist/autoreviewcomments.user.js";
 
-// This hack is necessary to bring people up from the last working auto-uptate gist
-// release if they manually installed the latest version. (can be removed after some
-// time has passed and last released version is at least 1.3.4)
-for (var key in window) {
-  if (key.indexOf('selfUpdaterCallback') != -1) {
-    window[key](VERSION);
-    return;
-  }
-}
-// End hack
-
-if (window["AutoReviewComments_AutoUpdateCallback"]) {
-  window["AutoReviewComments_AutoUpdateCallback"](VERSION);
-  return;
-}
-
-// Split int based version number strings on dots, zero-pad the arrays to the same length and
-// compare them in order such that true is returned only if the proposted version is newer
-function isVersionNewer(proposed, current) {
-  proposed = proposed.split(".");
-  current = current.split(".");
-
-  while (proposed.length < current.length) proposed.push("0");
-  while (current.length < proposed.length) current.push("0");
-
-  for (var i = 0; i < proposed.length; i++) {
-    if (parseInt(proposed[i]) > parseInt(current[i])) {
-      return true;
-    }
-    if (parseInt(proposed[i]) < parseInt(current[i])) {
-      return false;
-    }
-  }
-
-  return false;
-}
-
-function updateCheck(notifier) {
-  window["AutoReviewComments_AutoUpdateCallback"] = function(newver) {
-    if (isVersionNewer(newver, VERSION)) notifier(newver, VERSION, URL);
-  };
-  $("<script />").attr("src", URL).appendTo("head");
-}
-
-// Check to see if a new version has become available since last check
-// - only checks once a day
-// - does not check for first time visitors, shows them a welcome message instead
-// - called at the end of the main script if function exists
-function CheckForNewVersion(popup) {
-  var today = (new Date().setHours(0, 0, 0, 0));
-  var LastUpdateCheckDay = GetStorage("LastUpdateCheckDay");
-  if (LastUpdateCheckDay == null) { //first time visitor
-    ShowMessage(popup, "Please read this!", 'Thanks for installing this script. \
-                            Please note that you can EDIT the texts inline by double-clicking them. \
-                            For other options, please see the README at <a href="https://github.com/Benjol/SE-AutoReviewComments" target="_blank">here</a>.',
-      function() {});
-  } else if (LastUpdateCheckDay != today) {
-    updateCheck(function(newver, oldver, install_url) {
-      if (newver != GetStorage("LastVersionAcknowledged")) {
-        ShowMessage(popup, "New Version!", 'A new version (' + newver + ') of the <a href="http://stackapps.com/q/2116">AutoReviewComments</a> userscript is now available, see the <a href="https://github.com/Benjol/SE-AutoReviewComments/releases">release notes</a> for details or <a href="' + install_url + '">click here</a> to install now.',
-          function() {
-            SetStorage("LastVersionAcknowledged", newver);
-          });
-      }
-    });
-  }
-  SetStorage("LastUpdateCheckDay", today);
-}
 
 /* How does this work?
    1. The installed script loads first, and sets the local VERSION variable with the currently installed version number
@@ -828,7 +759,7 @@ function CheckForNewVersion(popup) {
     }
     attachAutoLinkInjector(".js-add-link", findCommentElements, injectAutoLink, autoLinkAction);
     attachAutoLinkInjector(".edit-post", findEditSummaryElements, injectAutoLinkEdit, autoLinkAction);
-    attachAutoLinkInjector(".close-question-link", findClosureElements, injectAutoLinkClosure, autoLinkAction);
+    attachAutoLinkInjector(".js-close-question-link", findClosureElements, injectAutoLinkClosure, autoLinkAction);
     attachAutoLinkInjector(".review-actions input:first", findReviewQueueElements, injectAutoLinkReviewQueue, autoLinkAction);
 
     /**
@@ -1042,13 +973,6 @@ function CheckForNewVersion(popup) {
       var userid = getUserId(targetObject);
       getUserInfo(userid, popup);
       OP = getOP();
-
-      //We only actually perform the updates check when someone clicks, this should make it less costly, and more timely
-      //also wrap it so that it only gets called the *FIRST* time we open this dialog on any given page (not much of an optimisation).
-      if (typeof CheckForNewVersion == "function" && !window.VersionChecked) {
-        CheckForNewVersion(popup); // eslint-disable-line no-undef 
-        window.VersionChecked = true;
-      }
     }
   });
 });
