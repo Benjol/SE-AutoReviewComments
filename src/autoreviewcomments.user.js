@@ -768,8 +768,8 @@ with_jquery(function($) {
      *                     comment should be placed.
      */
     function findClosureElements(where) {
-      var injectNextTo = $(".close-as-off-topic-pane textarea");
-      var placeCommentIn = injectNextTo;
+      var injectNextTo = $("#site-specific-comment .text-counter");
+      var placeCommentIn = $("#site-specific-comment textarea");
       return [injectNextTo, placeCommentIn];
     }
     /**
