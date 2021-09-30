@@ -734,7 +734,7 @@ with_jquery(function($) {
     }
     attachAutoLinkInjector(".js-add-link", findCommentElements, injectAutoLink, autoLinkAction);
     attachAutoLinkInjector(".edit-post", findEditSummaryElements, injectAutoLinkEdit, autoLinkAction);
-    attachAutoLinkInjector(".close-question-link", findClosureElements, injectAutoLinkClosure, autoLinkAction);
+    attachAutoLinkInjector(".js-close-question-link", findClosureElements, injectAutoLinkClosure, autoLinkAction);
     attachAutoLinkInjector(".review-actions input:first", findReviewQueueElements, injectAutoLinkReviewQueue, autoLinkAction);
 
     /**
@@ -768,7 +768,7 @@ with_jquery(function($) {
      *                     comment should be placed.
      */
     function findClosureElements(where) {
-      var injectNextTo = $(".close-as-off-topic-pane textarea");
+      var injectNextTo = $("#site-specific-comment textarea");
       var placeCommentIn = injectNextTo;
       return [injectNextTo, placeCommentIn];
     }
@@ -952,7 +952,7 @@ with_jquery(function($) {
       //We only actually perform the updates check when someone clicks, this should make it less costly, and more timely
       //also wrap it so that it only gets called the *FIRST* time we open this dialog on any given page (not much of an optimisation).
       if (typeof CheckForNewVersion == "function" && !window.VersionChecked) {
-        CheckForNewVersion(popup); // eslint-disable-line no-undef 
+        CheckForNewVersion(popup); // eslint-disable-line no-undef
         window.VersionChecked = true;
       }
     }
