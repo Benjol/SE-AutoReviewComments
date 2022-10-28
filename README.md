@@ -1,5 +1,4 @@
-> The project is currently not being actively maintained. </br>
-> If you submit a PR, there's a good chance it'll be merged.
+> The project is currently no longer maintained, sorry. </br>
 
 <br />
 <div align="center">
