@@ -2,9 +2,12 @@
 // ==UserScript==
 // @name           AutoReviewComments
 // @namespace      benjol
-// @version        1.4.7
+// @author         benjol, Machavity
+// @version        1.5.1
 // @description    No more re-typing the same comments over and over!
 // @homepage       https://github.com/Benjol/SE-AutoReviewComments
+// @updateURL    https://github.com/machavity/SE-AutoReviewComments/raw/master/dist/autoreviewcomments.user.js
+// @downloadURL  https://github.com/machavity/SE-AutoReviewComments/raw/master/dist/autoreviewcomments.user.js
 // @grant          none
 // @include /^https?:\/\/(.*\.)?stackoverflow\.com/.*$/
 // @include /^https?:\/\/(.*\.)?serverfault\.com/.*$/
@@ -31,79 +34,7 @@ function with_jquery(f) {
 
 with_jquery(function($) {
   StackExchange.ready(function() {
-    //// Self Updating Userscript, see https://gist.github.com/Benjol/874058
-// (the first line of this template _must_ be a comment!)
-var VERSION = '1.4.7';
-var URL = "https://raw.github.com/Benjol/SE-AutoReviewComments/master/dist/autoreviewcomments.user.js";
 
-// This hack is necessary to bring people up from the last working auto-uptate gist
-// release if they manually installed the latest version. (can be removed after some
-// time has passed and last released version is at least 1.3.4)
-for (var key in window) {
-  if (key.indexOf('selfUpdaterCallback') != -1) {
-    window[key](VERSION);
-    return;
-  }
-}
-// End hack
-
-if (window["AutoReviewComments_AutoUpdateCallback"]) {
-  window["AutoReviewComments_AutoUpdateCallback"](VERSION);
-  return;
-}
-
-// Split int based version number strings on dots, zero-pad the arrays to the same length and
-// compare them in order such that true is returned only if the proposted version is newer
-function isVersionNewer(proposed, current) {
-  proposed = proposed.split(".");
-  current = current.split(".");
-
-  while (proposed.length < current.length) proposed.push("0");
-  while (current.length < proposed.length) current.push("0");
-
-  for (var i = 0; i < proposed.length; i++) {
-    if (parseInt(proposed[i]) > parseInt(current[i])) {
-      return true;
-    }
-    if (parseInt(proposed[i]) < parseInt(current[i])) {
-      return false;
-    }
-  }
-
-  return false;
-}
-
-function updateCheck(notifier) {
-  window["AutoReviewComments_AutoUpdateCallback"] = function(newver) {
-    if (isVersionNewer(newver, VERSION)) notifier(newver, VERSION, URL);
-  };
-  $("<script />").attr("src", URL).appendTo("head");
-}
-
-// Check to see if a new version has become available since last check
-// - only checks once a day
-// - does not check for first time visitors, shows them a welcome message instead
-// - called at the end of the main script if function exists
-function CheckForNewVersion(popup) {
-  var today = (new Date().setHours(0, 0, 0, 0));
-  var LastUpdateCheckDay = GetStorage("LastUpdateCheckDay");
-  if (LastUpdateCheckDay == null) { //first time visitor
-    ShowMessage(popup, "Please read this!", 'Thanks for installing this script. \
-                            Please note that you can EDIT the texts inline by double-clicking them. \
-                            For other options, please see the README at <a href="https://github.com/Benjol/SE-AutoReviewComments" target="_blank">here</a>.',
-      function() {});
-  } else if (LastUpdateCheckDay != today) {
-    updateCheck(function(newver, oldver, install_url) {
-      if (newver != GetStorage("LastVersionAcknowledged")) {
-        ShowMessage(popup, "New Version!", 'A new version (' + newver + ') of the <a href="http://stackapps.com/q/2116">AutoReviewComments</a> userscript is now available, see the <a href="https://github.com/Benjol/SE-AutoReviewComments/releases">release notes</a> for details or <a href="' + install_url + '">click here</a> to install now.',
-          function() {
-            SetStorage("LastVersionAcknowledged", newver);
-          });
-      }
-    });
-  }
-  SetStorage("LastUpdateCheckDay", today);
-}
 
 /* How does this work?
    1. The installed script loads first, and sets the local VERSION variable with the currently installed version number
@@ -130,8 +61,8 @@ function CheckForNewVersion(popup) {
 
     // These are injection markers and MUST use single-quotes.
     // The injected strings use double-quotes themselves, so that would result in parser errors.
-    var cssTemplate = '<style>.auto-review-comments.popup{position:absolute;display:block;width:690px;padding:15px 15px 10px}.auto-review-comments.popup .float-left{float:left}.auto-review-comments.popup .float-right{float:right}.auto-review-comments.popup .throbber{display:none}.auto-review-comments.popup .remoteerror{color:red}.auto-review-comments.popup>div>textarea{width:100%;height:442px}.auto-review-comments.popup .main{overflow:hidden}.auto-review-comments.popup .main .userinfo{padding:5px;margin-bottom:7px;background:#eaefef}.auto-review-comments.popup .main .action-list{height:440px;margin:0 0 7px 0 !important;overflow-y:auto}.auto-review-comments.popup .main .action-list li{width:100%;padding:0;transition:.1s}.auto-review-comments.popup .main .action-list li:hover{background-color:#f2f2f2}.auto-review-comments.popup .main .action-list li.action-selected:hover{background-color:#e6e6e6}.auto-review-comments.popup .main .action-list li input{display:none}.auto-review-comments.popup .main .action-list li label{position:relative;display:block;padding:10px}.auto-review-comments.popup .main .action-list li label .action-name{display:block;margin-bottom:3px;cursor:default}.auto-review-comments.popup .main .action-list li label .action-desc{margin:0;color:#888;cursor:default}.auto-review-comments.popup .main .action-list li label .action-name textarea,.auto-review-comments.popup .main .action-list li label .action-desc textarea{width:99%;margin:0 0 -4px 0}.auto-review-comments.popup .main .action-list li label .action-desc textarea{height:42px}.auto-review-comments.popup .main .action-list li label .quick-insert{display:none;position:absolute;top:0;right:0;height:100%;margin:0;font-size:300%;color:transparent;border:0;transition:.3s;text-shadow:0 0 1px #fff;cursor:pointer;background-color:rgba(0,0,0,0.1);background:rgba(0,0,0,0.1);box-shadow:none;-moz-box-shadow:none;-webkit-box-shadow:none}.auto-review-comments.popup .main .action-list li:hover label .quick-insert{display:block}.auto-review-comments.popup .main .action-list li label .quick-insert:hover{background-color:#222;color:#fff}.auto-review-comments.popup .main .share-tip{display:none}.auto-review-comments.popup .main .share-tip .customwelcome{width:300px}.auto-review-comments.popup .main .share-tip .remoteurl{display:block;width:400px}.auto-review-comments.popup .actions,.auto-review-comments.popup .main .popup-actions .actions{margin:6px}.auto-review-comments.popup .main .popup-actions .popup-submit{float:none;margin:0 0 5px 0}.auto-review-comments.announcement{padding:7px;margin-bottom:10px;background:orange;font-size:15px}.auto-review-comments.announcement .notify-close{display:block;float:right;margin:0 4px;padding:0 4px;border:2px solid black;cursor:pointer;line-height:17px}.auto-review-comments.announcement .notify-close a{color:black;text-decoration:none;font-weight:bold;font-size:16px}.auto-review-comments.popup .main .searchbox{display:none}.auto-review-comments.popup .main .searchfilter{width:100%;box-sizing:border-box;display:block}</style>';
-    var markupTemplate = '<div class="auto-review-comments popup" id="popup"> <div class="popup-close" id="close"><a title="close this popup (or hit Esc)">&#215;</a></div> <h2 class="handle">Which review comment to insert?</h2> <div class="main" id="main"> <div class="popup-active-pane"> <div class="userinfo" id="userinfo"> <img src="//sstatic.net/img/progress-dots.gif"/> </div> <div class="searchbox"> <input type="search" class="searchfilter" placeholder="filter the comments list"/> </div> <ul class="action-list"> </ul> </div> <div class="share-tip" id="remote-popup"> enter url for remote source of comments (use import/export to create jsonp) <input class="remoteurl" id="remoteurl" type="text"/> <img class="throbber" id="throbber1" src="//sstatic.net/img/progress-dots.gif"/> <span class="remoteerror" id="remoteerror1"></span> <div class="float-left"> <input type="checkbox" id="remoteauto"/> <label title="get from remote on every page refresh" for="remoteauto">auto-get</label> </div> <div class="float-right"> <a class="remote-get">get now</a> <span class="lsep"> | </span> <a class="remote-save">save</a> <span class="lsep"> | </span> <a class="remote-cancel">cancel</a> </div> </div> <div class="share-tip" id="welcome-popup"> configure "welcome" message (empty=none): <div> <input class="customwelcome" id="customwelcome" type="text"/> </div> <div class="float-right"> <a class="welcome-force">force</a> <span class="lsep"> | </span> <a class="welcome-save">save</a> <span class="lsep"> | </span> <a class="welcome-cancel">cancel</a> </div> </div> <div class="popup-actions"> <div class="float-left actions"> <a title="close this popup (or hit Esc)" class="popup-actions-cancel">cancel</a> <span class="lsep"> | </span> <a title="see info about this popup (v1.4.7)" class="popup-actions-help" href="//github.com/Benjol/SE-AutoReviewComments" target="_blank">info</a> <span class="lsep"> | </span> <a class="popup-actions-see">see-through</a> <span class="lsep"> | </span> <a title="filter comments by keyword" class="popup-actions-filter">filter</a> <span class="lsep"> | </span> <a title="reset any custom comments" class="popup-actions-reset">reset</a> <span class="lsep"> | </span> <a title="use this to import/export all comments" class="popup-actions-impexp">import/export</a> <span class="lsep"> | </span> <a title="use this to hide/show all comments" class="popup-actions-toggledesc">show/hide desc</a> <span class="lsep"> | </span> <a title="setup remote source" class="popup-actions-remote">remote</a> <img class="throbber" id="throbber2"src="//sstatic.net/img/progress-dots.gif"/> <span class="remoteerror" id="remoteerror2"></span> <span class="lsep"> | </span> <a title="configure welcome" class="popup-actions-welcome">welcome</a> </div> <div class="float-right"> <input class="popup-submit" type="button" disabled="disabled" value="Insert"> </div> </div> </div> </div>';
+    var cssTemplate = '<style>.auto-review-comments.popup{position:absolute;display:block;width:690px;padding:15px 15px 10px;z-index:9100}.auto-review-comments.popup .float-left{float:left}.auto-review-comments.popup .float-right{float:right}.auto-review-comments.popup .throbber{display:none}.auto-review-comments.popup .remoteerror{color:red}.auto-review-comments.popup>div>textarea{width:100%;height:442px}.auto-review-comments.popup .main{overflow:hidden}.auto-review-comments.popup .main .userinfo{padding:5px;margin-bottom:7px;background:#8C8F8F}.auto-review-comments.popup .main .action-list{height:440px;margin:0 0 7px 0 !important;overflow-y:auto}.auto-review-comments.popup .main .action-list li{width:100%;padding:0;transition:.1s}.auto-review-comments.popup .main .action-list li:hover{background-color:#868686}.auto-review-comments.popup .main .action-list li.action-selected:hover{background-color:#e6e6e6}.auto-review-comments.popup .main .action-list li input{display:none}.auto-review-comments.popup .main .action-list li label{position:relative;display:block;padding:10px}.auto-review-comments.popup .main .action-list li label .action-name{display:block;margin-bottom:3px;cursor:default}.auto-review-comments.popup .main .action-list li label .action-desc{margin:0;color:#282828;cursor:default}.auto-review-comments.popup .main .action-list li label .action-name textarea,.auto-review-comments.popup .main .action-list li label .action-desc textarea{width:99%;margin:0 0 -4px 0}.auto-review-comments.popup .main .action-list li label .action-desc textarea{height:42px}.auto-review-comments.popup .main .action-list li label .quick-insert{display:none;position:absolute;top:0;right:0;height:100%;margin:0;font-size:300%;color:transparent;border:0;transition:.3s;text-shadow:0 0 1px #fff;cursor:pointer;background-color:rgba(0,0,0,0.1);background:rgba(0,0,0,0.1);box-shadow:none;-moz-box-shadow:none;-webkit-box-shadow:none}.auto-review-comments.popup .main .action-list li:hover label .quick-insert{display:block}.auto-review-comments.popup .main .action-list li label .quick-insert:hover{background-color:#222;color:#fff}.auto-review-comments.popup .main .share-tip{display:none}.auto-review-comments.popup .main .share-tip .customwelcome{width:300px}.auto-review-comments.popup .main .share-tip .remoteurl{display:block;width:400px}.auto-review-comments.popup .actions,.auto-review-comments.popup .main .popup-actions .actions{margin:6px}.auto-review-comments.popup .main .popup-actions .popup-submit{float:none;margin:0 0 5px 0}.auto-review-comments.announcement{padding:7px;margin-bottom:10px;background:orange;font-size:15px}.auto-review-comments.announcement .notify-close{display:block;float:right;margin:0 4px;padding:0 4px;border:2px solid black;cursor:pointer;line-height:17px}.auto-review-comments.announcement .notify-close a{color:black;text-decoration:none;font-weight:bold;font-size:16px}.auto-review-comments.popup .main .searchbox{display:none}.auto-review-comments.popup .main .searchfilter{width:100%;box-sizing:border-box;display:block}</style>';
+    var markupTemplate = '<div class="auto-review-comments popup" id="popup"> <div class="popup-close" id="close"><a title="close this popup (or hit Esc)">&#215;</a></div> <h2 class="handle">Which review comment to insert?</h2> <div class="main" id="main"> <div class="popup-active-pane"> <div class="userinfo" id="userinfo"> <img src="//sstatic.net/img/progress-dots.gif"/> </div> <div class="searchbox"> <input type="search" class="searchfilter" placeholder="filter the comments list"/> </div> <ul class="action-list"> </ul> </div> <div class="share-tip" id="remote-popup"> enter url for remote source of comments (use import/export to create jsonp) <input class="remoteurl" id="remoteurl" type="text"/> <img class="throbber" id="throbber1" src="//sstatic.net/img/progress-dots.gif"/> <span class="remoteerror" id="remoteerror1"></span> <div class="float-left"> <input type="checkbox" id="remoteauto"/> <label title="get from remote on every page refresh" for="remoteauto">auto-get</label> </div> <div class="float-right"> <a class="remote-get">get now</a> <span class="lsep"> | </span> <a class="remote-save">save</a> <span class="lsep"> | </span> <a class="remote-cancel">cancel</a> </div> </div> <div class="share-tip" id="welcome-popup"> configure "welcome" message (empty=none): <div> <input class="customwelcome" id="customwelcome" type="text"/> </div> <div class="float-right"> <a class="welcome-force">force</a> <span class="lsep"> | </span> <a class="welcome-save">save</a> <span class="lsep"> | </span> <a class="welcome-cancel">cancel</a> </div> </div> <div class="popup-actions"> <div class="float-left actions"> <a title="close this popup (or hit Esc)" class="popup-actions-cancel">cancel</a> <span class="lsep"> | </span> <a title="see info about this popup (v1.4.8)" class="popup-actions-help" href="//github.com/Benjol/SE-AutoReviewComments" target="_blank">info</a> <span class="lsep"> | </span> <a class="popup-actions-see">see-through</a> <span class="lsep"> | </span> <a title="filter comments by keyword" class="popup-actions-filter">filter</a> <span class="lsep"> | </span> <a title="reset any custom comments" class="popup-actions-reset">reset</a> <span class="lsep"> | </span> <a title="use this to import/export all comments" class="popup-actions-impexp">import/export</a> <span class="lsep"> | </span> <a title="use this to hide/show all comments" class="popup-actions-toggledesc">show/hide desc</a> <span class="lsep"> | </span> <a title="setup remote source" class="popup-actions-remote">remote</a> <img class="throbber" id="throbber2"src="//sstatic.net/img/progress-dots.gif"/> <span class="remoteerror" id="remoteerror2"></span> <span class="lsep"> | </span> <a title="configure welcome" class="popup-actions-welcome">welcome</a> </div> <div class="float-right"> <input class="popup-submit" type="button" disabled="disabled" value="Insert"> </div> </div> </div> </div>';
     var messageTemplate = '<div class="auto-review-comments announcement" id="announcement"> <span class="notify-close"> <a title="dismiss this notification">x</a> </span> <strong>$TITLE$</strong> $BODY$ </div>';
     var optionTemplate = '<li> <input id="comment-$ID$" type="radio" name="commentreview"/> <label for="comment-$ID$"> <span id="name-$ID$" class="action-name">$NAME$</span> <span id="desc-$ID$" class="action-desc">$DESCRIPTION$</span> <button class="quick-insert" title="Insert now">↓</button> </label> </li>';
 
@@ -828,7 +759,7 @@ function CheckForNewVersion(popup) {
     }
     attachAutoLinkInjector(".js-add-link", findCommentElements, injectAutoLink, autoLinkAction);
     attachAutoLinkInjector(".edit-post", findEditSummaryElements, injectAutoLinkEdit, autoLinkAction);
-    attachAutoLinkInjector(".close-question-link", findClosureElements, injectAutoLinkClosure, autoLinkAction);
+    attachAutoLinkInjector(".js-close-question-link", findClosureElements, injectAutoLinkClosure, autoLinkAction);
     attachAutoLinkInjector(".review-actions input:first", findReviewQueueElements, injectAutoLinkReviewQueue, autoLinkAction);
 
     /**
@@ -862,8 +793,8 @@ function CheckForNewVersion(popup) {
      *                     comment should be placed.
      */
     function findClosureElements(where) {
-      var injectNextTo = $(".close-as-off-topic-pane textarea");
-      var placeCommentIn = injectNextTo;
+        var injectNextTo = $("#site-specific-comment .text-counter");
+        var placeCommentIn = $("#site-specific-comment textarea");
       return [injectNextTo, placeCommentIn];
     }
     /**
@@ -1042,13 +973,6 @@ function CheckForNewVersion(popup) {
       var userid = getUserId(targetObject);
       getUserInfo(userid, popup);
       OP = getOP();
-
-      //We only actually perform the updates check when someone clicks, this should make it less costly, and more timely
-      //also wrap it so that it only gets called the *FIRST* time we open this dialog on any given page (not much of an optimisation).
-      if (typeof CheckForNewVersion == "function" && !window.VersionChecked) {
-        CheckForNewVersion(popup); // eslint-disable-line no-undef 
-        window.VersionChecked = true;
-      }
     }
   });
 });
