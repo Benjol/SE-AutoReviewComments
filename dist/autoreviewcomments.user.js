@@ -3,11 +3,11 @@
 // @name           AutoReviewComments
 // @namespace      benjol
 // @author         benjol, Machavity
-// @version        1.5.1
+// @version        1.6.0
 // @description    No more re-typing the same comments over and over!
 // @homepage       https://github.com/Benjol/SE-AutoReviewComments
-// @updateURL    https://github.com/machavity/SE-AutoReviewComments/raw/master/dist/autoreviewcomments.user.js
-// @downloadURL  https://github.com/machavity/SE-AutoReviewComments/raw/master/dist/autoreviewcomments.user.js
+// @updateURL    https://github.com/Benjol/SE-AutoReviewComments/raw/master/dist/autoreviewcomments.user.js
+// @downloadURL  https://github.com/Benjol/SE-AutoReviewComments/raw/master/dist/autoreviewcomments.user.js
 // @grant          none
 // @include /^https?:\/\/(.*\.)?stackoverflow\.com/.*$/
 // @include /^https?:\/\/(.*\.)?serverfault\.com/.*$/
