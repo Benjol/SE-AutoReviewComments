@@ -3,7 +3,7 @@
 // @name           AutoReviewComments
 // @namespace      benjol
 // @author         benjol, Machavity
-// @version        1.6.0
+// @version        1.6.1
 // @description    No more re-typing the same comments over and over!
 // @homepage       https://github.com/Benjol/SE-AutoReviewComments
 // @updateURL    https://github.com/Benjol/SE-AutoReviewComments/raw/master/dist/autoreviewcomments.user.js
@@ -21,6 +21,8 @@
 // @exclude *://chat.stackexchange.com/*
 // @exclude *://chat.stackoverflow.com/*
 // @exclude *://chat.meta.stackexchange.com/*
+// @exclude *://chat.meta.stackexchange.com/*
+// @exclude *://data.stackexchange.com/*
 
 // ==/UserScript==
 */
@@ -944,7 +946,7 @@ with_jquery(function($) {
       popup.find(".popup-submit").click(function() {
         var selected = popup.find("input:radio:checked");
         var markdown = htmlToMarkDown(selected.parent().find(".action-desc").html()).replace(/\[username\]/g, username).replace(/\[OP\]/g, OP);
-        targetObject.val(markdown).focus(); //focus provokes character count test
+        targetObject.val(markdown).trigger('input').focus(); //focus provokes character count test
         var caret = markdown.indexOf("[type here]");
         if (caret >= 0) targetObject[0].setSelectionRange(caret, caret + "[type here]".length);
         popup.fadeOutAndRemove();
