@@ -1,6 +1,6 @@
-> The project is currently no longer maintained, sorry. </br>
+> The project (besides the user script) is currently no longer maintained, sorry. </br>
 
-<br />
+<br/>
 <div align="center">
   <h1 align="center">AutoReviewComments</h1>
 
@@ -25,7 +25,8 @@
     + [Mozilla Firefox](#mozilla-firefox)
     + [Google Chrome](#google-chrome)
     + [Opera](#opera)
-    + [Other browsers, including Safari:](#other-browsers-including-safari)
+    + [Other browsers, including Safari](#other-browsers-including-safari)
+- [SOCVR Auto Comments](#so-close-vote-reviewers-auto-comments-listing)
 - [Privacy policy](#privacy-policy)
 - [Credits](#credits)
 
@@ -96,6 +97,8 @@ This script was inspired by answers to [this question on meta][1]. See also [her
 
 ## Installation
 
+Add-ons are currently no longer maintaned. Use the [user script][9] with [Grease Monley][10] for the latest version.
+
 #### Mozilla Firefox
 
 The [Firefox add-on][7] is deprecated until further notice, because of breaking changes in their security requirements. If you want to take on the update, details are [here][8]. Pending that time, use the [user script][9] with [Grease Monkey][10].
@@ -108,11 +111,15 @@ The [Firefox add-on][7] is deprecated until further notice, because of breaking 
 
 [Install the add-on][12].
 
-#### Other browsers, including Safari:
+#### Other browsers, including Safari
 
 You can download the [user script][9] or [preview the code][13].
 
 Here are some [useful browser-specific instructions][14] on getting it to work. For more information about user scripts, check out the [[tag:script] tag wiki][14].
+
+## SO Close Vote Reviewers Auto Comments Listing
+
+If you want to use the AutoReviewComments along with the collection of SO Close Vote Reviewers comments, you can refer to [SOCVR's Auto Comments repository][44]. Want to have your comments always be in sync with that repo? Follow the instructions at [comments.socvr.org][45].
 
 ## Privacy policy
 (Because Chrome store wants it)
@@ -182,3 +189,6 @@ All the people who noted bugs and made suggestions in the comments and answers [
   [41]: https://github.com/Benjol/SE-AutoReviewComments/releases/tag/v1.3.2
   [42]: https://github.com/Benjol/SE-AutoReviewComments/commits?author=IzzySoft
   [43]: http://stackapps.com/q/2116
+  [44]: https://github.com/SO-Close-Vote-Reviewers/auto-comments
+  [45]: https://comments.socvr.org/
+  
