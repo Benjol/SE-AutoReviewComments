@@ -832,7 +832,7 @@ with_jquery(function($) {
       var _autoLinkAction = function() {
         what(placeCommentIn, posttype);
       };
-      var autoLink = $("<span class=\"lsep\"> | </span>").add($("<a class=\"comment-auto-link\">auto</a>").click(_autoLinkAction));
+      var autoLink = $("<span class=\"lsep\"> | </span>").add($("<a class=\"comment-auto-link\">Auto</a>").click(_autoLinkAction));
       autoLink.insertAfter(where);
     }
     /**
