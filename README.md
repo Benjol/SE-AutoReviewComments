@@ -119,7 +119,7 @@ Here are some [useful browser-specific instructions][14] on getting it to work. 
 
 ## SO Close Vote Reviewers Auto Comments Listing
 
-If you want to use the AutoReviewComments along with the collection of SO Close Vote Reviewers comments, you can refer to [SOCVR's Auto Comments repository][44]. Want to have your comments always be in sync with that repo? Follow the instructions at [comments.socvr.org][45].
+If you want to use the AutoReviewComments along with the collection of SO Close Vote Reviewers comments, you can refer to [SOCVR's Auto Comments repository][44]. Want to have your comments always be in sync with that repo? Follow the instructions at [socvr.org][45].
 
 ## Privacy policy
 (Because Chrome store wants it)
@@ -189,6 +189,6 @@ All the people who noted bugs and made suggestions in the comments and answers [
   [41]: https://github.com/Benjol/SE-AutoReviewComments/releases/tag/v1.3.2
   [42]: https://github.com/Benjol/SE-AutoReviewComments/commits?author=IzzySoft
   [43]: http://stackapps.com/q/2116
-  [44]: https://github.com/SO-Close-Vote-Reviewers/auto-comments
-  [45]: https://comments.socvr.org/
+  [44]: https://github.com/SO-Close-Vote-Reviewers/socvr.org/tree/main/comments
+  [45]: https://socvr.org/tools.html
   
