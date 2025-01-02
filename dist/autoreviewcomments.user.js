@@ -3,7 +3,7 @@
 // @name           AutoReviewComments
 // @namespace      benjol
 // @author         benjol, Machavity
-// @version        1.6.1
+// @version        1.6.2
 // @description    No more re-typing the same comments over and over!
 // @homepage       https://github.com/Benjol/SE-AutoReviewComments
 // @updateURL    https://github.com/Benjol/SE-AutoReviewComments/raw/master/dist/autoreviewcomments.user.js
@@ -281,7 +281,7 @@ with_jquery(function($) {
     //Show textarea in front of popup to import/export all comments (for other sites or for posting somewhere)
     function ImportExport(popup) {
       var tohide = popup.find("#main");
-      var div = $("<div><textarea/><div class=\"actions\"><a class=\"jsonp\">jsonp</a><span class=\"lsep\"> | </span><a class=\"save\">save</a><span class=\"lsep\"> | </span><a class=\"cancel\">cancel</a></div></div>");
+      var div = $("<div><textarea></textarea><div class=\"actions\"><a class=\"jsonp\">jsonp</a><span class=\"lsep\"> | </span><a class=\"save\">save</a><span class=\"lsep\"> | </span><a class=\"cancel\">cancel</a></div></div>");
       //Painful, but shortest way I've found to position div over the tohide element
       div.css({
         position: "absolute",
