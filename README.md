@@ -97,23 +97,7 @@ This script was inspired by answers to [this question on meta][1]. See also [her
 
 ## Installation
 
-Add-ons are currently no longer maintaned. Use the [user script][9] with [Grease Monley][10] for the latest version.
-
-#### Mozilla Firefox
-
-The [Firefox add-on][7] is deprecated until further notice, because of breaking changes in their security requirements. If you want to take on the update, details are [here][8]. Pending that time, use the [user script][9] with [Grease Monkey][10].
-
-#### Google Chrome
-
-[Install the extension][11].
-
-#### Opera
-
-[Install the add-on][12].
-
-#### Other browsers, including Safari
-
-You can download the [user script][9] or [preview the code][13].
+Add-ons are currently $${\color{red}no \space longer \space maintained}$$. The UserScript library is still updated. You can [install the userscript][9] or [preview the code][13].
 
 Here are some [useful browser-specific instructions][14] on getting it to work. For more information about user scripts, check out the [[tag:script] tag wiki][14].
 
@@ -127,6 +111,22 @@ If you want to use the AutoReviewComments along with the collection of SO Close 
 We track nothing, we record nothing, we know nothing.
 
 Everything happens in your browser.
+
+## Extensions/Add-ons (DEPRECATED)
+
+$${\color{red}BROWSER \space EXTENSIONS \space ARE \space NO \space LONGER \space SUPPORTED}$$
+
+#### Mozilla Firefox
+
+The [Firefox add-on][7] is deprecated until further notice, because of breaking changes in their security requirements. If you want to take on the update, details are [here][8]. Pending that time, use the [user script][9] with [Grease Monkey][10].
+
+#### Google Chrome
+
+[Install the extension][11].
+
+#### Opera
+
+[Install the add-on][12].
 
 ## Credits
 
