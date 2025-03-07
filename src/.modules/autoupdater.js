@@ -53,23 +53,25 @@ function updateCheck(notifier) {
 // - called at the end of the main script if function exists
 function CheckForNewVersion(popup) {
   var today = (new Date().setHours(0, 0, 0, 0));
-  var LastUpdateCheckDay = GetStorage("LastUpdateCheckDay");
-  if (LastUpdateCheckDay == null) { //first time visitor
+  var LastUpdateCheckDay = settings.lastUpdateCheckDay;
+  if (LastUpdateCheckDay === 0) { //first time visitor
     ShowMessage(popup, "Please read this!", 'Thanks for installing this script. \
                             Please note that you can EDIT the texts inline by double-clicking them. \
                             For other options, please see the README at <a href="https://github.com/Benjol/SE-AutoReviewComments" target="_blank">here</a>.',
       function() {});
   } else if (LastUpdateCheckDay != today) {
     updateCheck(function(newver, oldver, install_url) {
-      if (newver != GetStorage("LastVersionAcknowledged")) {
+      if (newver !== settings.lastVersionAcknowledged) {
         ShowMessage(popup, "New Version!", 'A new version (' + newver + ') of the <a href="http://stackapps.com/q/2116">AutoReviewComments</a> userscript is now available, see the <a href="https://github.com/Benjol/SE-AutoReviewComments/releases">release notes</a> for details or <a href="' + install_url + '">click here</a> to install now.',
           function() {
-            SetStorage("LastVersionAcknowledged", newver);
+            settings.lastVersionAcknowledged = newver;
+            saveSettings();
           });
       }
     });
   }
-  SetStorage("LastUpdateCheckDay", today);
+  settings.lastUpdateCheckDay = today;
+  saveSettings();
 }
 
 /* How does this work?
