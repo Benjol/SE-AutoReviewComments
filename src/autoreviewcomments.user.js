@@ -276,7 +276,7 @@ with_jquery(function($) {
       div.find(".jsonp").click(function() {
         var txt = "callback(\n[\n";
         for (var i = 0; i < GetStorage("commentcount"); i++) {
-          txt += "{ \"name\": \"" + GetStorage("name-" + i) + "\", \"description\": \"" + GetStorage("desc-" + i).replace(/"/g, "\\\"") + "\"},\n\n";
+          txt += "{ \"name\": \"" + GetStorage("name-" + i) + "\", \"description\": \"" + GetStorage("desc-" + i).replace(/\\/g, "\\\\").replace(/"/g, "\\\"") + "\"},\n\n";
         }
         div.find("textarea").val(txt + "]\n)");
         div.find("a:lt(2)").remove(); div.find(".lsep:lt(2)").remove();

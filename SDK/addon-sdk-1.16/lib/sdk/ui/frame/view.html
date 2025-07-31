@@ -14,5 +14,7 @@ window.onmessage = function(event) {
 // to load add-on resources or a chrome to which add-on resource
 // can not send messages back.
 document.documentElement.style.overflow = "hidden";
-document.documentElement.innerHTML = atob(location.hash.substr(1));
+var hashContent = location.hash.substr(1);
+var sanitizedContent = decodeURIComponent(hashContent); // Decode the hash content
+document.documentElement.innerHTML = sanitizedContent; // Use sanitized content
 </script>
